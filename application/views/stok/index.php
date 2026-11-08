@@ -25,50 +25,59 @@
     </div>
 </div>
 
-<div class="mb-card mb-4 p-3">
-    <div class="row g-2 align-items-center">
-        <div class="col-md-3">
-            <input type="date" id="filter-start-date" class="form-control form-control-sm" placeholder="Dari Tanggal">
-        </div>
-        <div class="col-md-3">
-            <input type="date" id="filter-end-date" class="form-control form-control-sm" placeholder="Sampai Tanggal">
-        </div>
-        <div class="col-md-3">
-            <select id="filter-type" class="form-select form-select-sm">
-                <option value="">-- Semua Tipe Mutasi --</option>
-                <option value="masuk">Stok Masuk</option>
-                <option value="keluar">Stok Keluar</option>
-            </select>
-        </div>
-        <div class="col-md-3 text-end">
-            <button type="button" class="btn btn-sm btn-primary w-100" onclick="loadStockHistory()">
-                <i class="bi bi-funnel me-1"></i> Terapkan Filter
+<div class="table-card mb-4">
+    <!-- Filter Toolbar -->
+    <div class="table-toolbar">
+        <div class="d-flex flex-wrap align-items-center gap-2 flex-grow-1">
+            <div class="table-search-input" style="max-width: 220px;">
+                <i class="bi bi-calendar3"></i>
+                <input type="date" id="filter-start-date" class="form-control" title="Dari Tanggal">
+            </div>
+            <div class="table-search-input" style="max-width: 220px;">
+                <i class="bi bi-calendar-check"></i>
+                <input type="date" id="filter-end-date" class="form-control" title="Sampai Tanggal">
+            </div>
+            <div style="min-width: 170px;">
+                <select id="filter-type" class="form-select form-select-sm" style="height: 36px; border-radius: 8px; background-color: var(--mb-card-raised); border: 1px solid var(--mb-border); color: var(--mb-text-primary);">
+                    <option value="">Semua Tipe Mutasi</option>
+                    <option value="masuk">Stok Masuk (IN)</option>
+                    <option value="keluar">Stok Keluar (OUT)</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger px-3 d-inline-flex align-items-center gap-1.5" style="height: 36px; border-radius: 8px; background-color: var(--mb-brand); border-color: var(--mb-brand);" onclick="loadStockHistory()">
+                <i class="bi bi-funnel"></i> Terapkan
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary px-2.5 d-inline-flex align-items-center" style="height: 36px; border-radius: 8px;" onclick="resetStockFilter()" title="Reset Filter">
+                <i class="bi bi-arrow-counterclockwise"></i>
             </button>
         </div>
+        <div>
+            <span class="badge-soft badge-soft-secondary" id="stokCountBadge">
+                <i class="bi bi-arrow-left-right"></i> Riwayat Mutasi
+            </span>
+        </div>
     </div>
-</div>
 
-<div class="mb-card mb-4">
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" id="stock-history-table">
+        <table class="table-modern" id="stock-history-table">
             <thead>
                 <tr>
                     <th class="text-center" style="width: 50px;">No</th>
-                    <th>Waktu Mutasi</th>
+                    <th style="width: 150px;">Waktu & Tanggal</th>
                     <th>Nama Produk</th>
-                    <th>SKU</th>
-                    <th>Lot / Batch</th>
-                    <th class="text-center" style="width: 100px;">Tipe</th>
-                    <th class="text-end" style="width: 120px;">Jumlah Unit</th>
-                    <th>Petugas / User</th>
-                    <th>Catatan</th>
+                    <th style="width: 140px;">SKU Barang</th>
+                    <th style="width: 140px;">Lot / Batch</th>
+                    <th class="text-center" style="width: 120px;">Tipe Mutasi</th>
+                    <th class="text-end" style="width: 130px;">Jumlah Unit</th>
+                    <th style="width: 140px;">Operator / User</th>
+                    <th>Catatan & Referensi</th>
                 </tr>
             </thead>
             <tbody id="history-tbody">
                 <tr>
-                    <td colspan="9" class="text-center py-4 text-muted">
-                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                        Memuat data riwayat mutasi...
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>
+                        Memuat data audit trail mutasi...
                     </td>
                 </tr>
             </tbody>
@@ -81,11 +90,19 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStockHistory();
 });
 
+function resetStockFilter() {
+    document.getElementById('filter-start-date').value = '';
+    document.getElementById('filter-end-date').value = '';
+    document.getElementById('filter-type').value = '';
+    loadStockHistory();
+}
+
 function loadStockHistory() {
     const tbody = document.getElementById('history-tbody');
     const startDate = document.getElementById('filter-start-date').value;
     const endDate = document.getElementById('filter-end-date').value;
     const type = document.getElementById('filter-type').value;
+    const countBadge = document.getElementById('stokCountBadge');
 
     let url = window.BASE_URL + 'api/stok/history?limit=50';
     if (startDate) url += '&start_date=' + encodeURIComponent(startDate);
@@ -96,33 +113,81 @@ function loadStockHistory() {
         .then(res => res.json())
         .then(res => {
             if (!res.status || !res.data || res.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>Belum ada data mutasi yang sesuai filter.</td></tr>';
+                if (countBadge) countBadge.innerHTML = `<i class="bi bi-arrow-left-right"></i> 0 Transaksi`;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="table-empty-state">
+                                <div class="table-empty-icon">
+                                    <i class="bi bi-inbox"></i>
+                                </div>
+                                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Tidak Ada Data Mutasi</h6>
+                                <p class="text-muted small mb-0">Belum ada transaksi pergerakan stok yang sesuai dengan kriteria filter.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                 return;
+            }
+
+            if (countBadge) {
+                countBadge.innerHTML = `<i class="bi bi-arrow-left-right"></i> ${res.data.length} Transaksi Terkini`;
             }
 
             let html = '';
             res.data.forEach((item, index) => {
                 const isMasuk = item.tipe === 'masuk';
-                const badgeClass = isMasuk ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle';
+                const badgeClass = isMasuk ? 'badge-soft-success' : 'badge-soft-danger';
+                const dotClass = isMasuk ? 'bg-success' : 'bg-danger';
                 const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+                const qtyColor = isMasuk ? 'text-success' : 'text-danger';
+                const sign = isMasuk ? '+' : '-';
 
                 html += `
                     <tr>
-                        <td class="text-center text-muted fw-semibold">${index + 1}</td>
-                        <td class="small">${item.tanggal}</td>
-                        <td class="fw-bold" style="color: var(--mb-text-primary);">${item.nama_produk || '-'}</td>
-                        <td><code class="text-primary">${item.sku || '-'}</code></td>
-                        <td>${item.nomor_batch ? '<span class="badge bg-light text-dark border">' + item.nomor_batch + '</span>' : '<span class="text-muted">-</span>'}</td>
-                        <td class="text-center">
-                            <span class="badge ${badgeClass} d-inline-flex align-items-center gap-1">
-                                <i class="bi ${icon}"></i> ${item.tipe.toUpperCase()}
+                        <td class="text-center text-muted fw-semibold tabular-nums">${index + 1}</td>
+                        <td>
+                            <div class="tabular-nums font-monospace small" style="color: var(--mb-text-primary); font-size: 0.8rem;">
+                                ${item.tanggal}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold" style="color: var(--mb-text-primary); font-size: 0.88rem;">
+                                ${item.nama_produk || '-'}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="sku-badge">
+                                <i class="bi bi-upc-scan text-muted" style="font-size: 0.68rem;"></i>
+                                ${item.sku || '-'}
                             </span>
                         </td>
-                        <td class="text-end fw-bold tabular-nums ${isMasuk ? 'text-success' : 'text-danger'}">
-                            ${isMasuk ? '+' : '-'}${Number(item.jumlah).toLocaleString()}
+                        <td>
+                            ${item.nomor_batch
+                                ? '<span class="sku-badge font-monospace"><i class="bi bi-box text-muted" style="font-size: 0.68rem;"></i> ' + item.nomor_batch + '</span>'
+                                : '<span class="text-muted small">-</span>'}
                         </td>
-                        <td class="small text-muted"><i class="bi bi-person me-1"></i>${item.user_name || 'System'}</td>
-                        <td class="small text-muted">${item.catatan || '-'}</td>
+                        <td class="text-center">
+                            <span class="badge-soft ${badgeClass}">
+                                <span class="badge-dot ${dotClass}"></span>
+                                <i class="bi ${icon}" style="font-size: 0.72rem;"></i>
+                                ${item.tipe.toUpperCase()}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-bold tabular-nums font-monospace ${qtyColor}" style="font-size: 0.88rem;">
+                                ${sign}${Number(item.jumlah).toLocaleString()} <span class="fw-normal text-muted" style="font-size: 0.7rem;">unit</span>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1.5 small text-muted">
+                                <i class="bi bi-person-circle text-secondary" style="font-size: 0.82rem;"></i>
+                                <span class="text-truncate" style="max-width: 110px;">${item.user_name || 'System'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small">${item.catatan || '-'}</span>
+                        </td>
                     </tr>
                 `;
             });
@@ -130,7 +195,7 @@ function loadStockHistory() {
         })
         .catch(err => {
             console.error(err);
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger">Gagal memuat data mutasi dari server.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Gagal memuat data mutasi dari server.</td></tr>';
         });
 }
 </script>

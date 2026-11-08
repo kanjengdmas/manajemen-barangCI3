@@ -333,22 +333,25 @@
 
     tbody.innerHTML = items.map((item, idx) => {
       const isHabis = Number(item.stok) <= 0;
-      const badgeClass = isHabis ? 'bg-danger text-white' : 'bg-warning text-dark';
+      const badgeClass = isHabis ? 'badge-soft-danger' : 'badge-soft-warning';
+      const dotClass = isHabis ? 'bg-danger' : 'bg-warning';
       const badgeText = isHabis ? 'Habis' : 'Menipis';
 
       return `
         <tr>
-          <td class="text-muted text-center">${idx + 1}</td>
+          <td class="text-muted text-center tabular-nums fw-semibold">${idx + 1}</td>
           <td>
-            <div class="fw-semibold text-truncate" style="max-width: 180px;">${escapeHtml(item.nama_produk)}</div>
-            <div class="text-muted small tabular-nums">${escapeHtml(item.sku || '-')}</div>
+            <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;">${escapeHtml(item.nama_produk)}</div>
+            <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">${escapeHtml(item.sku || '-')}</span>
           </td>
-          <td class="text-center">
-            <span class="fw-bold tabular-nums ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</span>
+          <td class="text-end">
+            <span class="fw-bold tabular-nums font-monospace ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</span>
           </td>
-          <td class="text-center text-muted tabular-nums">${Number(item.stok_minimal).toLocaleString()}</td>
+          <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;">${Number(item.stok_minimal).toLocaleString()}</td>
           <td class="text-center">
-            <span class="badge ${badgeClass} rounded-pill px-2 py-1 font-monospace" style="font-size: 0.7rem;">${badgeText}</span>
+            <span class="badge-soft ${badgeClass}" style="font-size: 0.68rem; padding: 2px 7px;">
+              <span class="badge-dot ${dotClass}"></span> ${badgeText}
+            </span>
           </td>
         </tr>`;
     }).join('');
