@@ -12,10 +12,6 @@ class Auth extends Public_Controller {
      * Show login form
      */
     public function index() {
-        if ($this->session->userdata('logged_in')) {
-            redirect('dashboard');
-        }
-
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
             return $this->attempt();
         }

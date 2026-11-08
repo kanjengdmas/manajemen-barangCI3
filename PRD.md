@@ -4,7 +4,7 @@
 > **Versi**: 2.6.0 (CI3 Edition)  
 > **Terakhir Diperbarui**: November 2026  
 > **Status**: Migrasi stack — Laravel + React → CodeIgniter 3  
-> **Repository**: [CallMeBustanul16/Manajemen-Barang](https://github.com/CallMeBustanul16/Manajemen-Barang) *(sesuaikan jika memakai repo/branch baru untuk versi CI3)*  
+> **Repository**: [kanjengdmas/manajemen-barangCI3](https://github.com/kanjengdmas/manajemen-barangCI3)  
 
 ---
 
