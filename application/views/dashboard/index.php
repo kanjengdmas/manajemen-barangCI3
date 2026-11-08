@@ -245,39 +245,47 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table-quiet">
+                <table class="table-modern">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 32px;">No</th>
+                            <th class="text-center" style="width: 36px;">No</th>
                             <th>Produk & SKU</th>
-                            <th class="text-center">Stok</th>
-                            <th class="text-center">Min</th>
-                            <th class="text-center">Status</th>
+                            <th class="text-end" style="width: 90px;">Stok</th>
+                            <th class="text-end" style="width: 75px;">Min</th>
+                            <th class="text-center" style="width: 95px;">Status</th>
                         </tr>
                     </thead>
                     <tbody id="low-stock-tbody">
                         <?php if (!empty($low_stock_products)): ?>
                             <?php foreach ($low_stock_products as $idx => $p): ?>
                                 <?php
-                                $isHabis = ((int) $p['stok']) <= 0;
+                                $stok = (int) $p['stok'];
+                                $minStok = (int) $p['stok_minimal'];
+                                $isHabis = $stok <= 0;
                                 ?>
                                 <tr>
-                                    <td class="text-muted text-center"><?= $idx + 1; ?></td>
+                                    <td class="text-muted text-center tabular-nums fw-semibold"><?= $idx + 1; ?></td>
                                     <td>
-                                        <div class="fw-semibold text-truncate" style="max-width: 170px;"><?= html_escape($p['nama_produk']); ?></div>
-                                        <div class="text-muted small tabular-nums"><?= html_escape($p['sku'] ?? '-'); ?></div>
+                                        <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;"><?= html_escape($p['nama_produk']); ?></div>
+                                        <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">
+                                            <?= html_escape($p['sku'] ?? '-'); ?>
+                                        </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span class="fw-bold tabular-nums <?= $isHabis ? 'text-danger' : 'text-warning'; ?>">
+                                    <td class="text-end">
+                                        <span class="fw-bold tabular-nums font-monospace <?= $isHabis ? 'text-danger' : 'text-warning'; ?>">
                                             <?= number_format($p['stok']); ?>
                                         </span>
                                     </td>
-                                    <td class="text-center text-muted tabular-nums"><?= number_format($p['stok_minimal']); ?></td>
+                                    <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;"><?= number_format($p['stok_minimal']); ?></td>
                                     <td class="text-center">
                                         <?php if ($isHabis): ?>
-                                            <span class="badge bg-danger rounded-pill px-2 py-1 font-monospace" style="font-size: 0.7rem;">Habis</span>
+                                            <span class="badge-soft badge-soft-danger" style="font-size: 0.68rem; padding: 2px 7px;">
+                                                <span class="badge-dot bg-danger"></span> Habis
+                                            </span>
                                         <?php else: ?>
-                                            <span class="badge bg-warning text-dark rounded-pill px-2 py-1 font-monospace" style="font-size: 0.7rem;">Menipis</span>
+                                            <span class="badge-soft badge-soft-warning" style="font-size: 0.68rem; padding: 2px 7px;">
+                                                <span class="badge-dot bg-warning"></span> Menipis
+                                            </span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
