@@ -32,8 +32,8 @@ class Dashboard extends MY_Controller {
         // 5. Category distribution
         $categoryDistribution = $this->Produk_model->get_category_distribution();
 
-        // 6. Recent activities (10 latest transactions)
-        $recentActivities = $this->Stok_model->get_recent_activities(10);
+        // 6. Recent activities (15 latest transactions for scrollable stream)
+        $recentActivities = $this->Stok_model->get_recent_activities(15);
 
         // 7. System & user settings
         $settings = [

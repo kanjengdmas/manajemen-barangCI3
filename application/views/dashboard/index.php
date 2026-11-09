@@ -410,63 +410,176 @@
 </div>
 
 <!-- 4. Recent Stock Activity Log -->
-<div class="mb-card mb-4">
-    <div class="mb-card-header">
-        <div>
-            <h3 class="mb-card-title">
-                <i class="bi bi-clock-history text-danger"></i> Aktivitas Mutasi Terkini
-            </h3>
-            <p class="mb-card-subtitle">Catatan 10 transaksi mutasi barang terakhir di gudang</p>
+<div class="table-card mb-4">
+    <div class="table-toolbar flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h3 class="mb-card-title mb-0" style="font-size: 0.95rem;">
+                        <i class="bi bi-clock-history text-danger me-1.5"></i> Aktivitas Mutasi Terkini
+                    </h3>
+                    <span class="badge-soft badge-soft-secondary d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.68rem; padding: 2px 7px;" title="Tabel ini dilengkapi fitur scroll vertikal">
+                        <i class="bi bi-arrows-vertical text-muted"></i> Scrollable
+                    </span>
+                </div>
+                <p class="text-muted small mb-0" style="font-size: 0.75rem;">
+                    Catatan 15 transaksi pergerakan barang terakhir di gudang (scroll untuk melihat lebih banyak)
+                </p>
+            </div>
         </div>
-        <a href="<?= site_url('stok'); ?>" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
-            <span>Lihat Riwayat Lengkap</span> <i class="bi bi-arrow-right"></i>
-        </a>
+
+        <div class="d-flex align-items-center gap-2.5 ms-auto flex-wrap">
+            <!-- Segmented Filter Pills -->
+            <div class="dashboard-filter-pills" id="activity-type-filter">
+                <button type="button" class="dashboard-filter-btn active" data-filter="all">
+                    <span>Semua</span>
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-1.5 py-0.5" style="font-size: 0.65rem;" id="filter-count-all"><?= count($recent_activities ?? []); ?></span>
+                </button>
+                <button type="button" class="dashboard-filter-btn" data-filter="masuk">
+                    <span class="badge-dot bg-success"></span>
+                    <span>Masuk</span>
+                </button>
+                <button type="button" class="dashboard-filter-btn" data-filter="keluar">
+                    <span class="badge-dot bg-danger"></span>
+                    <span>Keluar</span>
+                </button>
+            </div>
+
+            <a href="<?= site_url('stok'); ?>" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold" style="font-size: 0.76rem;">
+                <span>Riwayat Lengkap</span> <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
     </div>
 
-    <div id="recent-activities-container">
-        <?php if (!empty($recent_activities)): ?>
-            <?php foreach ($recent_activities as $act): ?>
-                <?php
-                $isMasuk = $act['tipe'] === 'masuk';
-                $iconClass = $isMasuk ? 'bi-arrow-down-left text-success' : 'bi-arrow-up-right text-danger';
-                ?>
-                <div class="d-flex align-items-center justify-content-between py-2.5 border-bottom border-subtle">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center"
-                             style="width: 36px; height: 36px; background-color: var(--mb-surface-hover);">
-                            <i class="bi <?= $iconClass; ?> fs-6"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold text-truncate" style="max-width: 280px; color: var(--mb-text-primary);">
-                                <?= html_escape($act['nama_produk'] ?? 'Produk'); ?>
-                            </div>
-                            <div class="text-muted small">
+    <div class="table-responsive table-scroll-container">
+        <table class="table-modern" id="recent-activities-table">
+            <thead>
+                <tr>
+                    <th style="width: 140px;">Waktu</th>
+                    <th class="text-center" style="width: 110px;">Tipe</th>
+                    <th>Produk &amp; SKU</th>
+                    <th style="width: 160px;">Batch / Lot</th>
+                    <th class="text-end" style="width: 120px;">Kuantitas</th>
+                    <th style="width: 180px;">Petugas &amp; Catatan</th>
+                </tr>
+            </thead>
+            <tbody id="recent-activities-tbody">
+                <?php if (!empty($recent_activities)): ?>
+                    <?php foreach ($recent_activities as $act): ?>
+                        <?php
+                        $isMasuk = $act['tipe'] === 'masuk';
+                        $timeObj = strtotime($act['tanggal']);
+                        $timeDiff = time() - $timeObj;
+                        if ($timeDiff < 60) {
+                            $relativeTime = 'Baru saja';
+                        } elseif ($timeDiff < 3600) {
+                            $relativeTime = floor($timeDiff / 60) . ' mnt lalu';
+                        } elseif ($timeDiff < 86400) {
+                            $relativeTime = floor($timeDiff / 3600) . ' jam lalu';
+                        } else {
+                            $relativeTime = date('d M Y', $timeObj);
+                        }
+
+                        $userName = !empty($act['user_name']) ? $act['user_name'] : 'Petugas';
+                        $words = explode(' ', trim($userName));
+                        $initials = strtoupper(substr($words[0], 0, 1) . (isset($words[1]) ? substr($words[1], 0, 1) : ''));
+                        ?>
+                        <tr class="activity-row" data-type="<?= $act['tipe']; ?>">
+                            <td>
+                                <div class="fw-semibold tabular-nums" style="font-size: 0.82rem; color: var(--mb-text-primary);">
+                                    <?= date('d M Y', $timeObj); ?>
+                                </div>
+                                <div class="text-muted tabular-nums d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                                    <i class="bi bi-clock"></i> <?= date('H:i', $timeObj); ?>
+                                    <span class="text-muted opacity-75">· <?= $relativeTime; ?></span>
+                                </div>
+                            </td>
+                            <td class="text-center">
                                 <?php if ($isMasuk): ?>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Masuk</span>
+                                    <span class="badge-soft badge-soft-success">
+                                        <span class="badge-dot bg-success"></span>
+                                        <i class="bi bi-arrow-down-left"></i> Masuk
+                                    </span>
                                 <?php else: ?>
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Keluar</span>
+                                    <span class="badge-soft badge-soft-danger">
+                                        <span class="badge-dot bg-danger"></span>
+                                        <i class="bi bi-arrow-up-right"></i> Keluar
+                                    </span>
                                 <?php endif; ?>
-                                <span class="ms-1 tabular-nums font-monospace fw-semibold"><?= number_format($act['jumlah']); ?> unit</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-truncate" style="max-width: 260px; color: var(--mb-text-primary); font-size: 0.85rem;" title="<?= html_escape($act['nama_produk'] ?? 'Produk'); ?>">
+                                    <?= html_escape($act['nama_produk'] ?? 'Produk'); ?>
+                                </div>
+                                <div class="mt-0.5">
+                                    <span class="sku-badge" style="font-size: 0.68rem; padding: 1px 6px;">
+                                        <i class="bi bi-upc-scan text-muted" style="font-size: 0.65rem;"></i>
+                                        <?= html_escape($act['sku'] ?? '-'); ?>
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
                                 <?php if (!empty($act['nomor_batch'])): ?>
-                                    <span class="ms-1 text-muted">· Lot: <?= html_escape($act['nomor_batch']); ?></span>
+                                    <div class="sku-badge font-monospace" style="font-size: 0.72rem; padding: 2px 7px;">
+                                        <i class="bi bi-box-seam text-muted" style="font-size: 0.68rem;"></i>
+                                        <?= html_escape($act['nomor_batch']); ?>
+                                    </div>
+                                    <?php if (!empty($act['lokasi_rak'])): ?>
+                                        <div class="text-muted mt-0.5 d-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                                            <i class="bi bi-geo-alt"></i> Rak: <?= html_escape($act['lokasi_rak']); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="text-muted" style="font-size: 0.75rem;">Non-Batch</span>
                                 <?php endif; ?>
-                                <?php if (!empty($act['catatan'])): ?>
-                                    <span class="ms-1 text-muted d-none d-md-inline">&mdash; <?= html_escape($act['catatan']); ?></span>
-                                <?php endif; ?>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold tabular-nums font-monospace <?= $isMasuk ? 'text-success' : 'text-danger'; ?>" style="font-size: 0.92rem;">
+                                    <?= $isMasuk ? '+' : '-'; ?><?= number_format($act['jumlah']); ?>
+                                </span>
+                                <span class="text-muted small" style="font-size: 0.72rem;">unit</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                                    <div class="mini-avatar-initials" title="<?= html_escape($userName); ?>">
+                                        <?= html_escape($initials); ?>
+                                    </div>
+                                    <span class="fw-semibold text-truncate small" style="max-width: 130px; font-size: 0.8rem; color: var(--mb-text-primary);">
+                                        <?= html_escape($userName); ?>
+                                    </span>
+                                </div>
+                                <div class="text-muted text-truncate" style="max-width: 160px; font-size: 0.72rem;" title="<?= html_escape($act['catatan'] ?? ''); ?>">
+                                    <?= !empty($act['catatan']) ? html_escape($act['catatan']) : '<span class="opacity-50">Tanpa catatan</span>'; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr id="empty-activity-row">
+                        <td colspan="6">
+                            <div class="table-empty-state py-4">
+                                <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                                    <i class="bi bi-clock-history"></i>
+                                </div>
+                                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Belum Ada Mutasi</h6>
+                                <p class="text-muted small mb-0" style="font-size: 0.75rem;">Belum ada aktivitas transaksi mutasi barang tercatat.</p>
                             </div>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+                <tr id="filter-empty-row" class="d-none">
+                    <td colspan="6">
+                        <div class="table-empty-state py-4">
+                            <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                                <i class="bi bi-funnel"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Tidak Ditemukan</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 10 aktivitas terakhir.</p>
                         </div>
-                    </div>
-                    <div class="text-end text-muted small">
-                        <div class="tabular-nums"><?= date('d M Y, H:i', strtotime($act['tanggal'])); ?></div>
-                        <div class="text-truncate" style="max-width: 120px;"><?= html_escape($act['user_name'] ?? 'Petugas'); ?></div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="text-center py-4 text-muted">
-                <i class="bi bi-clock-history me-1"></i> Belum ada aktivitas mutasi stok tercatat.
-            </div>
-        <?php endif; ?>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
