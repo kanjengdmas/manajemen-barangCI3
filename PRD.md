@@ -1,16 +1,16 @@
 # PRD — Sistem Manajemen Barang (Inventory Management System) — Versi CodeIgniter 3
 
 > **Dokumen**: Product Requirements Document (PRD)  
-> **Versi**: 2.6.0 (CI3 Edition)  
+> **Versi**: 2.7.0 (CI3 Enterprise SaaS UI/UX Edition)  
 > **Terakhir Diperbarui**: November 2026  
-> **Status**: Migrasi stack — Laravel + React → CodeIgniter 3  
+> **Status**: Migrasi stack (Laravel + React → CI3) & Redesain UI/UX Enterprise SaaS Modern  
 > **Repository**: [kanjengdmas/manajemen-barangCI3](https://github.com/kanjengdmas/manajemen-barangCI3)  
 
 ---
 
 ## 1. Ringkasan Eksekutif
 
-**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan dilengkapi pemindai kamera QR Code, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), manajemen profil pengguna, pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan dan kemampuan pembaruan data otomatis (*auto-refresh*).
+**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan mengadopsi standar antarmuka **Enterprise SaaS Modern (Linear / Stripe / Vercel style)** dengan Quiet Chrome aesthetic, skema *Crimson & Clean Slate*, pemindai kamera QR Code fisik, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), manajemen profil pengguna, pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan, tabel aktivitas mutasi interaktif berkemampuan scroll & filter instan, dan auto-refresh background tanpa kedip.
 
 ### Problem Statement
 Pengelolaan inventaris berbasis manual atau spreadsheet rentan terhadap selisih stok (*stock discrepancy*), keterlambatan pembaruan data antar-shift gudang, risiko kehilangan dokumen fisik, serta lambatnya proses audit. Sistem ini mengintegrasikan seluruh titik operasional ke dalam satu basis data terpusat yang aman, cepat, dan terukur.
@@ -156,8 +156,19 @@ Manajemen-Barang/
 ## 6. Fitur & Fungsionalitas Utama
 
 ### 6.1 Autentikasi & Akun Pengguna
+- **Halaman Login Ambient Split-Screen (`/login`)**:
+  - Mengusung tata letak *split-screen modern enterprise*:
+    - **Sisi Kiri (Hero Brand Showcase)**: Panel gelap elegan dengan background ambient radial glow, badge version pill, display headline, tiga kartu telemetri sistem (*99.98% Akurasi Stok*, *Sinkronisasi Database Real-Time*, dan *ISO/IEC 27001 Security Standard*), serta security trust banner.
+    - **Sisi Kanan (Authentication Card)**: Form login ramping dan bersih dengan logo mark bercahaya halus, input floating dengan ikon Bootstrap, toggle visibilitas password mata (`bi-eye`/`bi-eye-slash`), proteksi CSRF otomatis, dan **1-Click Interactive Demo Fill** (tombol cepat untuk mengisi otomatis kredensial akun demo `admin@admin.com` & `password` demi kemudahan pengujian dan demonstrasi instan).
 - **Login & Sesi Terproteksi**: Masuk menggunakan email dan password; sesi disimpan di database lewat CI Session (cookie `HttpOnly`), bukan token di `localStorage`. Password diverifikasi dengan `password_verify()`.
 - **Route Guard (`MY_Controller`)**: Semua controller internal mewarisi `MY_Controller` yang memblokir akses tanpa sesi login dan mengarahkan pengguna ke `/login`. Untuk request AJAX, guard mengembalikan respon JSON `401`.
+- **Sidebar Navigasi Modern Enterprise SaaS (`views/partials/sidebar.php`)**:
+  - Quiet Chrome aesthetic ala Linear/Stripe dengan layout terbagi menjadi 4 seksi logis: *Pusat Kontrol*, *Operasional Gudang*, *Laporan & Dokumen*, dan *Konfigurasi*.
+  - Kotak logo brand dengan aura crimson halus dan status online.
+  - Fitur pencarian menu cepat (*Quick Jump Command Search*) dengan shortcut keyboard `Ctrl + K` / `⌘K` dan keycap kustom.
+  - Indikator status koneksi server live dengan efek denyut hijau (*pulsing beacon dot* `🟢 Server Online`).
+  - Active indicator bar merah crimson (3px) pada menu aktif dengan efek transisi mulus.
+  - Kartu profil ringkas di kaki sidebar (*footer user pill*) menampilkan avatar inisial, role pengguna, status online, serta tombol logout cepat.
 - **Header Profile Widget**: Menampilkan foto avatar, nama akun, badge role, tombol cepat notifikasi, dan dropdown menu (partial `partials/header.php`).
 - **Halaman Profil Saya (`/profil`)**:
   - *Tab Informasi Akun*: Nama lengkap, email, peran, tanggal bergabung (terformat otomatis sesuai preferensi akun), total login, dan upload foto avatar pengguna ke `uploads/avatar/` (`POST /api/profile`).
@@ -197,20 +208,57 @@ Pusat kendali visual kondisi operasional gudang secara langsung dari database (`
     - Tombol manual refresh (ikon `bi-arrow-clockwise`) untuk pembaruan paksa secara instan.
 - **Stok Kategori Chart**: Visualisasi distribusi kuantitas stok per kategori menggunakan Chart.js.
 - **Tabel Stok Menipis**: Menampilkan 5 produk dengan stok terendah lengkap dengan ikon kontekstual per jenis barang dan status badge (*Habis* / *Menipis*).
-- **Grafik Pergerakan Stok (Movement Chart)**: Grafik mingguan pembanding volume barang masuk vs barang keluar.
-- **Log Aktivitas Terbaru**: Catatan 10 aktivitas mutasi stok terakhir dengan informasi waktu relatif dan operator.
+- **Grafik Pergerakan Stok (Movement Chart)**: Grafik pembanding volume barang masuk vs keluar dengan rentang dinamis (7 Hari, 30 Hari, 6 Bulan, 12 Bulan) dan 2 kartu ringkasan total akumulasi periode.
+- **Aktivitas Mutasi Terkini (Modern Enterprise Activity Table)**:
+  - Transformasi widget mutasi menjadi tabel enterprise terstruktur rapi yang memuat 15 transaksi pergerakan barang terakhir di gudang.
+  - **Fitur Scroll Vertikal & Pinned Header (`.table-scroll-container`)**:
+    - Kontainer tabel dibatasi ketinggian maksimalnya (`max-height: 400px; overflow-y: auto`) dengan scrollbar ramping bernuansa modern.
+    - Header tabel (`thead th`) dikunci melayang (*sticky pinned header*) menggunakan `position: sticky; top: 0; z-index: 5` dengan border-shadow halus sehingga judul kolom tetap terbaca jelas saat melakukan penelusuran data.
+  - **Segmented Filter Pills (`.dashboard-filter-pills`)**:
+    - Kontainer filter tab instan berbentuk kapsul di kanan toolbar (**Semua (15)**, **Masuk**, **Keluar**) dengan status dot berwarna.
+    - Memfilter transaksi di sisi klien secara instan tanpa jeda jaringan atau reload halaman.
+  - **Pill Action Button (`.table-toolbar-action`)**:
+    - Tombol "Riwayat Lengkap" berlekuk kapsul (`border-radius: 9999px; height: 30px`) yang serasi secara proporsi dengan segmented filter di sebelahnya.
+    - Dilengkapi micro-interaction pergeseran ikon panah (`translateX(3px)`) dan aksen crimson saat kursor diarahkan ke tombol.
+  - **Kelurusan Kolom Tabular Presisi**:
+    - *Waktu*: Tanggal formal, jam transaksi, dan waktu relatif (*"Baru saja"*, *"X mnt lalu"*).
+    - *Tipe*: Soft badge arah pergerakan (`IN` hijau / `OUT` merah) dengan panah transaksi.
+    - *Produk & SKU*: Nama barang bold truncate dengan chip SKU monospace.
+    - *Batch / Lot & Rak*: Chip nomor lot kardus dan tag lokasi rak fisik.
+    - *Kuantitas*: Angka bertanda (`+200` hijau / `-50` merah) dengan perataan kanan dan font monospace tabular.
+    - *Petugas & Catatan*: Avatar inisial operator lingkaran (`.mini-avatar-initials`), nama petugas, dan catatan keterangan.
+  - **Sinkronisasi Polling Background 5 Menit**:
+    - Skrip `assets/js/dashboard.js` secara berkala mengambil 15 item mutasi terbaru dan me-render baris tabel yang identik serta mempertahankan status filter aktif.
 - **Widget Aksi Cepat**: Akses 1-klik untuk tambah produk, input stok masuk, input stok keluar, dan tambah kategori.
 
-### 6.3 Pengaturan Sistem & Preferensi (`/pengaturan`)
-Menu kustomisasi lengkap yang menerapkan prinsip **Auto-Save on Change** tanpa tombol simpan manual, dilengkapi indikator status visual halus (*Auto-save badge*):
-- **Tampilan & Tema**: Pilihan tema *Terang (Light)*, *Gelap (Dark)*, dan *Sistem* dengan mockup preview visual.
-- **Bahasa & Lokalisasi**: Penggantian instan antara Bahasa Indonesia 🇮🇩 dan English (US) 🇺🇸 tanpa reload halaman (lewat `i18n.js`).
-- **Pengaturan Lainnya**:
-  - *Refresh otomatis dashboard*: Toggle pengaktifan interval sinkronisasi data 5 menit.
-  - *Tampilkan jumlah stok*: Toggle penyembunyian/penampilan kuantitas angka stok untuk privasi presentasi.
-- **Preferensi Notifikasi**: Toggle peringatan stok kritis, notifikasi mutasi transaksi, dan suara efek scanner.
-- **Keamanan Sistem**: Pemilihan batas waktu sesi (*session timeout* 30m, 60m, 120m, 480m) yang divalidasi di `MY_Controller` berdasarkan `last_activity` sesi, dan Two-Factor Authentication (2FA, berbasis TOTP, misalnya library `robthree/twofactorauth`).
-- **Tentang Sistem**: Informasi versi build (v2.4.0), database driver, framework backend (CodeIgniter 3), dan status aplikasi.
+### 6.3 Pengaturan Sistem & Preferensi Modular 5-Tab (`/pengaturan`)
+Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Tab Enterprise Control Center** berbasis prinsip **Auto-Save on Change** tanpa tombol simpan manual, dilengkapi sakelar bergaya iOS (`.ios-switch`) dan indikator status visual halus (*Auto-save badge*):
+1. **Tab 1: Tampilan & Sistem**:
+   - *Pilihan Tema Visual*: Visual Theme Picker Card interaktif untuk tema **Terang (Light)**, **Gelap (Dark)**, dan **Sistem** lengkap dengan mockup preview visual mini, radio checkmark aktif, dan border glow saat dipilih.
+   - *Bahasa & Lokalisasi*: Penggantian instan antara Bahasa Indonesia 🇮🇩 dan English (US) 🇺🇸 tanpa reload halaman lewat kamus `assets/js/i18n.js`.
+   - *Tampilkan Jumlah Angka Stok*: Toggle penyembunyian angka kuantitas stok fisik dengan masking `••••••` untuk privasi saat presentasi publik.
+   - *Interval Auto-Refresh Dashboard*: Konfigurasi jeda polling otomatis (1, 3, 5, 10 menit) dengan toggle on/off.
+2. **Tab 2: Gudang & Mutasi**:
+   - *Kebijakan Pengeluaran Barang FIFO*: Toggle rekomendasi First-In First-Out yang terintegrasi pada dropdown form mutasi barang keluar.
+   - *Default Ambang Stok Menipis*: Konfigurasi default (5, 10, 20, 50 unit) yang otomatis terisi pada formulir registrasi produk baru.
+   - *Standardisasi Prefix Kode*: Format prefix SKU Produk (misal: `PRD-`) dan Lot Batch (misal: `LOT-`).
+   - *Pengaturan Ukuran Cetak Label QR*: Pilihan ukuran stiker fisik (*Kecil 30x20mm*, *Sedang 50x30mm*, *Standar Rak 70x40mm*) dan toggle informasi produk pada label.
+   - *Format Tampilan Tanggal Transaksi*: Pilihan format tanggal global (`DD/MM/YYYY`, `YYYY-MM-DD`, `DD MMMM YYYY`).
+3. **Tab 3: Pemberitahuan & Efek**:
+   - *Efek Suara Scanner QR*: Audio beep (880 Hz) berbasis Web Audio API tanpa file eksternal.
+   - *Peringatan Stok Kritis & Kadaluarsa*: Peringatan dini email/desktop untuk produk di bawah ambang batas minimal dan batch mendekati kadaluarsa (7, 14, 30, 60 hari).
+   - *Daily Digest Email*: Toggle pengiriman rekap harian aktivitas mutasi ke email administrator di akhir shift kerja.
+4. **Tab 4: Profil Perusahaan & Kop Surat**:
+   - Formulir identitas resmi instansi: Nama Perusahaan, Sub-judul/Tagline, Alamat Lengkap Kantor/Gudang, Nomor Telepon/WhatsApp, Email Resmi, Nama Penanggung Jawab / PIC Gudang, Jabatan Resmi PIC, dan Catatan Kaki (Footer Note).
+   - **Reactive Live Kop Surat Preview (Sisi Kanan)**: Visualisasi mockup kertas nota kop surat dan blok legalitas tanda tangan tiga pihak (*Diserahkan*, *Diterima*, *Kepala Gudang*) yang terupdate secara real-time saat pengguna mengetik formulir.
+   - Perubahan langsung tersimpan ke server dan `localStorage` serta disinkronkan ke dokumen cetak Surat Jalan / Bukti Transaksi dan ekspor PDF resmi.
+5. **Tab 5: Keamanan & Manajemen Data**:
+   - *Batas Waktu Sesi (Session Timeout)*: Pilihan durasi sesi (30m, 60m, 120m, 480m) yang divalidasi server-side di `MY_Controller`.
+   - *Two-Factor Authentication (2FA)*: Toggle opsi keamanan ganda berbasis TOTP.
+   - *Cadangkan Database 1-Klik (.sql)*: Tombol unduh langsung SQL dump script lengkap dengan struktur tabel dan data untuk restore instan ke MySQL / MariaDB phpMyAdmin.
+   - *Ekspor Snapshot JSON*: Unduh backup data lengkap dalam arsip JSON.
+   - *Pembersihan Cache Server*: Tombol 1-klik untuk mengosongkan cache aplikasi dan query server tanpa menghapus tabel pengaturan.
+   - **Live Server Telemetry Card**: Kartu ringkasan spesifikasi server yang memantau versi PHP runtime, driver database MySQL/MariaDB, sisa ruang penyimpanan harddisk (*Disk Free Space Meter*), dan status operasional sistem secara real-time.
 
 ### 6.4 Manajemen Produk
 - **CRUD Produk** (`Produk::index/create/store/edit/update/delete`): Nama, SKU unik, deskripsi, pemilihan kategori dan pemasok, stok awal, serta stok minimal, dengan validasi Form Validation CI3.
@@ -313,6 +361,42 @@ Menu kustomisasi lengkap yang menerapkan prinsip **Auto-Save on Change** tanpa t
      - Data tersimpan via `/api/settings/company` (tabel `pengaturan`) dan `localStorage` (`companyProfile`).
      - Sinkronisasi instan melalui custom event `company-profile-updated` sehingga perubahan langsung tercermin pada cetak Bukti Transaksi di menu Stok dan ekspor PDF resmi laporan stok (`/api/stok/export/pdf`).
 
+### 6.12 Standarisasi UI/UX Enterprise SaaS & Design System Modern (v2.7.0)
+1. **Redesain Modern Sidebar Enterprise SaaS (Quiet Chrome)**:
+   - Mengadopsi prinsip navigasi terstruktur Linear / Stripe / Tailwind UI / Vercel design system.
+   - Terbagi dalam 4 seksi navigasi semantik: *Pusat Kontrol*, *Operasional Gudang*, *Laporan & Dokumen*, dan *Konfigurasi*.
+   - Fitur Quick Jump Command Search (`Ctrl + K` / `⌘K`) dengan input pencarian menu instan.
+   - Live Database Status Beacon: Indikator denyut hijau (*pulsing dot* `🟢 Server Online`) di header sidebar yang memantau kesiapan koneksi database.
+   - Active state indicator bar merah crimson (3px) dengan fluid transition.
+   - User profile pill di kaki sidebar lengkap dengan avatar inisial, role pengguna, status online, serta tombol logout cepat.
+2. **Redesain Ambient Split-Screen Login Page**:
+   - Layout dua sisi responsif: panel showcase brand gelap dengan ambient radial aura di kiri dan form autentikasi bersih di kanan.
+   - Tiga kartu telemetri trust metrics: *99.98% Akurasi Stok*, *Sinkronisasi Database Real-Time*, dan *Standar Keamanan ISO/IEC 27001*.
+   - **1-Click Interactive Demo Fill**: Tombol cepat untuk mengisi otomatis kredensial akun demo (`admin@admin.com` & `password`) demi kemudahan pengujian dan demonstrasi instan tanpa pengetikan manual.
+   - Input password dengan toggle visibilitas mata (`bi-eye`/`bi-eye-slash`) dan CSRF token terintegrasi.
+3. **Standarisasi Seluruh Tabel Data Sistem (Modern Data Tables)**:
+   - Menerapkan arsitektur komponen seragam di semua modul data master dan transaksi (`/produk`, `/batch`, `/stok`, `/kategori`, `/pemasok`, `/laporan`):
+     - `.table-card`: Elevated card container ber-border hairline `var(--mb-border)` dan subtle elevation.
+     - `.table-toolbar`: Header terintegrasi dengan judul semantik, counter pill reaktif, pencarian cepat di sisi klien dengan tombol clear (`bi-x-circle`), dropdown filter, dan tombol aksi utama.
+     - `.table-modern`: Tabel borderless dengan subtle alternating row hover dan perataan vertikal presisi (`align-middle`).
+     - `.sku-badge`: Monospace SKU chip dengan tombol copy instan dan hairline border.
+     - Visual Stock Meters: Progress bar persentase sisa stok dengan pewarnaan semantik dinamis (hijau aman, amber menipis, merah kritis/habis).
+     - Soft Semantic Badges (`.badge-soft-success`, `.badge-soft-danger`, `.badge-soft-warning`, `.badge-soft-info`, `.badge-soft-secondary`).
+     - QR Code Interactive Thumbnail: Hover zoom preview dengan modal trigger 1-klik dan opsi unduh PNG / cetak label stiker fisik.
+4. **Re-arsitektur Pengaturan Sistem Modular 5-Tab**:
+   - Tab 1: Tampilan & Sistem (Visual Theme Cards interaktif Light/Dark/System, Instant Language ID/EN, Masking Stok).
+   - Tab 2: Gudang & Mutasi (FIFO Recommendation, Ambang Stok Minimal, Prefix SKU/LOT, Ukuran Label Stiker QR).
+   - Tab 3: Pemberitahuan & Efek (Web Audio API scanner beep chime, peringatan stok menipis, daily digest).
+   - Tab 4: Profil Perusahaan & Kop Surat (Form identitas instansi dengan **Reactive Live Kop Surat Preview** di sisi kanan).
+   - Tab 5: Keamanan & Manajemen Data (Session timeout, 2FA, 1-klik unduh backup SQL dump `.sql`, snapshot JSON, clear cache, serta **Live Server Telemetry Card**).
+   - Seluruh formulir menggunakan switch bergaya iOS (`.ios-switch`) dan auto-save real-time badge.
+5. **Aktivitas Mutasi Terkini dengan Fitur Scroll Vertikal, Sticky Pinned Header, dan Segmented Filter**:
+   - Menampilkan 15 transaksi mutasi terbaru dalam kontainer vertikal terproteksi (`max-height: 400px; overflow-y: auto`).
+   - Sticky header (`thead th { position: sticky; top: 0; z-index: 5; }`) yang terkunci melayang di atas saat scroll data.
+   - Segmented filter pills (**Semua**, **Masuk**, **Keluar**) dengan counter angka dinamis untuk penyaringan instan sisi klien.
+   - Pill action button "Riwayat Lengkap" (`.table-toolbar-action`) dengan animated arrow hover interaction (`translateX(3px)`).
+   - Avatar inisial operator lingkaran (`.mini-avatar-initials`) untuk audit trail visual yang bersih.
+
 ---
 
 ## 7. Daftar Endpoint
@@ -357,7 +441,7 @@ Aplikasi CI3 ini memakai dua jenis endpoint: **halaman** (dirender server, form 
 | `GET` | `/api/dashboard/stok-chart` | `api/Dashboard::stok_chart` | Distribusi kuantitas stok per kategori |
 | `GET` | `/api/dashboard/low-stock` | `api/Dashboard::low_stock` | Daftar produk stok menipis / kritis |
 | `GET` | `/api/dashboard/movement-chart` | `api/Dashboard::movement_chart` | Pergerakan stok (harian: `days=7`, `30`; bulanan: `days=6m`, `12m`) |
-| `GET` | `/api/dashboard/recent-activities` | `api/Dashboard::recent_activities` | 10 riwayat transaksi mutasi terakhir |
+| `GET` | `/api/dashboard/recent-activities` | `api/Dashboard::recent_activities` | 15 riwayat transaksi mutasi terakhir (scrollable & filterable) |
 
 #### Produk, Kategori, & Pemasok
 | Method | Endpoint | Controller::method | Fungsi |
@@ -430,13 +514,49 @@ Route didefinisikan di `application/config/routes.php` (URL huruf kecil, contoh 
 
 ---
 
-## 9. Desain, Estetika, & UI/UX
+## 9. Desain, Estetika, & UI/UX (Enterprise Design System)
 
-- **Identitas Visual**: Skema warna modern bernuansa *Crimson & Clean Slate* (merah `#dc2626` / `#b91c1c` dengan kontras putih bersih dan slate), diterapkan lewat variabel CSS Bootstrap di `assets/css/theme.css`.
-- **Full Dark Mode**: Tema gelap terintegrasi penuh ke seluruh kartu, formulir, modal, dan tabel lewat `data-bs-theme="dark"`.
-- **Reaktivitas Tanpa Refresh**: Pergantian bahasa (ID/EN) dan perubahan preferensi visual diterapkan ke DOM secara instan lewat JavaScript, tanpa reload browser.
-- **Silent Background Syncing**: Pembaruan otomatis data dashboard tidak menyebabkan layar berkedip (*no full page flicker*).
-- **Aksesibilitas & Feedback**: Menggunakan SweetAlert2 untuk konfirmasi destruktif (hapus data/logout) dan toast notifikasi sukses.
+Aplikasi mengimplementasikan standar desain **Enterprise SaaS Modern** (mengadopsi filosofi *Linear, Stripe, Tailwind UI, dan Vercel design system*) dengan pendekatan **Quiet Chrome** — antarmuka tenang dan fungsional yang meminimalisasi distraksi visual serta menonjolkan kejelasan data inventaris operasional:
+
+### 9.1 Sistem Token & Palet Warna (`assets/css/theme.css`)
+- **Brand Crimson**: Aksen utama bernuansa merah tegas (`#dc2626` / `#b91c1c` / `#ef4444`) yang memberikan identitas kuat pada elemen interaktif, logo aura, dan indikator navigasi aktif.
+- **Surface Elevation Hierarchy**:
+  - Light Mode: Neutral slate lembut (`#f8fafc`, `#ffffff`, `#f1f5f9`) dengan hairline border tipis (`rgba(0, 0, 0, 0.08)`).
+  - Dark Mode: Quiet graphite ramp (`#0b0f17`, `#111827`, `#1f2937`) tanpa glowing berlebihan, mengandalkan hairline borders dan permukaan bertingkat (*surface steps*).
+- **Soft Semantic Badges**:
+  - `.badge-soft-success`: Hijau tenang untuk mutasi Masuk, stok aman, dan rekomendasi FIFO.
+  - `.badge-soft-danger`: Merah tenang untuk mutasi Keluar, stok kritis/habis, dan batch kadaluarsa.
+  - `.badge-soft-warning`: Amber untuk stok menipis dan deviasi peringatan.
+  - `.badge-soft-info`: Biru lembut untuk informasi SKU, QR, dan batch kardus.
+  - `.badge-soft-secondary`: Abu-abu lembut untuk metadata tanggal dan ID.
+
+### 9.2 Tipografi & Perataan Tabular
+- **Font Stack**: Menggunakan kombinasi sans-serif sistem modern (Inter, Segoe UI, system-ui) dengan pembagian hierarki ukuran yang disiplin (*sentence-case typography*).
+- **Tabular Figures Monospace**: Seluruh angka kuantitas, nilai satuan, tanggal, dan jam menggunakan `font-variant-numeric: tabular-nums` agar sejajar sempurna secara vertikal dari baris ke baris.
+- **Kode & SKU Monospace Chip (`.sku-badge`)**: Monospace badge rapi dengan tombol salin instan (*1-click copy to clipboard*) dan feedback toast.
+
+### 9.3 Pustaka Komponen UI Kustom
+1. **Container Tabel Terintegrasi (`.table-card` & `.table-toolbar`)**: Menghilangkan kartu generik dan border kaku; menyatukan judul semantik, counter badge dinamis, pencarian lokal dengan tombol reset cepat (`bi-x-circle`), filter, dan tombol aksi dalam satu kesatuan baris yang rapi.
+2. **Tabel Modern Borderless (`.table-modern`)**: Baris data dengan perataan vertikal tengah (`align-middle`), hover state halus, dan margin yang pas untuk kepadatan optimal.
+3. **Scroll Container dengan Sticky Header (`.table-scroll-container`)**:
+   - Membatasi tinggi tabel (`max-height: 400px; overflow-y: auto`) untuk menjaga proporsi vertikal dashboard.
+   - Pinned sticky header (`thead th { position: sticky; top: 0; z-index: 5; }`) dengan border-shadow halus sehingga judul kolom tetap melayang terkunci di atas saat data di-scroll.
+4. **Segmented Filter Pills (`.dashboard-filter-pills`)**: Kontainer tab filter berbentuk kapsul (`border-radius: 9999px`) dengan status dot dan counter badge untuk penyaringan instan sisi klien tanpa jeda jaringan.
+5. **Toolbar Action Pill (`.table-toolbar-action`)**: Tombol aksi berbentuk kapsul dengan tinggi dan warna selaras dengan segmented filter, dilengkapi micro-interaction panah yang bergeser halus (`translateX(3px)`) dan menyala crimson saat di-hover.
+6. **Sakelar Bergaya iOS (`.ios-switch`)**: Toggle switch halus pengganti checkbox standar pada menu pengaturan sistem dan preferensi profil.
+7. **Barometer Stok Visual (Visual Stock Meters)**: Progress bar indikator stok dengan pewarnaan dinamis untuk memudahkan supervisor gudang mengidentifikasi kondisi stok secara sekilas.
+8. **Avatar Inisial Operator (`.mini-avatar-initials`)**: Lingkaran inisial nama petugas 22x22px dengan font bold dan border tipis untuk audit trail visual yang ramah dan konsisten.
+
+### 9.4 Reaktivitas, Dark Mode, & Aksesibilitas
+- **Full Dark Mode**: Tema gelap terintegrasi penuh melalui atribut `data-bs-theme="dark"` dengan script pencegah kedip (*anti-flash script* di `<head>`).
+- **Kontras WCAG AA**: Rasio kontras teks terhadap latar belakang diuji memenuhi standar minimal 4.5:1 untuk keterbacaan optimal di lingkungan pencahayaan gudang.
+- **Reaktivitas Tanpa Refresh**: Pergantian bahasa (ID/EN) dan preferensi tema diterapkan seketika ke DOM lewat JavaScript tanpa reload browser.
+- **Silent Background Syncing**: Auto-refresh 5 menit berjalan di latar belakang tanpa skeleton loader yang mengganggu pandangan pengguna.
+- **Micro-Interactions & Audio Feedback**:
+  - SweetAlert2 untuk modal konfirmasi destruktif dan notifikasi toast sukses.
+  - Web Audio API dual-tone chime (880 Hz / 659.25Hz & 987.77Hz) tanpa dependensi aset file suara eksternal.
+  - Pulsing beacon dot hijau untuk indikator live database connection di sidebar.
+  - Hover zoom thumbnail QR Code dengan dialog pratinjau instan.
 
 ---
 
@@ -494,4 +614,4 @@ chmod -R 775 uploads application/cache application/logs
 
 ---
 
-*Dokumen ini diperbarui untuk mencerminkan konversi stack Manajemen Barang v2.6.0 dari Laravel + React ke CodeIgniter 3 — November 2026.*
+*Dokumen ini diperbarui untuk mencerminkan rilis Manajemen Barang v2.7.0 (CI3 Enterprise SaaS UI/UX Edition) — November 2026.*

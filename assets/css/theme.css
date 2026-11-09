@@ -2253,6 +2253,43 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
+/* Toolbar Action Pill Button (Modern Enterprise SaaS) */
+.table-toolbar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 14px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--mb-text-secondary);
+  background-color: var(--mb-card-raised);
+  border: 1px solid var(--mb-border);
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.table-toolbar-action:hover {
+  color: var(--mb-text-primary);
+  background-color: var(--mb-card);
+  border-color: var(--mb-text-muted);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.table-toolbar-action .action-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+  color: var(--mb-text-muted);
+}
+
+.table-toolbar-action:hover .action-arrow {
+  transform: translateX(3px);
+  color: var(--mb-brand);
+}
+
 .mini-avatar-initials {
   width: 22px;
   height: 22px;

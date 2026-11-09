@@ -445,8 +445,9 @@
                 </button>
             </div>
 
-            <a href="<?= site_url('stok'); ?>" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold" style="font-size: 0.76rem;">
-                <span>Riwayat Lengkap</span> <i class="bi bi-arrow-right"></i>
+            <a href="<?= site_url('stok'); ?>" class="table-toolbar-action" title="Lihat riwayat mutasi stok lengkap">
+                <span>Riwayat Lengkap</span>
+                <i class="bi bi-arrow-right action-arrow"></i>
             </a>
         </div>
     </div>
