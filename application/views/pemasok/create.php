@@ -26,10 +26,10 @@
                     <label class="form-label fw-semibold">Alamat Lengkap</label>
                     <textarea name="alamat" class="form-control" rows="3" placeholder="Alamat kantor atau gudang suplai..."></textarea>
                 </div>
-                <div class="text-end">
-                    <a href="<?= site_url('pemasok'); ?>" class="btn btn-outline-secondary me-2">Batal</a>
-                    <button type="submit" class="btn btn-danger px-4" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
-                        <i class="bi bi-save me-1"></i> Simpan
+                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2 pt-3 border-top mt-2">
+                    <a href="<?= site_url('pemasok'); ?>" class="btn btn-outline-secondary order-2 order-sm-1">Batal</a>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold order-1 order-sm-2 d-inline-flex align-items-center justify-content-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-save"></i> Simpan Pemasok
                     </button>
                 </div>
             <?= form_close(); ?>

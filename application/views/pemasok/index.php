@@ -30,7 +30,8 @@
         </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 1. Desktop High-Density Table (Hidden on Phones) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table-modern" id="pemasokTable">
             <thead>
                 <tr>
@@ -106,16 +107,71 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. Mobile Touch-Optimized Cards (Visible on Phones < 768px) -->
+    <div class="mobile-card-list d-md-none p-3" id="pemasokMobileCards">
+        <?php if (empty($suppliers)): ?>
+            <div class="table-empty-state py-4 text-center">
+                <div class="table-empty-icon mb-2">
+                    <i class="bi bi-truck fs-2 text-muted"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Pemasok</h6>
+                <p class="text-muted small mb-3">Daftarkan rekanan distributor atau vendor pemasok barang pergudangan.</p>
+                <a href="<?= site_url('pemasok/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Pemasok
+                </a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($suppliers as $sup): ?>
+                <div class="mobile-data-card pemasok-card-item" data-search="<?= strtolower(html_escape($sup['nama_pemasok'] . ' ' . ($sup['kontak'] ?? '') . ' ' . ($sup['alamat'] ?? ''))); ?>">
+                    <div class="mobile-card-header">
+                        <span class="badge-soft badge-soft-secondary">
+                            <i class="bi bi-box-seam me-1"></i> <?= number_format($sup['total_produk'] ?? 0); ?> Item Pasokan
+                        </span>
+                        <?php if (!empty($sup['kontak'])): ?>
+                            <a href="tel:<?= preg_replace('/[^0-9+]/', '', $sup['kontak']); ?>" class="btn btn-sm btn-outline-primary py-1 px-2.5 rounded-pill" style="font-size: 0.72rem;">
+                                <i class="bi bi-telephone-fill me-1"></i> Hubungi
+                            </a>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mobile-card-body mb-2">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center text-primary flex-shrink-0"
+                             style="width: 44px; height: 44px; background-color: var(--mb-info-subtle); border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <i class="bi bi-building fs-5"></i>
+                        </div>
+                        <div class="mobile-card-content">
+                            <div class="mobile-card-title"><?= html_escape($sup['nama_pemasok']); ?></div>
+                            <div class="mobile-card-subtitle">
+                                <?php if (!empty($sup['kontak'])): ?>
+                                    <div class="mb-1 font-monospace"><i class="bi bi-telephone me-1 text-muted"></i> <?= html_escape($sup['kontak']); ?></div>
+                                <?php endif; ?>
+                                <div><i class="bi bi-geo-alt me-1 text-muted"></i> <?= html_escape($sup['alamat'] ?? '-'); ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-actions">
+                        <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Hapus pemasok ini?');">
+                            <i class="bi bi-trash"></i> Hapus Rekanan
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('pemasokSearchInput');
     const tableBody = document.getElementById('pemasokTableBody');
+    const mobileCardsContainer = document.getElementById('pemasokMobileCards');
     const countBadge = document.getElementById('pemasokCountBadge');
     const rows = document.querySelectorAll('.pemasok-row');
+    const cards = document.querySelectorAll('.pemasok-card-item');
 
-    if (searchInput && rows.length > 0) {
+    if (searchInput) {
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
             let visibleCount = 0;
@@ -130,12 +186,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
             if (countBadge) {
                 countBadge.innerHTML = `<i class="bi bi-truck"></i> ${visibleCount} Ditemukan`;
             }
 
             let noMatchRow = document.getElementById('noMatchRowPem');
-            if (visibleCount === 0) {
+            if (visibleCount === 0 && rows.length > 0) {
                 if (!noMatchRow) {
                     noMatchRow = document.createElement('tr');
                     noMatchRow.id = 'noMatchRowPem';
@@ -152,6 +217,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else if (noMatchRow) {
                 noMatchRow.style.display = 'none';
+            }
+
+            let noMatchMobile = document.getElementById('noMatchMobilePem');
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noMatchMobile) {
+                    noMatchMobile = document.createElement('div');
+                    noMatchMobile.id = 'noMatchMobilePem';
+                    noMatchMobile.className = 'text-center py-5 text-muted';
+                    noMatchMobile.innerHTML = `
+                        <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                        Tidak ada pemasok yang cocok dengan "<strong>${query}</strong>"
+                    `;
+                    mobileCardsContainer.appendChild(noMatchMobile);
+                } else {
+                    noMatchMobile.style.display = '';
+                    noMatchMobile.querySelector('strong').textContent = query;
+                }
+            } else if (noMatchMobile) {
+                noMatchMobile.style.display = 'none';
             }
         });
     }

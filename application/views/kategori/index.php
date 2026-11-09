@@ -30,7 +30,8 @@
         </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 1. Desktop High-Density Table (Hidden on Phones) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table-modern" id="kategoriTable">
             <thead>
                 <tr>
@@ -94,16 +95,63 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. Mobile Touch-Optimized Cards (Visible on Phones < 768px) -->
+    <div class="mobile-card-list d-md-none p-3" id="kategoriMobileCards">
+        <?php if (empty($categories)): ?>
+            <div class="table-empty-state py-4 text-center">
+                <div class="table-empty-icon mb-2">
+                    <i class="bi bi-tags fs-2 text-muted"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Kategori</h6>
+                <p class="text-muted small mb-3">Buat kelompok kategori barang pertama.</p>
+                <a href="<?= site_url('kategori/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
+                </a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($categories as $cat): ?>
+                <div class="mobile-data-card kategori-card-item" data-search="<?= strtolower(html_escape($cat['nama_kategori'] . ' ' . ($cat['deskripsi'] ?? ''))); ?>">
+                    <div class="mobile-card-header">
+                        <span class="badge-soft badge-soft-primary">
+                            <i class="bi bi-box me-1"></i> <?= number_format($cat['total_produk'] ?? 0); ?> Produk Terdaftar
+                        </span>
+                    </div>
+
+                    <div class="mobile-card-body mb-2">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center text-danger flex-shrink-0"
+                             style="width: 44px; height: 44px; background-color: var(--mb-brand-subtle); border: 1px solid var(--mb-brand-border);">
+                            <i class="bi bi-tag-fill fs-5"></i>
+                        </div>
+                        <div class="mobile-card-content">
+                            <div class="mobile-card-title"><?= html_escape($cat['nama_kategori']); ?></div>
+                            <div class="mobile-card-subtitle">
+                                <?= !empty($cat['deskripsi']) ? html_escape($cat['deskripsi']) : '<span class="fst-italic text-muted">Tidak ada catatan deskripsi.</span>'; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-actions">
+                        <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Hapus kategori ini? Produk terkait akan kehilangan relasi kategori.');">
+                            <i class="bi bi-trash"></i> Hapus Kategori
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('kategoriSearchInput');
     const tableBody = document.getElementById('kategoriTableBody');
+    const mobileCardsContainer = document.getElementById('kategoriMobileCards');
     const countBadge = document.getElementById('kategoriCountBadge');
     const rows = document.querySelectorAll('.kategori-row');
+    const cards = document.querySelectorAll('.kategori-card-item');
 
-    if (searchInput && rows.length > 0) {
+    if (searchInput) {
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
             let visibleCount = 0;
@@ -118,12 +166,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
             if (countBadge) {
                 countBadge.innerHTML = `<i class="bi bi-tags"></i> ${visibleCount} Ditemukan`;
             }
 
             let noMatchRow = document.getElementById('noMatchRowKat');
-            if (visibleCount === 0) {
+            if (visibleCount === 0 && rows.length > 0) {
                 if (!noMatchRow) {
                     noMatchRow = document.createElement('tr');
                     noMatchRow.id = 'noMatchRowKat';
@@ -140,6 +197,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else if (noMatchRow) {
                 noMatchRow.style.display = 'none';
+            }
+
+            let noMatchMobile = document.getElementById('noMatchMobileKat');
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noMatchMobile) {
+                    noMatchMobile = document.createElement('div');
+                    noMatchMobile.id = 'noMatchMobileKat';
+                    noMatchMobile.className = 'text-center py-5 text-muted';
+                    noMatchMobile.innerHTML = `
+                        <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                        Tidak ada kategori yang cocok dengan "<strong>${query}</strong>"
+                    `;
+                    mobileCardsContainer.appendChild(noMatchMobile);
+                } else {
+                    noMatchMobile.style.display = '';
+                    noMatchMobile.querySelector('strong').textContent = query;
+                }
+            } else if (noMatchMobile) {
+                noMatchMobile.style.display = 'none';
             }
         });
     }

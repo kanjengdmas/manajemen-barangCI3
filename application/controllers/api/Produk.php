@@ -84,4 +84,52 @@ class Produk extends MY_Controller {
             'message' => 'QR Code berhasil dihapus.'
         ]);
     }
+
+    /**
+     * GET /api/produk/export/excel
+     */
+    public function export_excel() {
+        $this->load->library('export_excel');
+
+        $kategoriId = $this->input->get('kategori_id');
+
+        $this->db->select('produk.*, kategori.nama_kategori, pemasok.nama_pemasok');
+        $this->db->from('produk');
+        $this->db->join('kategori', 'kategori.id = produk.kategori_id', 'left');
+        $this->db->join('pemasok', 'pemasok.id = produk.pemasok_id', 'left');
+        if (!empty($kategoriId)) {
+            $this->db->where('produk.kategori_id', $kategoriId);
+        }
+        $this->db->order_by('produk.nama_produk', 'ASC');
+        $products = $this->db->get()->result_array();
+
+        $headers = ['No', 'Nama Produk', 'SKU', 'Kategori', 'Pemasok / Vendor', 'Stok Saat Ini', 'Stok Minimal', 'Status Stok'];
+        $rows = [];
+        $no = 1;
+
+        foreach ($products as $p) {
+            $stok = (int)($p['stok'] ?? 0);
+            $min = (int)($p['stok_minimal'] ?? 0);
+            $status = 'Aman';
+            if ($stok <= 0) {
+                $status = 'Habis / Kosong';
+            } elseif ($stok <= $min) {
+                $status = 'Menipis';
+            }
+
+            $rows[] = [
+                $no++,
+                $p['nama_produk'],
+                $p['sku'],
+                $p['nama_kategori'] ?? '-',
+                $p['nama_pemasok'] ?? '-',
+                $stok,
+                $min,
+                $status
+            ];
+        }
+
+        $filename = 'Laporan-Katalog-Produk-' . date('Y-m-d') . '.xlsx';
+        $this->export_excel->download($filename, 'Laporan Master Produk & Stok Inventaris', $headers, $rows);
+    }
 }

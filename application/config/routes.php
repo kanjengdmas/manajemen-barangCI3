@@ -137,6 +137,7 @@ $route['api/stok/summary'] = 'api/Stok/summary';
 $route['api/stok/export/excel'] = 'api/Stok/export_excel';
 $route['api/stok/export/pdf'] = 'api/Stok/export_pdf';
 $route['api/batch/export/excel'] = 'api/Batch/export_excel';
+$route['api/produk/export/excel'] = 'api/Produk/export_excel';
 
 // Scanner & Laporan
 $route['scan'] = 'Scanner/index';

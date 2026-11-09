@@ -46,10 +46,10 @@
                         <textarea name="catatan" class="form-control" rows="3" placeholder="Contoh: Penerimaan PO #9910 dari supplier PT. Sumber Makmur..."></textarea>
                     </div>
 
-                    <div class="col-12 text-end pt-3">
-                        <a href="<?= site_url('stok'); ?>" class="btn btn-outline-secondary me-2">Batal</a>
-                        <button type="submit" class="btn btn-success px-4 fw-semibold">
-                            <i class="bi bi-check-lg me-1"></i> Simpan Stok Masuk
+                    <div class="col-12 d-flex flex-column flex-sm-row justify-content-end gap-2 pt-3 border-top mt-2">
+                        <a href="<?= site_url('stok'); ?>" class="btn btn-outline-secondary order-2 order-sm-1">Batal</a>
+                        <button type="submit" class="btn btn-success px-4 fw-semibold order-1 order-sm-2 d-inline-flex align-items-center justify-content-center gap-1.5">
+                            <i class="bi bi-check-lg"></i> Simpan Stok Masuk
                         </button>
                     </div>
                 </div>

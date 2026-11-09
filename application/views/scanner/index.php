@@ -69,12 +69,12 @@
                 </div>
             </div>
 
-            <div class="d-flex gap-2 justify-content-end">
-                <a href="#" id="btn-action-masuk" class="btn btn-outline-success">
-                    <i class="bi bi-arrow-down-left me-1"></i> Catat Stok Masuk
+            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                <a href="#" id="btn-action-masuk" class="btn btn-outline-success d-inline-flex align-items-center justify-content-center py-2 px-3 fw-semibold flex-fill flex-sm-grow-0">
+                    <i class="bi bi-arrow-down-left me-1.5"></i> Catat Stok Masuk
                 </a>
-                <a href="#" id="btn-action-keluar" class="btn btn-danger" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
-                    <i class="bi bi-arrow-up-right me-1"></i> Catat Stok Keluar
+                <a href="#" id="btn-action-keluar" class="btn btn-danger d-inline-flex align-items-center justify-content-center py-2 px-3 fw-semibold flex-fill flex-sm-grow-0" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                    <i class="bi bi-arrow-up-right me-1.5"></i> Catat Stok Keluar
                 </a>
             </div>
         </div>

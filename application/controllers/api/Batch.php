@@ -104,4 +104,38 @@ class Batch extends MY_Controller {
 
         force_download($fullPath, NULL);
     }
+
+    /**
+     * GET /api/batch/export/excel
+     */
+    public function export_excel() {
+        $this->load->library('export_excel');
+
+        $batches = $this->Batch_model->get_with_relations();
+
+        $headers = ['No', 'Nomor Batch / Lot', 'Nama Produk', 'SKU', 'Kapasitas', 'Jumlah Awal', 'Stok Saat Ini', 'Lokasi Rak', 'Tanggal Masuk', 'Tanggal Kadaluarsa', 'Status'];
+        $rows = [];
+        $no = 1;
+
+        foreach ($batches as $b) {
+            $statusLabel = ucfirst(str_replace('_', ' ', $b['status'] ?? 'tersedia'));
+
+            $rows[] = [
+                $no++,
+                $b['nomor_batch'],
+                $b['nama_produk'] ?? '-',
+                $b['sku'] ?? '-',
+                $b['kapasitas'],
+                $b['jumlah_awal'],
+                $b['stok_saat_ini'],
+                $b['lokasi_rak'] ?? '-',
+                !empty($b['tanggal_masuk']) ? format_date_by_preference($b['tanggal_masuk']) : '-',
+                !empty($b['tanggal_kadaluarsa']) ? format_date_by_preference($b['tanggal_kadaluarsa']) : '-',
+                $statusLabel
+            ];
+        }
+
+        $filename = 'Laporan-Batch-Lot-Gudang-' . date('Y-m-d') . '.xlsx';
+        $this->export_excel->download($filename, 'Laporan Master Batch & Lokasi Rak Kardus', $headers, $rows);
+    }
 }

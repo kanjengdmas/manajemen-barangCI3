@@ -9,17 +9,17 @@
             Audit trail pergerakan stok barang, mutasi masuk, pengeluaran FIFO, dan log operator.
         </p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-        <a href="<?= site_url('api/stok/export/excel'); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+        <a href="<?= site_url('api/stok/export/excel'); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1.5 px-2.5 py-1.5 fw-semibold flex-fill flex-sm-grow-0 justify-content-center">
             <i class="bi bi-file-earmark-excel"></i> Ekspor Excel
         </a>
-        <a href="<?= site_url('api/stok/export/pdf'); ?>" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold">
+        <a href="<?= site_url('api/stok/export/pdf'); ?>" target="_blank" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1.5 px-2.5 py-1.5 fw-semibold flex-fill flex-sm-grow-0 justify-content-center">
             <i class="bi bi-printer"></i> Cetak / PDF
         </a>
-        <a href="<?= site_url('stok/masuk'); ?>" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1 px-3 py-1.5 fw-semibold text-white">
+        <a href="<?= site_url('stok/masuk'); ?>" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1 px-3 py-1.5 fw-semibold text-white flex-fill flex-sm-grow-0 justify-content-center">
             <i class="bi bi-arrow-down-left"></i> Masuk
         </a>
-        <a href="<?= site_url('stok/keluar'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1 px-3 py-1.5 fw-semibold text-white">
+        <a href="<?= site_url('stok/keluar'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1 px-3 py-1.5 fw-semibold text-white flex-fill flex-sm-grow-0 justify-content-center">
             <i class="bi bi-arrow-up-right"></i> Keluar
         </a>
     </div>
@@ -58,7 +58,8 @@
         </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 1. Desktop High-Density Table (Hidden on Phones) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table-modern" id="stock-history-table">
             <thead>
                 <tr>
@@ -83,6 +84,14 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. Mobile Feed Activity Cards (Visible on Phones < 768px) -->
+    <div class="mobile-card-list d-md-none p-3" id="history-mobile-cards">
+        <div class="text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>
+            Memuat transaksi mutasi...
+        </div>
+    </div>
 </div>
 
 <script>
@@ -99,6 +108,7 @@ function resetStockFilter() {
 
 function loadStockHistory() {
     const tbody = document.getElementById('history-tbody');
+    const mobileContainer = document.getElementById('history-mobile-cards');
     const startDate = document.getElementById('filter-start-date').value;
     const endDate = document.getElementById('filter-end-date').value;
     const type = document.getElementById('filter-type').value;
@@ -114,19 +124,17 @@ function loadStockHistory() {
         .then(res => {
             if (!res.status || !res.data || res.data.length === 0) {
                 if (countBadge) countBadge.innerHTML = `<i class="bi bi-arrow-left-right"></i> 0 Transaksi`;
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9">
-                            <div class="table-empty-state">
-                                <div class="table-empty-icon">
-                                    <i class="bi bi-inbox"></i>
-                                </div>
-                                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Tidak Ada Data Mutasi</h6>
-                                <p class="text-muted small mb-0">Belum ada transaksi pergerakan stok yang sesuai dengan kriteria filter.</p>
-                            </div>
-                        </td>
-                    </tr>
+                const emptyMarkup = `
+                    <div class="table-empty-state py-4 text-center">
+                        <div class="table-empty-icon mb-2">
+                            <i class="bi bi-inbox fs-2 text-muted"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Tidak Ada Data Mutasi</h6>
+                        <p class="text-muted small mb-0">Belum ada transaksi pergerakan stok yang sesuai dengan filter.</p>
+                    </div>
                 `;
+                tbody.innerHTML = `<tr><td colspan="9">${emptyMarkup}</td></tr>`;
+                mobileContainer.innerHTML = emptyMarkup;
                 return;
             }
 
@@ -135,6 +143,8 @@ function loadStockHistory() {
             }
 
             let html = '';
+            let mobileHtml = '';
+
             res.data.forEach((item, index) => {
                 const isMasuk = item.tipe === 'masuk';
                 const badgeClass = isMasuk ? 'badge-soft-success' : 'badge-soft-danger';
@@ -142,7 +152,10 @@ function loadStockHistory() {
                 const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
                 const qtyColor = isMasuk ? 'text-success' : 'text-danger';
                 const sign = isMasuk ? '+' : '-';
+                const iconClass = isMasuk ? 'in' : 'out';
+                const qtyClass = isMasuk ? 'in' : 'out';
 
+                // Desktop Table Row
                 html += `
                     <tr>
                         <td class="text-center text-muted fw-semibold tabular-nums">${index + 1}</td>
@@ -190,12 +203,38 @@ function loadStockHistory() {
                         </td>
                     </tr>
                 `;
+
+                // Mobile Feed Card
+                mobileHtml += `
+                    <div class="mobile-mutation-card">
+                        <div class="mobile-mutation-icon ${iconClass}">
+                            <i class="bi ${icon}"></i>
+                        </div>
+                        <div class="mobile-mutation-details">
+                            <div class="mobile-mutation-prod">${item.nama_produk || 'Barang Inventaris'}</div>
+                            <div class="mobile-mutation-meta">
+                                <span class="badge-soft badge-soft-secondary font-monospace" style="font-size: 0.68rem;">${item.sku || '-'}</span>
+                                ${item.nomor_batch ? `<span class="badge-soft badge-soft-warning font-monospace" style="font-size: 0.68rem;">Lot: ${item.nomor_batch}</span>` : ''}
+                                <span>· ${item.user_name || 'System'}</span>
+                            </div>
+                            ${item.catatan ? `<div class="text-muted small mt-1 text-truncate" style="font-size: 0.72rem;"><i class="bi bi-chat-left-text me-1"></i>${item.catatan}</div>` : ''}
+                        </div>
+                        <div class="mobile-mutation-qty">
+                            <div class="mobile-qty-pill ${qtyClass}">${sign}${Number(item.jumlah).toLocaleString()}</div>
+                            <div class="mobile-mutation-time tabular-nums">${item.tanggal ? item.tanggal.substring(11, 16) : ''}</div>
+                        </div>
+                    </div>
+                `;
             });
+
             tbody.innerHTML = html;
+            mobileContainer.innerHTML = mobileHtml;
         })
         .catch(err => {
             console.error(err);
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Gagal memuat data mutasi dari server.</td></tr>';
+            const errorMarkup = '<div class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Gagal memuat data mutasi dari server.</div>';
+            tbody.innerHTML = `<tr><td colspan="9">${errorMarkup}</td></tr>`;
+            mobileContainer.innerHTML = errorMarkup;
         });
 }
 </script>
