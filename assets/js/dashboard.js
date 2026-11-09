@@ -233,7 +233,7 @@
         fetch(`${baseUrl}api/dashboard/movement-chart?days=${currentPeriod}`, { headers: { 'Accept': 'application/json' } }),
         fetch(`${baseUrl}api/dashboard/stok-chart`, { headers: { 'Accept': 'application/json' } }),
         fetch(`${baseUrl}api/dashboard/low-stock?limit=5`, { headers: { 'Accept': 'application/json' } }),
-        fetch(`${baseUrl}api/dashboard/recent-activities?limit=10`, { headers: { 'Accept': 'application/json' } }),
+        fetch(`${baseUrl}api/dashboard/recent-activities?limit=15`, { headers: { 'Accept': 'application/json' } }),
         fetch(`${baseUrl}api/batch/expiring?days=30`, { headers: { 'Accept': 'application/json' } })
       ]);
 
@@ -357,47 +357,163 @@
     }).join('');
   };
 
+  const initActivityFilter = () => {
+    const filterPills = document.querySelectorAll('#activity-type-filter .dashboard-filter-btn');
+    if (!filterPills.length) return;
+
+    filterPills.forEach(btn => {
+      btn.addEventListener('click', function() {
+        filterPills.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        applyActivityFilter(this.getAttribute('data-filter'));
+      });
+    });
+  };
+
+  const applyActivityFilter = (filterType) => {
+    const rows = document.querySelectorAll('#recent-activities-tbody .activity-row');
+    const filterEmptyRow = document.getElementById('filter-empty-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const rowType = row.getAttribute('data-type');
+      if (filterType === 'all' || rowType === filterType) {
+        row.classList.remove('d-none');
+        visibleCount++;
+      } else {
+        row.classList.add('d-none');
+      }
+    });
+
+    if (filterEmptyRow) {
+      if (rows.length > 0 && visibleCount === 0) {
+        filterEmptyRow.classList.remove('d-none');
+      } else {
+        filterEmptyRow.classList.add('d-none');
+      }
+    }
+  };
+
   const renderRecentActivities = (items) => {
-    const container = document.getElementById('recent-activities-container');
-    if (!container) return;
+    const tbody = document.getElementById('recent-activities-tbody');
+    if (!tbody) return;
+
+    const countAllBadge = document.getElementById('filter-count-all');
+    if (countAllBadge) countAllBadge.textContent = items.length;
 
     if (items.length === 0) {
-      container.innerHTML = `
-        <div class="text-center py-4 text-muted">
-          <i class="bi bi-clock-history me-1"></i> Belum ada aktivitas mutasi stok tercatat.
-        </div>`;
+      tbody.innerHTML = `
+        <tr id="empty-activity-row">
+          <td colspan="6">
+            <div class="table-empty-state py-4">
+              <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Belum Ada Mutasi</h6>
+              <p class="text-muted small mb-0" style="font-size: 0.75rem;">Belum ada aktivitas transaksi mutasi barang tercatat.</p>
+            </div>
+          </td>
+        </tr>`;
       return;
     }
 
-    container.innerHTML = items.map(item => {
+    const currentFilter = document.querySelector('#activity-type-filter .dashboard-filter-btn.active')?.getAttribute('data-filter') || 'all';
+
+    tbody.innerHTML = items.map(item => {
       const isMasuk = item.tipe === 'masuk';
-      const icon = isMasuk ? 'bi-arrow-down-left text-success' : 'bi-arrow-up-right text-danger';
-      const typeBadge = isMasuk
-        ? '<span class="badge bg-success-subtle text-success border border-success-subtle">Masuk</span>'
-        : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">Keluar</span>';
+      const badgeClass = isMasuk ? 'badge-soft-success' : 'badge-soft-danger';
+      const dotClass = isMasuk ? 'bg-success' : 'bg-danger';
+      const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+      const sign = isMasuk ? '+' : '-';
+      const qtyClass = isMasuk ? 'text-success' : 'text-danger';
+
+      const d = item.tanggal ? new Date(item.tanggal) : new Date();
+      const dateStr = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+      const relativeTime = formatRelativeTime(item.tanggal);
+
+      const userName = item.user_name || 'Petugas';
+      const words = userName.trim().split(' ');
+      const initials = ((words[0]?.charAt(0) || '') + (words[1]?.charAt(0) || '')).toUpperCase();
+
+      const isHidden = (currentFilter !== 'all' && item.tipe !== currentFilter) ? 'd-none' : '';
 
       return `
-        <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-subtle">
-          <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                 style="width: 34px; height: 34px; background-color: var(--mb-surface-hover);">
-              <i class="bi ${icon} fs-6"></i>
+        <tr class="activity-row ${isHidden}" data-type="${escapeHtml(item.tipe)}">
+          <td>
+            <div class="fw-semibold tabular-nums" style="font-size: 0.82rem; color: var(--mb-text-primary);">
+              ${escapeHtml(dateStr)}
             </div>
-            <div>
-              <div class="fw-semibold text-truncate" style="max-width: 240px;">${escapeHtml(item.nama_produk || 'Produk')}</div>
-              <div class="text-muted small">
-                ${typeBadge}
-                <span class="ms-1 tabular-nums">${Number(item.jumlah).toLocaleString()} unit</span>
-                ${item.nomor_batch ? `<span class="ms-1 text-muted">· ${escapeHtml(item.nomor_batch)}</span>` : ''}
+            <div class="text-muted tabular-nums d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+              <i class="bi bi-clock"></i> ${escapeHtml(timeStr)}
+              <span class="text-muted opacity-75">· ${escapeHtml(relativeTime)}</span>
+            </div>
+          </td>
+          <td class="text-center">
+            <span class="badge-soft ${badgeClass}">
+              <span class="badge-dot ${dotClass}"></span>
+              <i class="bi ${icon}"></i> ${isMasuk ? 'Masuk' : 'Keluar'}
+            </span>
+          </td>
+          <td>
+            <div class="fw-semibold text-truncate" style="max-width: 260px; color: var(--mb-text-primary); font-size: 0.85rem;" title="${escapeHtml(item.nama_produk || 'Produk')}">
+              ${escapeHtml(item.nama_produk || 'Produk')}
+            </div>
+            <div class="mt-0.5">
+              <span class="sku-badge" style="font-size: 0.68rem; padding: 1px 6px;">
+                <i class="bi bi-upc-scan text-muted" style="font-size: 0.65rem;"></i>
+                ${escapeHtml(item.sku || '-')}
+              </span>
+            </div>
+          </td>
+          <td>
+            ${item.nomor_batch ? `
+              <div class="sku-badge font-monospace" style="font-size: 0.72rem; padding: 2px 7px;">
+                <i class="bi bi-box-seam text-muted" style="font-size: 0.68rem;"></i>
+                ${escapeHtml(item.nomor_batch)}
               </div>
+              ${item.lokasi_rak ? `
+                <div class="text-muted mt-0.5 d-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                  <i class="bi bi-geo-alt"></i> Rak: ${escapeHtml(item.lokasi_rak)}
+                </div>
+              ` : ''}
+            ` : '<span class="text-muted" style="font-size: 0.75rem;">Non-Batch</span>'}
+          </td>
+          <td class="text-end">
+            <span class="fw-bold tabular-nums font-monospace ${qtyClass}" style="font-size: 0.92rem;">
+              ${sign}${Number(item.jumlah).toLocaleString()}
+            </span>
+            <span class="text-muted small" style="font-size: 0.72rem;">unit</span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-1.5 mb-0.5">
+              <div class="mini-avatar-initials" title="${escapeHtml(userName)}">
+                ${escapeHtml(initials)}
+              </div>
+              <span class="fw-semibold text-truncate small" style="max-width: 130px; font-size: 0.8rem; color: var(--mb-text-primary);">
+                ${escapeHtml(userName)}
+              </span>
             </div>
+            <div class="text-muted text-truncate" style="max-width: 160px; font-size: 0.72rem;" title="${escapeHtml(item.catatan || '')}">
+              ${item.catatan ? escapeHtml(item.catatan) : '<span class="opacity-50">Tanpa catatan</span>'}
+            </div>
+          </td>
+        </tr>`;
+    }).join('') + `
+      <tr id="filter-empty-row" class="d-none">
+        <td colspan="6">
+          <div class="table-empty-state py-4">
+            <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
+              <i class="bi bi-funnel"></i>
+            </div>
+            <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Tidak Ditemukan</h6>
+            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 10 aktivitas terakhir.</p>
           </div>
-          <div class="text-end text-muted small">
-            <div>${formatRelativeTime(item.tanggal)}</div>
-            <div class="text-truncate" style="max-width: 100px;">${escapeHtml(item.user_name || 'Petugas')}</div>
-          </div>
-        </div>`;
-    }).join('');
+        </td>
+      </tr>
+    `;
+
+    applyActivityFilter(currentFilter);
   };
 
   const renderExpiringBatches = (items) => {
@@ -500,6 +616,7 @@
 
     initMovementChart(initialMovement);
     initKategoriChart(initialCategories);
+    initActivityFilter();
     startLiveClock();
     updateLastUpdatedTimestamp();
 

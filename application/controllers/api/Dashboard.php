@@ -113,7 +113,7 @@ class Dashboard extends MY_Controller {
      */
     public function recent_activities()
     {
-        $limit = (int) ($this->input->get('limit', true) ?: 10);
+        $limit = (int) ($this->input->get('limit', true) ?: 15);
         $activities = $this->Stok_model->get_recent_activities($limit);
 
         $data = [
