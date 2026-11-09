@@ -30,7 +30,8 @@
         </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 1. Desktop High-Density Table View (Hidden on Phones) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table-modern" id="productTable">
             <thead>
                 <tr>
@@ -157,20 +158,114 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. Mobile Touch-Optimized Card Feed (Visible on Phones < 768px) -->
+    <div class="mobile-card-list d-md-none p-3" id="productMobileCards">
+        <?php if (empty($products)): ?>
+            <div class="table-empty-state py-4 text-center">
+                <div class="table-empty-icon mb-2">
+                    <i class="bi bi-inbox fs-2 text-muted"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Produk</h6>
+                <p class="text-muted small mb-3">Katalog masih kosong. Tambahkan produk pertama Anda.</p>
+                <a href="<?= site_url('produk/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Produk
+                </a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($products as $p): ?>
+                <?php
+                    $stok = (int)$p['stok'];
+                    $minStok = (int)$p['stok_minimal'];
+                    $pct = $minStok > 0 ? min(100, round(($stok / ($minStok * 2)) * 100)) : 100;
+                    if ($stok <= 0) {
+                        $meterClass = 'danger';
+                    } elseif ($stok <= $minStok) {
+                        $meterClass = 'warning';
+                    } else {
+                        $meterClass = 'safe';
+                    }
+                ?>
+                <div class="mobile-data-card product-card-item" data-search="<?= strtolower(html_escape($p['nama_produk'] . ' ' . $p['sku'] . ' ' . ($p['nama_kategori'] ?? '') . ' ' . ($p['nama_pemasok'] ?? ''))); ?>">
+                    <div class="mobile-card-header">
+                        <?php if ($stok <= 0): ?>
+                            <span class="badge-soft badge-soft-danger"><span class="badge-dot bg-danger"></span> Habis</span>
+                        <?php elseif ($stok <= $minStok): ?>
+                            <span class="badge-soft badge-soft-warning"><span class="badge-dot bg-warning"></span> Menipis</span>
+                        <?php else: ?>
+                            <span class="badge-soft badge-soft-success"><span class="badge-dot bg-success"></span> Aman</span>
+                        <?php endif; ?>
+                        <span class="mobile-card-sku-pill">
+                            <i class="bi bi-upc-scan me-1"></i><?= html_escape($p['sku']); ?>
+                        </span>
+                    </div>
+
+                    <div class="mobile-card-body">
+                        <?php if (!empty($p['qr_code']) && file_exists(FCPATH . $p['qr_code'])): ?>
+                            <div class="mobile-card-thumb">
+                                <img src="<?= base_url($p['qr_code']); ?>" alt="QR">
+                            </div>
+                        <?php else: ?>
+                            <div class="mobile-card-thumb text-muted">
+                                <i class="bi bi-box-seam mobile-card-thumb-icon"></i>
+                            </div>
+                        <?php endif; ?>
+                        <div class="mobile-card-content">
+                            <div class="mobile-card-title"><?= html_escape($p['nama_produk']); ?></div>
+                            <div class="mobile-card-subtitle">
+                                <span class="badge-soft badge-soft-secondary me-1"><?= html_escape($p['nama_kategori'] ?? '-'); ?></span>
+                                <?php if (!empty($p['nama_pemasok'])): ?>
+                                    <span>· <?= html_escape($p['nama_pemasok']); ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-stats-box">
+                        <div class="mobile-stat-row mb-1.5">
+                            <span class="mobile-stat-label">Sisa Stok Fisik:</span>
+                            <span class="mobile-stat-value tabular-nums font-monospace <?= $stok <= 0 ? 'text-danger' : ($stok <= $minStok ? 'text-warning' : 'text-success'); ?>">
+                                <?= number_format($p['stok']); ?> unit
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between text-muted" style="font-size: 0.7rem; margin-bottom: 5px;">
+                            <span>Batas Minimal: <?= number_format($p['stok_minimal']); ?></span>
+                            <span>Kapasitas: <?= $pct; ?>%</span>
+                        </div>
+                        <div class="stock-meter-bar" style="height: 5px;">
+                            <div class="stock-meter-fill <?= $meterClass; ?>" style="width: <?= max(6, $pct); ?>%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-actions">
+                        <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                            <i class="bi bi-trash"></i> Hapus
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('productSearchInput');
     const tableBody = document.getElementById('productTableBody');
+    const mobileCardsContainer = document.getElementById('productMobileCards');
     const countBadge = document.getElementById('productCountBadge');
     const rows = document.querySelectorAll('.product-row');
+    const cards = document.querySelectorAll('.product-card-item');
 
-    if (searchInput && rows.length > 0) {
+    if (searchInput) {
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
             let visibleCount = 0;
 
+            // Filter Desktop Table Rows
             rows.forEach(row => {
                 const searchData = row.getAttribute('data-search') || '';
                 if (searchData.includes(query)) {
@@ -181,14 +276,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            // Filter Mobile Cards
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
             // Update visible count in badge
             if (countBadge) {
                 countBadge.innerHTML = `<i class="bi bi-box-seam"></i> ${visibleCount} Ditemukan`;
             }
 
-            // Show empty search notice if 0 matches
+            // Desktop no match row
             let noMatchRow = document.getElementById('noMatchRow');
-            if (visibleCount === 0) {
+            if (visibleCount === 0 && rows.length > 0) {
                 if (!noMatchRow) {
                     noMatchRow = document.createElement('tr');
                     noMatchRow.id = 'noMatchRow';
@@ -205,6 +310,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else if (noMatchRow) {
                 noMatchRow.style.display = 'none';
+            }
+
+            // Mobile no match notice
+            let noMatchMobile = document.getElementById('noMatchMobile');
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noMatchMobile) {
+                    noMatchMobile = document.createElement('div');
+                    noMatchMobile.id = 'noMatchMobile';
+                    noMatchMobile.className = 'text-center py-5 text-muted';
+                    noMatchMobile.innerHTML = `
+                        <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                        Tidak ada produk yang cocok dengan "<strong>${query}</strong>"
+                    `;
+                    mobileCardsContainer.appendChild(noMatchMobile);
+                } else {
+                    noMatchMobile.style.display = '';
+                    noMatchMobile.querySelector('strong').textContent = query;
+                }
+            } else if (noMatchMobile) {
+                noMatchMobile.style.display = 'none';
             }
         });
     }

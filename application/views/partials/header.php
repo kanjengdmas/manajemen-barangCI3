@@ -6,12 +6,12 @@
         </button>
 
         <!-- Live Auto-Refresh Indicator -->
-        <div class="live-indicator <?= (isset($settings['auto_refresh']) && $settings['auto_refresh'] == '1') ? '' : 'inactive'; ?>" id="header-live-badge" title="Auto-refresh background polling aktif">
+        <div class="live-indicator <?= (isset($settings['auto_refresh']) && $settings['auto_refresh'] == '1') ? '' : 'inactive'; ?>" id="header-live-badge" title="Auto-refresh background polling aktif (<?= $settings['refresh_interval'] ?? 5; ?>m)">
             <span class="live-dot"></span>
             <span class="d-none d-sm-inline">LIVE</span>
             <span class="text-muted d-none d-md-inline" style="font-size: 0.7rem;">(<?= $settings['refresh_interval'] ?? 5; ?>m)</span>
             <span class="text-muted mx-1 d-none d-sm-inline">·</span>
-            <span id="header-last-updated" class="tabular-nums" style="font-size: 0.72rem;">Pembaruan: <?= date('H:i:s'); ?></span>
+            <span id="header-last-updated" class="tabular-nums text-nowrap" style="font-size: 0.72rem;"><span class="d-none d-sm-inline">Pembaruan: </span><span id="header-live-seconds"><?= date('H:i:s'); ?></span></span>
         </div>
 
         <!-- Manual Refresh Button -->
@@ -23,14 +23,9 @@
     <!-- Right: Clock, Privacy Toggle, Theme Switch, & User Profile -->
     <div class="header-right">
         <!-- Live Clock -->
-        <div class="d-none d-xl-flex align-items-center text-muted small tabular-nums" id="header-live-clock">
-            <i class="bi bi-clock me-1.5"></i> <?= date('D, d M Y · H:i'); ?> WIB
+        <div class="d-none d-xl-flex align-items-center text-muted small tabular-nums text-nowrap" id="header-live-clock">
+            <i class="bi bi-clock me-1.5"></i> <?= date('D, d M Y · H:i:s'); ?> WIB
         </div>
-
-        <!-- Stock Privacy Toggle (Show/Hide Stock Numbers) -->
-        <button type="button" class="btn-icon-quiet" id="stock-privacy-toggle" title="Mode Privasi Kuantitas Stok" aria-label="Sembunyikan/Tampilkan Angka Stok">
-            <i class="bi bi-eye fs-5" id="stock-privacy-icon"></i>
-        </button>
 
         <!-- Theme Toggle Button -->
         <button type="button" class="btn-icon-quiet" id="theme-toggle-btn" title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">

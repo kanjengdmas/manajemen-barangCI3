@@ -61,18 +61,44 @@
 
     if (sidebar) {
       const toggleSidebar = () => {
+        const isOpening = !sidebar.classList.contains('show');
         sidebar.classList.toggle('show');
         if (backdrop) backdrop.classList.toggle('show');
+        if (isOpening) {
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling on mobile
+        } else {
+          document.body.style.overflow = '';
+        }
       };
 
       const closeSidebar = () => {
         sidebar.classList.remove('show');
         if (backdrop) backdrop.classList.remove('show');
+        document.body.style.overflow = '';
       };
+
+      const bottomNavMenuBtn = document.getElementById('bottom-nav-menu-btn');
 
       if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', toggleSidebar);
       if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+      if (bottomNavMenuBtn) bottomNavMenuBtn.addEventListener('click', toggleSidebar);
       if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+      // Close mobile sidebar on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('show')) {
+          closeSidebar();
+        }
+      });
+
+      // Close sidebar when clicking a nav link on mobile (width < 992px)
+      sidebar.querySelectorAll('.sidebar-nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 992) {
+            closeSidebar();
+          }
+        });
+      });
     }
 
     // Sidebar Interactive Quick Search (Ctrl+K)
@@ -123,35 +149,12 @@
       });
     }
 
-    // Stock Privacy Mode Toggle
-    const stockPrivacyBtn = document.getElementById('stock-privacy-toggle');
-    const applyStockPrivacy = (showStock) => {
-      const stockElements = document.querySelectorAll('[data-stock-value]');
-      stockElements.forEach(el => {
-        const rawVal = el.getAttribute('data-stock-value');
-        if (showStock) {
-          el.textContent = rawVal;
-        } else {
-          el.textContent = '••••••';
-        }
-      });
-
-      const icon = document.getElementById('stock-privacy-icon');
-      if (icon) {
-        icon.className = showStock ? 'bi bi-eye' : 'bi bi-eye-slash';
-      }
-    };
-
-    let showStock = localStorage.getItem('show_stock') !== '0';
-    applyStockPrivacy(showStock);
-
-    if (stockPrivacyBtn) {
-      stockPrivacyBtn.addEventListener('click', () => {
-        showStock = !showStock;
-        localStorage.setItem('show_stock', showStock ? '1' : '0');
-        applyStockPrivacy(showStock);
-      });
-    }
+    // Ensure all stock numbers display normally
+    document.querySelectorAll('[data-stock-value]').forEach(el => {
+      const rawVal = el.getAttribute('data-stock-value');
+      if (rawVal) el.textContent = rawVal;
+    });
+    localStorage.removeItem('show_stock');
 
     // Listen to system theme change
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -160,6 +163,48 @@
         setTheme('system');
       }
     });
+
+    // Live Real-Time Clock & Header Seconds Ticker
+    const startRealtimeClock = () => {
+      const secondsEl = document.getElementById('header-live-seconds');
+      const updatedEl = document.getElementById('header-last-updated');
+      const clockEl = document.getElementById('header-live-clock');
+
+      if (!secondsEl && !updatedEl && !clockEl) return;
+
+      const tick = () => {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        const timeStr = `${h}:${m}:${s}`;
+
+        if (secondsEl) {
+          secondsEl.textContent = timeStr;
+        } else if (updatedEl) {
+          updatedEl.textContent = `Pembaruan: ${timeStr}`;
+        }
+
+        if (clockEl) {
+          const datePart = now.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+          clockEl.innerHTML = `<i class="bi bi-clock me-1.5"></i> ${datePart} · ${timeStr} WIB`;
+        }
+      };
+
+      tick();
+      setInterval(tick, 1000);
+    };
+
+    startRealtimeClock();
+
+    // Manual Refresh Button fallback for non-dashboard pages
+    const manualRefreshBtn = document.getElementById('btn-manual-refresh');
+    if (manualRefreshBtn && !document.getElementById('movementChartCanvas')) {
+      manualRefreshBtn.addEventListener('click', () => {
+        manualRefreshBtn.classList.add('spinning');
+        window.location.reload();
+      });
+    }
   });
 
   // Expose global helper

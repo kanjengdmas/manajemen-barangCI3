@@ -69,6 +69,9 @@
         </div>
     </div>
 
+    <!-- Mobile Bottom Navigation Dock (Visible on Tablets & Phones) -->
+    <?php $this->load->view('partials/bottom_nav'); ?>
+
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

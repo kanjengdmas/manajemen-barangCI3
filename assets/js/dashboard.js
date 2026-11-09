@@ -295,66 +295,114 @@
     }
   };
 
-  const updateStatCard = (id, value, isStock = false) => {
+  const updateStatCard = (id, value) => {
     const el = document.getElementById(id);
     if (!el) return;
     const formatted = Number(value || 0).toLocaleString();
     el.setAttribute('data-stock-value', formatted);
-
-    const showStock = localStorage.getItem('show_stock') !== '0';
-    if (isStock && !showStock) {
-      el.textContent = '••••••';
-    } else {
-      el.textContent = formatted;
-    }
+    el.textContent = formatted;
   };
 
   const updateLastUpdatedTimestamp = () => {
-    const el = document.getElementById('header-last-updated');
-    if (!el) return;
+    const badge = document.getElementById('header-live-badge');
+    if (!badge) return;
+
     const now = new Date();
-    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace('.', ':');
-    el.textContent = `Pembaruan: ${timeStr}`;
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const timeStr = `${h}:${m}:${s}`;
+
+    badge.setAttribute('title', `Auto-refresh background polling aktif (${window.__AUTO_REFRESH_INTERVAL__ || 5}m) · Data disinkronkan: ${timeStr}`);
+
+    const dot = badge.querySelector('.live-dot');
+    if (dot) {
+      dot.classList.add('live-dot-sync');
+      setTimeout(() => dot.classList.remove('live-dot-sync'), 1200);
+    }
   };
 
   const renderLowStockTable = (items) => {
     const tbody = document.getElementById('low-stock-tbody');
-    if (!tbody) return;
+    const mobileContainer = document.getElementById('low-stock-mobile-cards');
+    if (!tbody && !mobileContainer) return;
 
     if (items.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="5" class="text-center py-4 text-muted">
-            <i class="bi bi-check-circle text-success me-1"></i> Semua stok produk dalam batas aman.
-          </td>
-        </tr>`;
+      const emptyMsg = `
+        <div class="text-center py-4 text-muted small">
+          <i class="bi bi-check-circle text-success me-1"></i> Semua stok produk dalam batas aman.
+        </div>`;
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="5">${emptyMsg}</td></tr>`;
+      }
+      if (mobileContainer) {
+        mobileContainer.innerHTML = emptyMsg;
+      }
       return;
     }
 
-    tbody.innerHTML = items.map((item, idx) => {
-      const isHabis = Number(item.stok) <= 0;
-      const badgeClass = isHabis ? 'badge-soft-danger' : 'badge-soft-warning';
-      const dotClass = isHabis ? 'bg-danger' : 'bg-warning';
-      const badgeText = isHabis ? 'Habis' : 'Menipis';
+    if (tbody) {
+      tbody.innerHTML = items.map((item, idx) => {
+        const isHabis = Number(item.stok) <= 0;
+        const badgeClass = isHabis ? 'badge-soft-danger' : 'badge-soft-warning';
+        const dotClass = isHabis ? 'bg-danger' : 'bg-warning';
+        const badgeText = isHabis ? 'Habis' : 'Menipis';
 
-      return `
-        <tr>
-          <td class="text-muted text-center tabular-nums fw-semibold">${idx + 1}</td>
-          <td>
-            <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;">${escapeHtml(item.nama_produk)}</div>
-            <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">${escapeHtml(item.sku || '-')}</span>
-          </td>
-          <td class="text-end">
-            <span class="fw-bold tabular-nums font-monospace ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</span>
-          </td>
-          <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;">${Number(item.stok_minimal).toLocaleString()}</td>
-          <td class="text-center">
-            <span class="badge-soft ${badgeClass}" style="font-size: 0.68rem; padding: 2px 7px;">
-              <span class="badge-dot ${dotClass}"></span> ${badgeText}
-            </span>
-          </td>
-        </tr>`;
-    }).join('');
+        return `
+          <tr>
+            <td class="text-muted text-center tabular-nums fw-semibold">${idx + 1}</td>
+            <td>
+              <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;">${escapeHtml(item.nama_produk)}</div>
+              <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">${escapeHtml(item.sku || '-')}</span>
+            </td>
+            <td class="text-end">
+              <span class="fw-bold tabular-nums font-monospace ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</span>
+            </td>
+            <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;">${Number(item.stok_minimal).toLocaleString()}</td>
+            <td class="text-center">
+              <span class="badge-soft ${badgeClass}" style="font-size: 0.68rem; padding: 2px 7px;">
+                <span class="badge-dot ${dotClass}"></span> ${badgeText}
+              </span>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    if (mobileContainer) {
+      const baseUrl = window.BASE_URL || '';
+      mobileContainer.innerHTML = items.map(item => {
+        const isHabis = Number(item.stok) <= 0;
+        const badgeClass = isHabis ? 'badge-soft-danger' : 'badge-soft-warning';
+        const dotClass = isHabis ? 'bg-danger' : 'bg-warning';
+        const badgeText = isHabis ? 'Habis' : 'Menipis';
+
+        return `
+          <div class="mobile-data-card p-3 mb-0">
+            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+              <div style="min-width: 0;">
+                <div class="fw-bold text-truncate" style="color: var(--mb-text-primary); font-size: 0.88rem;">
+                  ${escapeHtml(item.nama_produk)}
+                </div>
+                <span class="sku-badge mt-1" style="font-size: 0.68rem; padding: 1px 6px;">
+                  <i class="bi bi-upc-scan me-0.5"></i> ${escapeHtml(item.sku || '-')}
+                </span>
+              </div>
+              <span class="badge-soft ${badgeClass} flex-shrink-0">
+                <span class="badge-dot ${dotClass}"></span> ${badgeText}
+              </span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-subtle">
+              <div class="small text-muted">
+                Sisa: <strong class="tabular-nums font-monospace ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</strong>
+                <span class="opacity-50">/ min ${Number(item.stok_minimal).toLocaleString()}</span>
+              </div>
+              <a href="${baseUrl}stok/masuk?produk_id=${item.id}" class="btn btn-sm btn-outline-success py-1 px-2.5 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.74rem;">
+                <i class="bi bi-arrow-down-left"></i> Restock
+              </a>
+            </div>
+          </div>`;
+      }).join('');
+    }
   };
 
   const initActivityFilter = () => {
@@ -372,146 +420,217 @@
 
   const applyActivityFilter = (filterType) => {
     const rows = document.querySelectorAll('#recent-activities-tbody .activity-row');
+    const cards = document.querySelectorAll('#recent-activities-mobile-cards .activity-card-item');
     const filterEmptyRow = document.getElementById('filter-empty-row');
-    let visibleCount = 0;
+    const filterEmptyMobile = document.getElementById('filter-empty-mobile');
 
+    let visibleRowCount = 0;
     rows.forEach(row => {
       const rowType = row.getAttribute('data-type');
       if (filterType === 'all' || rowType === filterType) {
         row.classList.remove('d-none');
-        visibleCount++;
+        visibleRowCount++;
       } else {
         row.classList.add('d-none');
       }
     });
 
+    let visibleCardCount = 0;
+    cards.forEach(card => {
+      const cardType = card.getAttribute('data-type');
+      if (filterType === 'all' || cardType === filterType) {
+        card.classList.remove('d-none');
+        visibleCardCount++;
+      } else {
+        card.classList.add('d-none');
+      }
+    });
+
     if (filterEmptyRow) {
-      if (rows.length > 0 && visibleCount === 0) {
+      if (rows.length > 0 && visibleRowCount === 0) {
         filterEmptyRow.classList.remove('d-none');
       } else {
         filterEmptyRow.classList.add('d-none');
+      }
+    }
+
+    if (filterEmptyMobile) {
+      if (cards.length > 0 && visibleCardCount === 0) {
+        filterEmptyMobile.classList.remove('d-none');
+      } else {
+        filterEmptyMobile.classList.add('d-none');
       }
     }
   };
 
   const renderRecentActivities = (items) => {
     const tbody = document.getElementById('recent-activities-tbody');
-    if (!tbody) return;
+    const mobileContainer = document.getElementById('recent-activities-mobile-cards');
+    if (!tbody && !mobileContainer) return;
 
     const countAllBadge = document.getElementById('filter-count-all');
     if (countAllBadge) countAllBadge.textContent = items.length;
 
     if (items.length === 0) {
-      tbody.innerHTML = `
-        <tr id="empty-activity-row">
-          <td colspan="6">
-            <div class="table-empty-state py-4">
-              <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
-                <i class="bi bi-clock-history"></i>
-              </div>
-              <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Belum Ada Mutasi</h6>
-              <p class="text-muted small mb-0" style="font-size: 0.75rem;">Belum ada aktivitas transaksi mutasi barang tercatat.</p>
-            </div>
-          </td>
-        </tr>`;
+      const emptyHtml = `
+        <div class="table-empty-state py-4 text-center">
+          <div class="table-empty-icon mb-2">
+            <i class="bi bi-clock-history fs-2 text-muted"></i>
+          </div>
+          <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Mutasi</h6>
+          <p class="text-muted small mb-0">Belum ada aktivitas transaksi mutasi barang tercatat.</p>
+        </div>`;
+      if (tbody) {
+        tbody.innerHTML = `<tr id="empty-activity-row"><td colspan="6">${emptyHtml}</td></tr>`;
+      }
+      if (mobileContainer) {
+        mobileContainer.innerHTML = emptyHtml;
+      }
       return;
     }
 
     const currentFilter = document.querySelector('#activity-type-filter .dashboard-filter-btn.active')?.getAttribute('data-filter') || 'all';
 
-    tbody.innerHTML = items.map(item => {
-      const isMasuk = item.tipe === 'masuk';
-      const badgeClass = isMasuk ? 'badge-soft-success' : 'badge-soft-danger';
-      const dotClass = isMasuk ? 'bg-success' : 'bg-danger';
-      const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
-      const sign = isMasuk ? '+' : '-';
-      const qtyClass = isMasuk ? 'text-success' : 'text-danger';
+    if (tbody) {
+      tbody.innerHTML = items.map(item => {
+        const isMasuk = item.tipe === 'masuk';
+        const badgeClass = isMasuk ? 'badge-soft-success' : 'badge-soft-danger';
+        const dotClass = isMasuk ? 'bg-success' : 'bg-danger';
+        const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+        const sign = isMasuk ? '+' : '-';
+        const qtyClass = isMasuk ? 'text-success' : 'text-danger';
 
-      const d = item.tanggal ? new Date(item.tanggal) : new Date();
-      const dateStr = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-      const timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-      const relativeTime = formatRelativeTime(item.tanggal);
+        const d = item.tanggal ? new Date(item.tanggal) : new Date();
+        const dateStr = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        const timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        const relativeTime = formatRelativeTime(item.tanggal);
 
-      const userName = item.user_name || 'Petugas';
-      const words = userName.trim().split(' ');
-      const initials = ((words[0]?.charAt(0) || '') + (words[1]?.charAt(0) || '')).toUpperCase();
+        const userName = item.user_name || 'Petugas';
+        const words = userName.trim().split(' ');
+        const initials = ((words[0]?.charAt(0) || '') + (words[1]?.charAt(0) || '')).toUpperCase();
 
-      const isHidden = (currentFilter !== 'all' && item.tipe !== currentFilter) ? 'd-none' : '';
+        const isHidden = (currentFilter !== 'all' && item.tipe !== currentFilter) ? 'd-none' : '';
 
-      return `
-        <tr class="activity-row ${isHidden}" data-type="${escapeHtml(item.tipe)}">
-          <td>
-            <div class="fw-semibold tabular-nums" style="font-size: 0.82rem; color: var(--mb-text-primary);">
-              ${escapeHtml(dateStr)}
-            </div>
-            <div class="text-muted tabular-nums d-flex align-items-center gap-1" style="font-size: 0.72rem;">
-              <i class="bi bi-clock"></i> ${escapeHtml(timeStr)}
-              <span class="text-muted opacity-75">· ${escapeHtml(relativeTime)}</span>
-            </div>
-          </td>
-          <td class="text-center">
-            <span class="badge-soft ${badgeClass}">
-              <span class="badge-dot ${dotClass}"></span>
-              <i class="bi ${icon}"></i> ${isMasuk ? 'Masuk' : 'Keluar'}
-            </span>
-          </td>
-          <td>
-            <div class="fw-semibold text-truncate" style="max-width: 260px; color: var(--mb-text-primary); font-size: 0.85rem;" title="${escapeHtml(item.nama_produk || 'Produk')}">
-              ${escapeHtml(item.nama_produk || 'Produk')}
-            </div>
-            <div class="mt-0.5">
-              <span class="sku-badge" style="font-size: 0.68rem; padding: 1px 6px;">
-                <i class="bi bi-upc-scan text-muted" style="font-size: 0.65rem;"></i>
-                ${escapeHtml(item.sku || '-')}
-              </span>
-            </div>
-          </td>
-          <td>
-            ${item.nomor_batch ? `
-              <div class="sku-badge font-monospace" style="font-size: 0.72rem; padding: 2px 7px;">
-                <i class="bi bi-box-seam text-muted" style="font-size: 0.68rem;"></i>
-                ${escapeHtml(item.nomor_batch)}
+        return `
+          <tr class="activity-row ${isHidden}" data-type="${escapeHtml(item.tipe)}">
+            <td>
+              <div class="fw-semibold tabular-nums" style="font-size: 0.82rem; color: var(--mb-text-primary);">
+                ${escapeHtml(dateStr)}
               </div>
-              ${item.lokasi_rak ? `
-                <div class="text-muted mt-0.5 d-flex align-items-center gap-1" style="font-size: 0.68rem;">
-                  <i class="bi bi-geo-alt"></i> Rak: ${escapeHtml(item.lokasi_rak)}
+              <div class="text-muted tabular-nums d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                <i class="bi bi-clock"></i> ${escapeHtml(timeStr)}
+                <span class="text-muted opacity-75">· ${escapeHtml(relativeTime)}</span>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="badge-soft ${badgeClass}">
+                <span class="badge-dot ${dotClass}"></span>
+                <i class="bi ${icon}"></i> ${isMasuk ? 'Masuk' : 'Keluar'}
+              </span>
+            </td>
+            <td>
+              <div class="fw-semibold text-truncate" style="max-width: 260px; color: var(--mb-text-primary); font-size: 0.85rem;" title="${escapeHtml(item.nama_produk || 'Produk')}">
+                ${escapeHtml(item.nama_produk || 'Produk')}
+              </div>
+              <div class="mt-0.5">
+                <span class="sku-badge" style="font-size: 0.68rem; padding: 1px 6px;">
+                  <i class="bi bi-upc-scan text-muted" style="font-size: 0.65rem;"></i>
+                  ${escapeHtml(item.sku || '-')}
+                </span>
+              </div>
+            </td>
+            <td>
+              ${item.nomor_batch ? `
+                <div class="sku-badge font-monospace" style="font-size: 0.72rem; padding: 2px 7px;">
+                  <i class="bi bi-box-seam text-muted" style="font-size: 0.68rem;"></i>
+                  ${escapeHtml(item.nomor_batch)}
                 </div>
-              ` : ''}
-            ` : '<span class="text-muted" style="font-size: 0.75rem;">Non-Batch</span>'}
-          </td>
-          <td class="text-end">
-            <span class="fw-bold tabular-nums font-monospace ${qtyClass}" style="font-size: 0.92rem;">
-              ${sign}${Number(item.jumlah).toLocaleString()}
-            </span>
-            <span class="text-muted small" style="font-size: 0.72rem;">unit</span>
-          </td>
-          <td>
-            <div class="d-flex align-items-center gap-1.5 mb-0.5">
-              <div class="mini-avatar-initials" title="${escapeHtml(userName)}">
-                ${escapeHtml(initials)}
-              </div>
-              <span class="fw-semibold text-truncate small" style="max-width: 130px; font-size: 0.8rem; color: var(--mb-text-primary);">
-                ${escapeHtml(userName)}
+                ${item.lokasi_rak ? `
+                  <div class="text-muted mt-0.5 d-flex align-items-center gap-1" style="font-size: 0.68rem;">
+                    <i class="bi bi-geo-alt"></i> Rak: ${escapeHtml(item.lokasi_rak)}
+                  </div>
+                ` : ''}
+              ` : '<span class="text-muted" style="font-size: 0.75rem;">Non-Batch</span>'}
+            </td>
+            <td class="text-end">
+              <span class="fw-bold tabular-nums font-monospace ${qtyClass}" style="font-size: 0.92rem;">
+                ${sign}${Number(item.jumlah).toLocaleString()}
               </span>
-            </div>
-            <div class="text-muted text-truncate" style="max-width: 160px; font-size: 0.72rem;" title="${escapeHtml(item.catatan || '')}">
-              ${item.catatan ? escapeHtml(item.catatan) : '<span class="opacity-50">Tanpa catatan</span>'}
+              <span class="text-muted small" style="font-size: 0.72rem;">unit</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                <div class="mini-avatar-initials" title="${escapeHtml(userName)}">
+                  ${escapeHtml(initials)}
+                </div>
+                <span class="fw-semibold text-truncate small" style="max-width: 130px; font-size: 0.8rem; color: var(--mb-text-primary);">
+                  ${escapeHtml(userName)}
+                </span>
+              </div>
+              <div class="text-muted text-truncate" style="max-width: 160px; font-size: 0.72rem;" title="${escapeHtml(item.catatan || '')}">
+                ${item.catatan ? escapeHtml(item.catatan) : '<span class="opacity-50">Tanpa catatan</span>'}
+              </div>
+            </td>
+          </tr>`;
+      }).join('') + `
+        <tr id="filter-empty-row" class="d-none">
+          <td colspan="6">
+            <div class="table-empty-state py-4">
+              <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                <i class="bi bi-funnel"></i>
+              </div>
+              <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Tidak Ditemukan</h6>
+              <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 15 aktivitas terakhir.</p>
             </div>
           </td>
-        </tr>`;
-    }).join('') + `
-      <tr id="filter-empty-row" class="d-none">
-        <td colspan="6">
-          <div class="table-empty-state py-4">
-            <div class="table-empty-icon" style="width: 40px; height: 40px; font-size: 1.1rem;">
-              <i class="bi bi-funnel"></i>
+        </tr>
+      `;
+    }
+
+    if (mobileContainer) {
+      mobileContainer.innerHTML = items.map(item => {
+        const isMasuk = item.tipe === 'masuk';
+        const iconClass = isMasuk ? 'in' : 'out';
+        const icon = isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+        const sign = isMasuk ? '+' : '-';
+        const qtyClass = isMasuk ? 'in' : 'out';
+
+        const d = item.tanggal ? new Date(item.tanggal) : new Date();
+        const timeStr = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        const userName = item.user_name || 'Petugas';
+        const isHidden = (currentFilter !== 'all' && item.tipe !== currentFilter) ? 'd-none' : '';
+
+        return `
+          <div class="mobile-mutation-card activity-card-item ${isHidden}" data-type="${escapeHtml(item.tipe)}">
+            <div class="mobile-mutation-icon ${iconClass}">
+              <i class="bi ${icon}"></i>
             </div>
-            <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Tidak Ditemukan</h6>
-            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 10 aktivitas terakhir.</p>
+            <div class="mobile-mutation-details">
+              <div class="mobile-mutation-prod">${escapeHtml(item.nama_produk || 'Produk')}</div>
+              <div class="mobile-mutation-meta">
+                <span class="badge-soft badge-soft-secondary font-monospace" style="font-size: 0.68rem;">${escapeHtml(item.sku || '-')}</span>
+                ${item.nomor_batch ? `<span class="badge-soft badge-soft-warning font-monospace" style="font-size: 0.68rem;">Lot: ${escapeHtml(item.nomor_batch)}</span>` : ''}
+                <span>· ${escapeHtml(userName)}</span>
+              </div>
+              ${item.catatan ? `<div class="text-muted small mt-1 text-truncate" style="font-size: 0.72rem;"><i class="bi bi-chat-left-text me-1"></i>${escapeHtml(item.catatan)}</div>` : ''}
+            </div>
+            <div class="mobile-mutation-qty">
+              <div class="mobile-qty-pill ${qtyClass}">${sign}${Number(item.jumlah).toLocaleString()}</div>
+              <div class="mobile-mutation-time tabular-nums text-muted mt-0.5" style="font-size: 0.68rem;">
+                ${escapeHtml(timeStr)}
+              </div>
+            </div>
+          </div>`;
+      }).join('') + `
+        <div id="filter-empty-mobile" class="d-none table-empty-state py-4 text-center">
+          <div class="table-empty-icon mb-2">
+            <i class="bi bi-funnel fs-2 text-muted"></i>
           </div>
-        </td>
-      </tr>
-    `;
+          <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Tidak Ditemukan</h6>
+          <p class="text-muted small mb-0">Tidak ada transaksi mutasi sesuai filter ini pada 15 aktivitas terakhir.</p>
+        </div>
+      `;
+    }
 
     applyActivityFilter(currentFilter);
   };
@@ -576,21 +695,10 @@
   };
 
   /**
-   * 5. Setup Live Time Clock
+   * 5. Setup Live Time Clock (Handled globally by theme.js in real-time)
    */
   const startLiveClock = () => {
-    const clockEl = document.getElementById('header-live-clock');
-    if (!clockEl) return;
-
-    const tick = () => {
-      const now = new Date();
-      const datePart = now.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-      const timePart = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-      clockEl.textContent = `${datePart} · ${timePart} WIB`;
-    };
-
-    tick();
-    setInterval(tick, 30000);
+    // Realtime 1-second clock is now handled globally in theme.js
   };
 
   // 6. Setup Theme Change Listener on Charts

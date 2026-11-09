@@ -10,7 +10,7 @@
             Ikhtisar status persediaan, arus barang real-time, dan peringatan dini batch operasional.
         </p>
     </div>
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
         <a href="<?= site_url('stok/masuk'); ?>" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold">
             <i class="bi bi-arrow-down-left"></i> Stok Masuk
         </a>
@@ -23,10 +23,10 @@
     </div>
 </div>
 
-<!-- 1. Four Key Performance Indicator Stat Cards -->
-<div class="row g-3 g-lg-4 mb-4">
+<!-- 1. Four Key Performance Indicator Stat Cards (2x2 Grid on Mobile, 4 Cols on Desktop) -->
+<div class="row g-2 g-md-3 g-lg-4 mb-4">
     <!-- Stat 1: Total Produk -->
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-6 col-xl-3">
         <div class="mb-card stat-card">
             <div>
                 <div class="stat-card-top">
@@ -49,7 +49,7 @@
     </div>
 
     <!-- Stat 2: Total Stok Unit -->
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-6 col-xl-3">
         <div class="mb-card stat-card">
             <div>
                 <div class="stat-card-top">
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Stat 3: Stok Menipis -->
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-6 col-xl-3">
         <div class="mb-card stat-card">
             <div>
                 <div class="stat-card-top">
@@ -97,7 +97,7 @@
     </div>
 
     <!-- Stat 4: Stok Habis -->
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-6 col-xl-3">
         <div class="mb-card stat-card">
             <div>
                 <div class="stat-card-top">
@@ -128,7 +128,7 @@
     <div class="col-12 col-xl-8">
         <div class="mb-card h-100 d-flex flex-column justify-content-between">
             <div>
-                <div class="mb-card-header flex-wrap gap-2">
+                <div class="mb-card-header flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2.5">
                     <div>
                         <h3 class="mb-card-title">
                             <i class="bi bi-bar-chart-steps text-danger"></i> Arus Pergerakan Barang
@@ -137,17 +137,17 @@
                     </div>
 
                     <!-- Dynamic Period Tabs -->
-                    <div class="period-tabs">
-                        <button type="button" class="period-tab active" data-period="7d">7 Hari</button>
-                        <button type="button" class="period-tab" data-period="30d">30 Hari</button>
-                        <button type="button" class="period-tab" data-period="6m">6 Bulan</button>
-                        <button type="button" class="period-tab" data-period="12m">1 Tahun</button>
+                    <div class="period-tabs w-100 w-sm-auto justify-content-between justify-content-sm-start">
+                        <button type="button" class="period-tab flex-fill flex-sm-grow-0 text-center active" data-period="7d">7 Hari</button>
+                        <button type="button" class="period-tab flex-fill flex-sm-grow-0 text-center" data-period="30d">30 Hari</button>
+                        <button type="button" class="period-tab flex-fill flex-sm-grow-0 text-center" data-period="6m">6 Bulan</button>
+                        <button type="button" class="period-tab flex-fill flex-sm-grow-0 text-center" data-period="12m">1 Tahun</button>
                     </div>
                 </div>
 
                 <!-- Summary Badges in Selected Period -->
-                <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom border-subtle">
-                    <div class="d-flex align-items-center gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3 mb-3 pb-3 border-bottom border-subtle">
+                    <div class="d-flex align-items-center gap-1.5 gap-sm-2">
                         <span class="rounded-circle bg-success" style="width: 8px; height: 8px;"></span>
                         <span class="text-muted small">Total Masuk Periode Ini:</span>
                         <span id="period-total-in" class="tabular-nums fw-bold text-success">
@@ -155,8 +155,8 @@
                         </span>
                         <span class="text-muted small">Unit</span>
                     </div>
-                    <span class="text-muted opacity-25">|</span>
-                    <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted opacity-25 d-none d-sm-inline">|</span>
+                    <div class="d-flex align-items-center gap-1.5 gap-sm-2">
                         <span class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></span>
                         <span class="text-muted small">Total Keluar Periode Ini:</span>
                         <span id="period-total-out" class="tabular-nums fw-bold text-danger">
@@ -167,7 +167,7 @@
                 </div>
 
                 <!-- Canvas Chart -->
-                <div style="height: 300px; position: relative;">
+                <div style="height: 280px; position: relative; max-width: 100%;">
                     <canvas id="movementChartCanvas"></canvas>
                 </div>
             </div>
@@ -190,9 +190,9 @@
                     </a>
                 </div>
 
-                <!-- Donut Canvas -->
-                <div style="height: 200px; position: relative;" class="my-2">
-                    <canvas id="kategoriChartCanvas"></canvas>
+                <!-- Donut Canvas Centered & Constrained -->
+                <div class="d-flex justify-content-center align-items-center my-2" style="height: 190px; position: relative; max-width: 100%; overflow: hidden;">
+                    <canvas id="kategoriChartCanvas" style="max-height: 190px; max-width: 220px;"></canvas>
                 </div>
 
                 <!-- Custom Clean Legend List -->
@@ -209,11 +209,11 @@
                             $dotColor = $colors[$idx % count($colors)];
                             ?>
                             <div class="d-flex align-items-center justify-content-between py-1.5 text-muted small">
-                                <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 170px;">
+                                <div class="d-flex align-items-center gap-2 text-truncate" style="min-width: 0; max-width: 60%;">
                                     <span class="rounded-circle flex-shrink-0" style="width: 8px; height: 8px; background-color: <?= $dotColor; ?>;"></span>
                                     <span class="text-truncate" style="color: var(--mb-text-primary);"><?= html_escape($cat['nama_kategori']); ?></span>
                                 </div>
-                                <div class="tabular-nums font-monospace" style="font-size: 0.76rem;">
+                                <div class="tabular-nums font-monospace flex-shrink-0 text-end" style="font-size: 0.76rem;">
                                     <strong><?= number_format($stok); ?></strong> unit (<?= $pct; ?>%)
                                 </div>
                             </div>
@@ -244,7 +244,8 @@
                 </a>
             </div>
 
-            <div class="table-responsive">
+            <!-- Desktop Table (Visible >= 768px) -->
+            <div class="table-responsive d-none d-md-block">
                 <table class="table-modern">
                     <thead>
                         <tr>
@@ -299,6 +300,47 @@
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card Feed (Visible < 768px) -->
+            <div class="d-md-none p-2 p-sm-3 d-flex flex-column gap-2" id="low-stock-mobile-cards">
+                <?php if (!empty($low_stock_products)): ?>
+                    <?php foreach ($low_stock_products as $p): ?>
+                        <?php
+                        $stok = (int) $p['stok'];
+                        $minStok = (int) $p['stok_minimal'];
+                        $isHabis = $stok <= 0;
+                        ?>
+                        <div class="mobile-data-card p-3 mb-0">
+                            <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                                <div style="min-width: 0;">
+                                    <div class="fw-bold text-truncate" style="color: var(--mb-text-primary); font-size: 0.88rem;">
+                                        <?= html_escape($p['nama_produk']); ?>
+                                    </div>
+                                    <span class="sku-badge mt-1" style="font-size: 0.68rem; padding: 1px 6px;">
+                                        <i class="bi bi-upc-scan me-0.5"></i> <?= html_escape($p['sku'] ?? '-'); ?>
+                                    </span>
+                                </div>
+                                <span class="badge-soft <?= $isHabis ? 'badge-soft-danger' : 'badge-soft-warning'; ?> flex-shrink-0">
+                                    <span class="badge-dot <?= $isHabis ? 'bg-danger' : 'bg-warning'; ?>"></span> <?= $isHabis ? 'Habis' : 'Menipis'; ?>
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-subtle">
+                                <div class="small text-muted">
+                                    Sisa: <strong class="tabular-nums font-monospace <?= $isHabis ? 'text-danger' : 'text-warning'; ?>"><?= number_format($p['stok']); ?></strong>
+                                    <span class="opacity-50">/ min <?= number_format($p['stok_minimal']); ?></span>
+                                </div>
+                                <a href="<?= site_url('stok/masuk?produk_id=' . $p['id']); ?>" class="btn btn-sm btn-outline-success py-1 px-2.5 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.74rem;">
+                                    <i class="bi bi-arrow-down-left"></i> Restock
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="text-center py-4 text-muted small">
+                        <i class="bi bi-check-circle text-success me-1"></i> Semua stok produk dalam batas aman.
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -411,26 +453,24 @@
 
 <!-- 4. Recent Stock Activity Log -->
 <div class="table-card mb-4">
-    <div class="table-toolbar flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-2">
-            <div>
-                <div class="d-flex align-items-center gap-2">
-                    <h3 class="mb-card-title mb-0" style="font-size: 0.95rem;">
-                        <i class="bi bi-clock-history text-danger me-1.5"></i> Aktivitas Mutasi Terkini
-                    </h3>
-                    <span class="badge-soft badge-soft-secondary d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.68rem; padding: 2px 7px;" title="Tabel ini dilengkapi fitur scroll vertikal">
-                        <i class="bi bi-arrows-vertical text-muted"></i> Scrollable
-                    </span>
-                </div>
-                <p class="text-muted small mb-0" style="font-size: 0.75rem;">
-                    Catatan 15 transaksi pergerakan barang terakhir di gudang (scroll untuk melihat lebih banyak)
-                </p>
+    <div class="table-toolbar flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2.5">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h3 class="mb-card-title mb-0" style="font-size: 0.95rem;">
+                    <i class="bi bi-clock-history text-danger me-1.5"></i> Aktivitas Mutasi Terkini
+                </h3>
+                <span class="badge-soft badge-soft-secondary d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.68rem; padding: 2px 7px;" title="Tabel ini dilengkapi fitur scroll vertikal">
+                    <i class="bi bi-arrows-vertical text-muted"></i> Scrollable
+                </span>
             </div>
+            <p class="text-muted small mb-0" style="font-size: 0.75rem;">
+                Catatan 15 transaksi pergerakan barang terakhir di gudang (scroll untuk melihat lebih banyak)
+            </p>
         </div>
 
-        <div class="d-flex align-items-center gap-2.5 ms-auto flex-wrap">
+        <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-2 w-100 w-sm-auto flex-wrap">
             <!-- Segmented Filter Pills -->
-            <div class="dashboard-filter-pills" id="activity-type-filter">
+            <div class="dashboard-filter-pills flex-grow-1 flex-sm-grow-0" id="activity-type-filter">
                 <button type="button" class="dashboard-filter-btn active" data-filter="all">
                     <span>Semua</span>
                     <span class="badge bg-secondary-subtle text-secondary rounded-pill px-1.5 py-0.5" style="font-size: 0.65rem;" id="filter-count-all"><?= count($recent_activities ?? []); ?></span>
@@ -445,14 +485,15 @@
                 </button>
             </div>
 
-            <a href="<?= site_url('stok'); ?>" class="table-toolbar-action" title="Lihat riwayat mutasi stok lengkap">
+            <a href="<?= site_url('stok'); ?>" class="table-toolbar-action flex-shrink-0" title="Lihat riwayat mutasi stok lengkap">
                 <span>Riwayat Lengkap</span>
                 <i class="bi bi-arrow-right action-arrow"></i>
             </a>
         </div>
     </div>
 
-    <div class="table-responsive table-scroll-container">
+    <!-- Desktop Table View (>= 768px) -->
+    <div class="table-responsive table-scroll-container d-none d-md-block">
         <table class="table-modern" id="recent-activities-table">
             <thead>
                 <tr>
@@ -575,12 +616,81 @@
                                 <i class="bi bi-funnel"></i>
                             </div>
                             <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary); font-size: 0.88rem;">Tidak Ditemukan</h6>
-                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 10 aktivitas terakhir.</p>
+                            <p class="text-muted small mb-0" style="font-size: 0.75rem;">Tidak ada transaksi mutasi sesuai filter ini pada 15 aktivitas terakhir.</p>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Mobile Feed Activity Cards (< 768px) -->
+    <div class="d-md-none p-2 p-sm-3 d-flex flex-column gap-2" id="recent-activities-mobile-cards">
+        <?php if (!empty($recent_activities)): ?>
+            <?php foreach ($recent_activities as $act): ?>
+                <?php
+                $isMasuk = $act['tipe'] === 'masuk';
+                $timeObj = strtotime($act['tanggal']);
+                $timeDiff = time() - $timeObj;
+                if ($timeDiff < 60) {
+                    $relativeTime = 'Baru saja';
+                } elseif ($timeDiff < 3600) {
+                    $relativeTime = floor($timeDiff / 60) . ' mnt lalu';
+                } elseif ($timeDiff < 86400) {
+                    $relativeTime = floor($timeDiff / 3600) . ' jam lalu';
+                } else {
+                    $relativeTime = date('d M Y', $timeObj);
+                }
+
+                $userName = !empty($act['user_name']) ? $act['user_name'] : 'Petugas';
+                $iconClass = $isMasuk ? 'in' : 'out';
+                $icon = $isMasuk ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+                $sign = $isMasuk ? '+' : '-';
+                $qtyClass = $isMasuk ? 'in' : 'out';
+                ?>
+                <div class="mobile-mutation-card activity-card-item" data-type="<?= $act['tipe']; ?>">
+                    <div class="mobile-mutation-icon <?= $iconClass; ?>">
+                        <i class="bi <?= $icon; ?>"></i>
+                    </div>
+                    <div class="mobile-mutation-details">
+                        <div class="mobile-mutation-prod"><?= html_escape($act['nama_produk'] ?? 'Produk'); ?></div>
+                        <div class="mobile-mutation-meta">
+                            <span class="badge-soft badge-soft-secondary font-monospace" style="font-size: 0.68rem;"><?= html_escape($act['sku'] ?? '-'); ?></span>
+                            <?php if (!empty($act['nomor_batch'])): ?>
+                                <span class="badge-soft badge-soft-warning font-monospace" style="font-size: 0.68rem;">Lot: <?= html_escape($act['nomor_batch']); ?></span>
+                            <?php endif; ?>
+                            <span>· <?= html_escape($userName); ?></span>
+                        </div>
+                        <?php if (!empty($act['catatan'])): ?>
+                            <div class="text-muted small mt-1 text-truncate" style="font-size: 0.72rem;">
+                                <i class="bi bi-chat-left-text me-1"></i><?= html_escape($act['catatan']); ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="mobile-mutation-qty">
+                        <div class="mobile-qty-pill <?= $qtyClass; ?>"><?= $sign . number_format($act['jumlah']); ?></div>
+                        <div class="mobile-mutation-time tabular-nums text-muted mt-0.5" style="font-size: 0.68rem;">
+                            <?= date('H:i', $timeObj); ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="table-empty-state py-4 text-center">
+                <div class="table-empty-icon mb-2">
+                    <i class="bi bi-clock-history fs-2 text-muted"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Mutasi</h6>
+                <p class="text-muted small mb-0">Belum ada aktivitas transaksi mutasi barang tercatat.</p>
+            </div>
+        <?php endif; ?>
+        <div id="filter-empty-mobile" class="d-none table-empty-state py-4 text-center">
+            <div class="table-empty-icon mb-2">
+                <i class="bi bi-funnel fs-2 text-muted"></i>
+            </div>
+            <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Tidak Ditemukan</h6>
+            <p class="text-muted small mb-0">Tidak ada transaksi mutasi sesuai filter ini pada 15 aktivitas terakhir.</p>
+        </div>
     </div>
 </div>
 

@@ -44,10 +44,10 @@
                         <input type="date" name="tanggal_kadaluarsa" class="form-control">
                         <div class="form-text">Kosongkan jika non-perishable.</div>
                     </div>
-                    <div class="col-12 text-end pt-3">
-                        <a href="<?= site_url('batch'); ?>" class="btn btn-outline-secondary me-2">Batal</a>
-                        <button type="submit" class="btn btn-danger px-4" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
-                            <i class="bi bi-qr-code me-1"></i> Registrasi & Generate QR
+                    <div class="col-12 d-flex flex-column flex-sm-row justify-content-end gap-2 pt-3 border-top mt-2">
+                        <a href="<?= site_url('batch'); ?>" class="btn btn-outline-secondary order-2 order-sm-1">Batal</a>
+                        <button type="submit" class="btn btn-danger px-4 fw-semibold order-1 order-sm-2 d-inline-flex align-items-center justify-content-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                            <i class="bi bi-qr-code"></i> Registrasi &amp; Generate QR
                         </button>
                     </div>
                 </div>

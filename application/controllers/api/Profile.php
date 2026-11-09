@@ -12,6 +12,7 @@ class Profile extends MY_Controller {
      * GET /api/user
      */
     public function me() {
+        $avatarUrl = !empty($this->current_user['avatar']) ? base_url('uploads/avatar/' . $this->current_user['avatar']) : null;
         $this->json_response([
             'status' => true,
             'data' => [
@@ -19,18 +20,25 @@ class Profile extends MY_Controller {
                 'name' => $this->current_user['name'],
                 'email' => $this->current_user['email'],
                 'role' => $this->current_user['role'],
-                'avatar' => $this->current_user['avatar']
+                'avatar' => $this->current_user['avatar'],
+                'avatar_url' => $avatarUrl
             ]
         ]);
     }
 
     /**
      * GET /api/profile
+     * Dispatches to update() if POST method is used
      */
     public function index() {
+        if ($this->input->method() === 'post') {
+            return $this->update();
+        }
+
         $user = $this->current_user;
         unset($user['password']);
         $user['joined_date_formatted'] = format_date_by_preference($user['created_at']);
+        $user['avatar_url'] = !empty($user['avatar']) ? base_url('uploads/avatar/' . $user['avatar']) : null;
 
         $this->json_response([
             'status' => true,
@@ -40,6 +48,7 @@ class Profile extends MY_Controller {
 
     /**
      * POST /api/profile
+     * POST /api/profile/update
      */
     public function update() {
         $userId = $this->current_user['id'];
@@ -48,6 +57,10 @@ class Profile extends MY_Controller {
 
         if (empty($name) || empty($email)) {
             $this->json_response(['status' => false, 'message' => 'Nama dan email wajib diisi.'], 422);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->json_response(['status' => false, 'message' => 'Format alamat email tidak valid.'], 422);
         }
 
         // Check unique email
@@ -62,6 +75,14 @@ class Profile extends MY_Controller {
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
+        // Handle Avatar Removal
+        if ($this->input->post('delete_avatar') == '1') {
+            if (!empty($this->current_user['avatar']) && file_exists(FCPATH . 'uploads/avatar/' . $this->current_user['avatar'])) {
+                @unlink(FCPATH . 'uploads/avatar/' . $this->current_user['avatar']);
+            }
+            $updateData['avatar'] = null;
+        }
+
         // Handle Avatar Upload
         if (!empty($_FILES['avatar']['name'])) {
             $config['upload_path'] = FCPATH . 'uploads/avatar/';
@@ -71,17 +92,34 @@ class Profile extends MY_Controller {
 
             $this->load->library('upload', $config);
             if ($this->upload->do_upload('avatar')) {
+                // Remove previous avatar file if exists
+                if (!empty($this->current_user['avatar']) && file_exists(FCPATH . 'uploads/avatar/' . $this->current_user['avatar'])) {
+                    @unlink(FCPATH . 'uploads/avatar/' . $this->current_user['avatar']);
+                }
                 $fileData = $this->upload->data();
                 $updateData['avatar'] = $fileData['file_name'];
+            } else {
+                $uploadError = strip_tags($this->upload->display_errors());
+                $this->json_response(['status' => false, 'message' => 'Gagal mengunggah foto avatar: ' . $uploadError], 422);
             }
         }
 
         $this->User_model->update($userId, $updateData);
 
+        // Update active session values
+        $this->session->set_userdata([
+            'user_name' => $name,
+            'user_email' => $email
+        ]);
+
+        $updatedUser = $this->User_model->get_by_id($userId);
+        unset($updatedUser['password']);
+        $updatedUser['avatar_url'] = !empty($updatedUser['avatar']) ? base_url('uploads/avatar/' . $updatedUser['avatar']) : null;
+
         $this->json_response([
             'status' => true,
-            'message' => 'Profil berhasil diperbarui.',
-            'data' => array_merge($this->current_user, $updateData)
+            'message' => 'Profil pengguna berhasil diperbarui.',
+            'data' => $updatedUser
         ]);
     }
 
@@ -92,14 +130,18 @@ class Profile extends MY_Controller {
         $userId = $this->current_user['id'];
         $currentPass = $this->input->post('current_password');
         $newPass = $this->input->post('new_password');
-        $confirmPass = $this->input->post('new_password_confirmation');
+        $confirmPass = $this->input->post('new_password_confirmation') ?? $this->input->post('confirm_password');
+
+        if (empty($currentPass) || empty($newPass)) {
+            $this->json_response(['status' => false, 'message' => 'Semua kolom kata sandi wajib diisi.'], 422);
+        }
 
         if (!password_verify($currentPass, $this->current_user['password'])) {
             $this->json_response(['status' => false, 'message' => 'Kata sandi saat ini tidak sesuai.'], 422);
         }
 
         if (strlen($newPass) < 8) {
-            $this->json_response(['status' => false, 'message' => 'Kata sandi baru minimal 8 karakter.'], 422);
+            $this->json_response(['status' => false, 'message' => 'Kata sandi baru minimal harus 8 karakter.'], 422);
         }
 
         if ($newPass !== $confirmPass) {
@@ -110,14 +152,19 @@ class Profile extends MY_Controller {
 
         $this->json_response([
             'status' => true,
-            'message' => 'Kata sandi berhasil diperbarui.'
+            'message' => 'Kata sandi akun Anda berhasil diperbarui.'
         ]);
     }
 
     /**
      * GET /api/profile/preferences
+     * POST /api/profile/preferences
      */
     public function preferences() {
+        if ($this->input->method() === 'post') {
+            return $this->save_preferences();
+        }
+
         $prefs = $this->preference->get_user_preferences($this->current_user['id']);
         $this->json_response([
             'status' => true,
@@ -126,7 +173,7 @@ class Profile extends MY_Controller {
     }
 
     /**
-     * POST /api/profile/preferences
+     * POST /api/profile/save-preferences
      */
     public function save_preferences() {
         $json = json_decode($this->input->raw_input_stream, true);
@@ -140,7 +187,7 @@ class Profile extends MY_Controller {
 
         $this->json_response([
             'status' => true,
-            'message' => 'Preferensi berhasil disimpan secara otomatis.',
+            'message' => 'Preferensi pengguna berhasil disimpan.',
             'data' => $this->preference->get_user_preferences($this->current_user['id'])
         ]);
     }

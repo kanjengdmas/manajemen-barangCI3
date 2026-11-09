@@ -30,7 +30,8 @@
         </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- 1. Desktop High-Density Table (Hidden on Phones) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table-modern" id="batchTable">
             <thead>
                 <tr>
@@ -162,16 +163,112 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. Mobile Touch-Optimized Cards (Visible on Phones < 768px) -->
+    <div class="mobile-card-list d-md-none p-3" id="batchMobileCards">
+        <?php if (empty($batches)): ?>
+            <div class="table-empty-state py-4 text-center">
+                <div class="table-empty-icon mb-2">
+                    <i class="bi bi-layers fs-2 text-muted"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Lot / Batch</h6>
+                <p class="text-muted small mb-3">Registrasikan nomor batch kardus untuk pelacakan kadaluarsa.</p>
+                <a href="<?= site_url('batch/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                    <i class="bi bi-plus-lg me-1"></i> Registrasi Batch
+                </a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($batches as $b): ?>
+                <?php
+                    $diffDays = !empty($b['tanggal_kadaluarsa']) ? round((strtotime($b['tanggal_kadaluarsa']) - time()) / 86400) : null;
+                    $isExpiring = $diffDays !== null && $diffDays <= 30 && $diffDays > 0;
+                    $isExpired = $diffDays !== null && $diffDays <= 0;
+                    $stok = (int)($b['stok_saat_ini'] ?? 0);
+                    $awal = (int)($b['jumlah_awal'] ?? 1);
+                    $pctSisa = $awal > 0 ? min(100, round(($stok / $awal) * 100)) : 0;
+                    $status = $b['status'] ?? ($isExpired ? 'kadaluarsa' : ($stok <= 0 ? 'habis' : ($isExpiring ? 'hampir_habis' : 'tersedia')));
+                ?>
+                <div class="mobile-data-card batch-card-item" data-search="<?= strtolower(html_escape($b['nomor_batch'] . ' ' . ($b['nama_produk'] ?? '') . ' ' . ($b['sku'] ?? ''))); ?>">
+                    <div class="mobile-card-header">
+                        <?php if ($status === 'kadaluarsa'): ?>
+                            <span class="badge-soft badge-soft-danger"><span class="badge-dot bg-danger"></span> Kadaluarsa</span>
+                        <?php elseif ($status === 'habis'): ?>
+                            <span class="badge-soft badge-soft-secondary"><span class="badge-dot bg-secondary"></span> Habis</span>
+                        <?php elseif ($status === 'hampir_habis'): ?>
+                            <span class="badge-soft badge-soft-warning"><span class="badge-dot bg-warning"></span> Kritis FEFO</span>
+                        <?php else: ?>
+                            <span class="badge-soft badge-soft-success"><span class="badge-dot bg-success"></span> Tersedia</span>
+                        <?php endif; ?>
+
+                        <span class="mobile-card-sku-pill">
+                            <i class="bi bi-layers me-1"></i><?= html_escape($b['nomor_batch']); ?>
+                        </span>
+                    </div>
+
+                    <div class="mobile-card-body">
+                        <?php if (!empty($b['qr_code']) && file_exists(FCPATH . $b['qr_code'])): ?>
+                            <div class="mobile-card-thumb">
+                                <img src="<?= base_url($b['qr_code']); ?>" alt="QR">
+                            </div>
+                        <?php else: ?>
+                            <div class="mobile-card-thumb text-muted">
+                                <i class="bi bi-qr-code mobile-card-thumb-icon"></i>
+                            </div>
+                        <?php endif; ?>
+                        <div class="mobile-card-content">
+                            <div class="mobile-card-title"><?= html_escape($b['nama_produk'] ?? 'Tanpa Produk'); ?></div>
+                            <div class="mobile-card-subtitle font-monospace">
+                                <span>SKU: <?= html_escape($b['sku'] ?? '-'); ?></span>
+                            </div>
+                            <?php if (!empty($b['tanggal_kadaluarsa'])): ?>
+                                <div class="mt-1" style="font-size: 0.72rem;">
+                                    <span class="text-muted">Exp:</span>
+                                    <strong class="<?= $isExpired ? 'text-danger' : ($isExpiring ? 'text-warning' : 'text-primary'); ?>">
+                                        <?= format_date_by_preference($b['tanggal_kadaluarsa'], null, false); ?>
+                                    </strong>
+                                    <?php if ($isExpired): ?>
+                                        <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">EXPIRED</span>
+                                    <?php elseif ($isExpiring): ?>
+                                        <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">H-<?= $diffDays; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-stats-box">
+                        <div class="mobile-stat-row mb-1.5">
+                            <span class="mobile-stat-label">Sisa Stok Lot:</span>
+                            <span class="mobile-stat-value tabular-nums font-monospace <?= $stok <= 0 ? 'text-danger' : 'text-success'; ?>">
+                                <?= number_format($stok); ?> / <?= number_format($awal); ?> unit
+                            </span>
+                        </div>
+                        <div class="stock-meter-bar" style="height: 5px;">
+                            <div class="stock-meter-fill <?= $stok <= 0 ? 'danger' : ($pctSisa <= 25 ? 'warning' : 'safe'); ?>" style="width: <?= max(6, $pctSisa); ?>%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-card-actions">
+                        <a href="<?= site_url('api/batch/' . $b['id'] . '/download-qr'); ?>" target="_blank" class="btn btn-outline-danger">
+                            <i class="bi bi-qr-code"></i> Unduh Barcode QR
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('batchSearchInput');
     const tableBody = document.getElementById('batchTableBody');
+    const mobileCardsContainer = document.getElementById('batchMobileCards');
     const countBadge = document.getElementById('batchCountBadge');
     const rows = document.querySelectorAll('.batch-row');
+    const cards = document.querySelectorAll('.batch-card-item');
 
-    if (searchInput && rows.length > 0) {
+    if (searchInput) {
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
             let visibleCount = 0;
@@ -186,7 +283,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
+            cards.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
             if (countBadge) {
+                countBadge.innerHTML = `<i class="bi bi-layers"></i> ${visibleCount} Ditemukan`;
+            }
+
+            let noMatchRow = document.getElementById('noMatchRowBatch');
+            if (visibleCount === 0 && rows.length > 0) {
+                if (!noMatchRow) {
+                    noMatchRow = document.createElement('tr');
+                    noMatchRow.id = 'noMatchRowBatch';
+                    noMatchRow.innerHTML = `
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                            Tidak ada nomor batch yang cocok dengan pencarian "<strong>${query}</strong>"
+                        </td>
+                    `;
+                    tableBody.appendChild(noMatchRow);
+                } else {
+                    noMatchRow.style.display = '';
+                    noMatchRow.querySelector('strong').textContent = query;
+                }
+            } else if (noMatchRow) {
+                noMatchRow.style.display = 'none';
+            }
+
+            let noMatchMobile = document.getElementById('noMatchMobileBatch');
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noMatchMobile) {
+                    noMatchMobile = document.createElement('div');
+                    noMatchMobile.id = 'noMatchMobileBatch';
+                    noMatchMobile.className = 'text-center py-5 text-muted';
+                    noMatchMobile.innerHTML = `
+                        <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
+                        Tidak ada batch yang cocok dengan "<strong>${query}</strong>"
+                    `;
+                    mobileCardsContainer.appendChild(noMatchMobile);
+                } else {
+                    noMatchMobile.style.display = '';
+                    noMatchMobile.querySelector('strong').textContent = query;
+                }
+            } else if (noMatchMobile) {
+                noMatchMobile.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
                 countBadge.innerHTML = `<i class="bi bi-layers"></i> ${visibleCount} Ditemukan`;
             }
 
