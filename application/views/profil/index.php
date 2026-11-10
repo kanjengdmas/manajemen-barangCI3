@@ -93,19 +93,37 @@
         </div>
     </div>
 
+    <!-- Mobile Quick Tab Selector (Smartphones & Tablets < 768px) -->
+    <div class="d-md-none mb-3">
+        <label class="form-label small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+            <i class="bi bi-segmented-nav me-1 text-danger"></i> Menu Profil Operator:
+        </label>
+        <div class="input-group shadow-sm">
+            <span class="input-group-text border-subtle text-danger" style="background-color: var(--mb-card-raised); border-color: var(--mb-border);">
+                <i class="bi bi-person-gear"></i>
+            </span>
+            <select class="form-select fw-semibold" id="mobile-profile-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
+                <option value="tab-info" selected>👤 Informasi Akun Operator</option>
+                <option value="tab-security">🔒 Keamanan &amp; Kata Sandi</option>
+                <option value="tab-preferences">🎨 Preferensi &amp; Tema Tampilan</option>
+                <option value="tab-session">💻 Sesi &amp; Audit Log</option>
+            </select>
+        </div>
+    </div>
+
     <!-- Segmented Navigation Tabs -->
     <div class="report-tabs-container mb-4">
         <button type="button" class="report-tab-btn active" data-tab="tab-info">
             <i class="bi bi-person-badge"></i> Informasi Akun Operator
         </button>
         <button type="button" class="report-tab-btn" data-tab="tab-security">
-            <i class="bi bi-shield-lock"></i> Keamanan & Kata Sandi
+            <i class="bi bi-shield-lock"></i> Keamanan &amp; Kata Sandi
         </button>
         <button type="button" class="report-tab-btn" data-tab="tab-preferences">
-            <i class="bi bi-sliders"></i> Preferensi & Personalisasi
+            <i class="bi bi-sliders"></i> Preferensi &amp; Personalisasi
         </button>
         <button type="button" class="report-tab-btn" data-tab="tab-session">
-            <i class="bi bi-laptop"></i> Sesi & Audit Log
+            <i class="bi bi-laptop"></i> Sesi &amp; Audit Log
         </button>
     </div>
 
@@ -497,23 +515,57 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Tab Switching Logic
+    // 1. Unified Tab Switching Logic (Mobile Dropdown + Swipe Bar)
     const tabButtons = document.querySelectorAll('.report-tab-btn');
     const tabContents = document.querySelectorAll('.report-tab-content');
+    const mobileDropdown = document.getElementById('mobile-profile-tab-dropdown');
+
+    function switchProfileTab(targetId) {
+        tabButtons.forEach(btn => {
+            const isMatch = btn.getAttribute('data-tab') === targetId;
+            btn.classList.toggle('active', isMatch);
+            if (isMatch) {
+                btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        });
+
+        tabContents.forEach(content => {
+            if (content.id === targetId) {
+                content.classList.remove('d-none');
+                content.classList.add('active');
+            } else {
+                content.classList.add('d-none');
+                content.classList.remove('active');
+            }
+        });
+
+        if (mobileDropdown && mobileDropdown.value !== targetId) {
+            mobileDropdown.value = targetId;
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, '#' + targetId);
+        }
+    }
 
     tabButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-tab');
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            this.classList.add('active');
-            const targetContent = document.getElementById(targetId);
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
+            switchProfileTab(targetId);
         });
     });
+
+    if (mobileDropdown) {
+        mobileDropdown.addEventListener('change', function() {
+            switchProfileTab(this.value);
+        });
+    }
+
+    // Deep link via URL hash
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash && document.getElementById(initialHash)) {
+        switchProfileTab(initialHash);
+    }
 
     // 2. Avatar Selection, Preview, and Deletion Handling
     const avatarInput = document.getElementById('avatar-input');
@@ -852,7 +904,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeCards = document.querySelectorAll('.theme-card-option');
     themeCards.forEach(card => {
         card.addEventListener('click', function() {
-            const chosenTheme = this.getAttribute('data-theme-val');
+            const chosenTheme = this.getAttribute('data-theme-val') || this.getAttribute('data-theme');
+            if (!chosenTheme) return;
+
             themeCards.forEach(c => {
                 c.classList.remove('active');
                 const check = c.querySelector('.bi-check-circle-fill');
@@ -862,8 +916,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const myCheck = this.querySelector('.bi-check-circle-fill');
             if (myCheck) myCheck.classList.remove('d-none');
 
-            // Apply theme instantaneously to HTML
-            document.documentElement.setAttribute('data-bs-theme', chosenTheme);
+            // Apply theme instantaneously via MBTheme controller
+            if (window.MBTheme && typeof window.MBTheme.setTheme === 'function') {
+                window.MBTheme.setTheme(chosenTheme);
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', chosenTheme);
+            }
             localStorage.setItem('theme', chosenTheme);
 
             // Automatically persist theme preference via API
@@ -874,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({ theme: chosenTheme })
-            });
+            }).catch(() => {});
         });
     });
 

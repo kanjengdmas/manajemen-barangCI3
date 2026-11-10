@@ -21,6 +21,25 @@
     </div>
 </div>
 
+<!-- Mobile Quick Tab Selector (Smartphones & Tablets < 768px) -->
+<div class="d-md-none mb-3">
+    <label class="form-label small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+        <i class="bi bi-segmented-nav me-1 text-danger"></i> Menu Pengaturan:
+    </label>
+    <div class="input-group shadow-sm">
+        <span class="input-group-text border-subtle text-danger" style="background-color: var(--mb-card-raised); border-color: var(--mb-border);">
+            <i class="bi bi-gear-wide-connected" id="mobile-tab-icon"></i>
+        </span>
+        <select class="form-select fw-semibold" id="mobile-settings-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
+            <option value="tab-company" selected>🏢 Profil &amp; Kop Surat</option>
+            <option value="tab-operations">⚙️ Parameter Operasional</option>
+            <option value="tab-appearance">🎨 Tampilan &amp; Preferensi (Tema Warna)</option>
+            <option value="tab-security">🛡️ Keamanan &amp; Sesi</option>
+            <option value="tab-maintenance">💾 Cadangan &amp; Pemeliharaan</option>
+        </select>
+    </div>
+</div>
+
 <!-- Modern Settings Tab Bar -->
 <div class="settings-tabs-container mb-4">
     <button type="button" class="settings-tab-btn active" data-tab="tab-company">
@@ -625,28 +644,57 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Tab Switching System
+    // 1. Unified Tab Switching System (Mobile Dropdown + Desktop/Mobile Swipe Bar)
     const tabBtns = document.querySelectorAll('.settings-tab-btn');
     const tabContents = document.querySelectorAll('.settings-tab-content');
+    const mobileDropdown = document.getElementById('mobile-settings-tab-dropdown');
+
+    function switchSettingsTab(targetId) {
+        tabBtns.forEach(btn => {
+            const isMatch = btn.getAttribute('data-tab') === targetId;
+            btn.classList.toggle('active', isMatch);
+            if (isMatch) {
+                btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        });
+
+        tabContents.forEach(content => {
+            if (content.id === targetId) {
+                content.classList.remove('d-none');
+                content.classList.add('active');
+            } else {
+                content.classList.add('d-none');
+                content.classList.remove('active');
+            }
+        });
+
+        if (mobileDropdown && mobileDropdown.value !== targetId) {
+            mobileDropdown.value = targetId;
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, '#' + targetId);
+        }
+    }
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-tab');
-
-            tabBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            tabContents.forEach(content => {
-                if (content.id === targetId) {
-                    content.classList.remove('d-none');
-                    content.classList.add('active');
-                } else {
-                    content.classList.add('d-none');
-                    content.classList.remove('active');
-                }
-            });
+            switchSettingsTab(targetId);
         });
     });
+
+    if (mobileDropdown) {
+        mobileDropdown.addEventListener('change', function() {
+            switchSettingsTab(this.value);
+        });
+    }
+
+    // URL Hash deep-linking on page load (e.g., #tab-appearance)
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash && document.getElementById(initialHash)) {
+        switchSettingsTab(initialHash);
+    }
 
     // 2. Real-Time Live Kop Surat Sync
     const inpNama = document.getElementById('inp-comp-name');
@@ -681,23 +729,34 @@ document.addEventListener('DOMContentLoaded', function() {
         if (el) el.addEventListener('input', syncKopPreview);
     });
 
-    // 3. Theme Picker Card Click Handler
+    // 3. Theme Picker Card Click Handler (Instant Reactive Switch & Server Save)
     const themeCards = document.querySelectorAll('.theme-card-option');
     themeCards.forEach(card => {
         card.addEventListener('click', function() {
-            const chosenTheme = this.getAttribute('data-theme');
+            const chosenTheme = this.getAttribute('data-theme') || this.getAttribute('data-theme-val');
+            if (!chosenTheme) return;
+
             themeCards.forEach(c => c.classList.remove('active'));
             this.classList.add('active');
 
-            // Apply immediately to HTML element
-            const effectiveTheme = chosenTheme === 'system'
-                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                : chosenTheme;
-            document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
+            // Apply immediately using global MBTheme controller
+            if (window.MBTheme && typeof window.MBTheme.setTheme === 'function') {
+                window.MBTheme.setTheme(chosenTheme);
+            } else {
+                const effectiveTheme = chosenTheme === 'system'
+                    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                    : chosenTheme;
+                document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
+            }
             localStorage.setItem('theme', chosenTheme);
 
-            // Save to server
+            // Persist to backend database
             autoSaveSingleSetting('theme', chosenTheme);
+
+            const themeLabel = chosenTheme === 'dark' ? 'Mode Gelap' : (chosenTheme === 'light' ? 'Mode Terang' : 'Sistem (OS)');
+            triggerAutoSaveStatus(true, 'Tema ' + themeLabel + ' Aktif');
+        });
+    });
         });
     });
 

@@ -19,6 +19,11 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/theme.css'); ?>">
 
     <script>
+        // Tab-scoped session guard: if opened in a fresh tab without login, force redirect to logout
+        if (!sessionStorage.getItem('mb_tab_auth')) {
+            window.location.replace('<?= site_url("logout"); ?>');
+        }
+
         // Inline early script to set theme without flash
         (function() {
             var savedTheme = localStorage.getItem('theme') || 'system';

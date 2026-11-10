@@ -18,24 +18,8 @@ class MY_Controller extends CI_Controller {
         // 1. Check if user is logged in
         $userId = $this->session->userdata('user_id');
         if (!$userId) {
-            // Auto authenticate admin in development for instant preview
-            if (ENVIRONMENT === 'development') {
-                $defaultAdmin = $this->db->get_where('users', ['email' => 'admin@admin.com'])->row();
-                if ($defaultAdmin) {
-                    $this->session->set_userdata([
-                        'user_id' => $defaultAdmin->id,
-                        'user_name' => $defaultAdmin->name,
-                        'user_email' => $defaultAdmin->email,
-                        'user_role' => $defaultAdmin->role,
-                        'last_activity_time' => time()
-                    ]);
-                    $userId = $defaultAdmin->id;
-                }
-            }
-            if (!$userId) {
-                $this->handle_unauthorized('Silakan login terlebih dahulu.');
-                return;
-            }
+            $this->handle_unauthorized('Silakan login terlebih dahulu.');
+            return;
         }
 
         // 2. Validate session timeout if configured
@@ -147,13 +131,6 @@ class Public_Controller extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-
-        // If user already logged in, redirect away from public auth pages
-        $userId = $this->session->userdata('user_id');
-        $currentUri = $this->uri->uri_string();
-        if ($userId && ($currentUri === 'login' || $currentUri === '' || $currentUri === 'auth/login')) {
-            redirect('dashboard');
-        }
     }
 
     /**

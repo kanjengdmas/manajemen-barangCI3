@@ -33,7 +33,22 @@
       }
     }
 
-    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: effectiveTheme } }));
+    // Synchronize active state of any theme cards present in the DOM
+    document.querySelectorAll('.theme-card-option').forEach(card => {
+      const cardTheme = card.getAttribute('data-theme') || card.getAttribute('data-theme-val');
+      const isMatch = (cardTheme === theme) || (theme !== 'system' && cardTheme === effectiveTheme);
+      if (isMatch) {
+        card.classList.add('active');
+        const checkIcon = card.querySelector('.bi-check-circle-fill');
+        if (checkIcon) checkIcon.classList.remove('d-none');
+      } else {
+        card.classList.remove('active');
+        const checkIcon = card.querySelector('.bi-check-circle-fill');
+        if (checkIcon) checkIcon.classList.add('d-none');
+      }
+    });
+
+    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: effectiveTheme, rawTheme: theme } }));
   };
 
   // Set theme immediately before DOM content loads to avoid flash
@@ -42,7 +57,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     setTheme(getStoredTheme());
 
-    // Theme Toggle Button
+    // Theme Toggle Button in Header
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     if (themeToggleBtn) {
       themeToggleBtn.addEventListener('click', () => {
@@ -50,6 +65,18 @@
         const nextTheme = currentStored === 'dark' ? 'light' : 'dark';
         localStorage.setItem('theme', nextTheme);
         setTheme(nextTheme);
+
+        // Auto-save to server if endpoint exists
+        if (window.BASE_URL) {
+          fetch(window.BASE_URL + 'api/settings/save', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ theme: nextTheme })
+          }).catch(() => {});
+        }
       });
     }
 

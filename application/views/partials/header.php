@@ -71,7 +71,7 @@
                 <li>
                     <form action="<?= site_url('logout'); ?>" method="POST" class="m-0 p-0">
                         <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
-                        <button type="submit" class="dropdown-item py-2 d-flex align-items-center gap-2 small text-danger">
+                        <button type="submit" class="dropdown-item py-2 d-flex align-items-center gap-2 small text-danger" onclick="sessionStorage.removeItem('mb_tab_auth');">
                             <i class="bi bi-box-arrow-right"></i> Keluar Akun
                         </button>
                     </form>

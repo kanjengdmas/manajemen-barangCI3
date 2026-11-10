@@ -298,19 +298,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let noMatchRow = document.getElementById('noMatchRowBatch');
             if (visibleCount === 0 && rows.length > 0) {
-                if (!noMatchRow) {
+                if (!noMatchRow && tableBody) {
                     noMatchRow = document.createElement('tr');
                     noMatchRow.id = 'noMatchRowBatch';
                     noMatchRow.innerHTML = `
                         <td colspan="10" class="text-center py-5 text-muted">
                             <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
-                            Tidak ada nomor batch yang cocok dengan pencarian "<strong>${query}</strong>"
+                            Tidak ada nomor batch yang cocok dengan pencarian "<strong></strong>"
                         </td>
                     `;
+                    const strongEl = noMatchRow.querySelector('strong');
+                    if (strongEl) strongEl.textContent = query;
                     tableBody.appendChild(noMatchRow);
-                } else {
+                } else if (noMatchRow) {
                     noMatchRow.style.display = '';
-                    noMatchRow.querySelector('strong').textContent = query;
+                    const strongEl = noMatchRow.querySelector('strong');
+                    if (strongEl) strongEl.textContent = query;
                 }
             } else if (noMatchRow) {
                 noMatchRow.style.display = 'none';
@@ -318,47 +321,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let noMatchMobile = document.getElementById('noMatchMobileBatch');
             if (visibleCount === 0 && cards.length > 0) {
-                if (!noMatchMobile) {
+                if (!noMatchMobile && mobileCardsContainer) {
                     noMatchMobile = document.createElement('div');
                     noMatchMobile.id = 'noMatchMobileBatch';
                     noMatchMobile.className = 'text-center py-5 text-muted';
                     noMatchMobile.innerHTML = `
                         <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
-                        Tidak ada batch yang cocok dengan "<strong>${query}</strong>"
+                        Tidak ada batch yang cocok dengan "<strong></strong>"
                     `;
+                    const strongEl = noMatchMobile.querySelector('strong');
+                    if (strongEl) strongEl.textContent = query;
                     mobileCardsContainer.appendChild(noMatchMobile);
-                } else {
+                } else if (noMatchMobile) {
                     noMatchMobile.style.display = '';
-                    noMatchMobile.querySelector('strong').textContent = query;
+                    const strongEl = noMatchMobile.querySelector('strong');
+                    if (strongEl) strongEl.textContent = query;
                 }
             } else if (noMatchMobile) {
                 noMatchMobile.style.display = 'none';
-            }
-        });
-    }
-});
-</script>
-                countBadge.innerHTML = `<i class="bi bi-layers"></i> ${visibleCount} Ditemukan`;
-            }
-
-            let noMatchRow = document.getElementById('noMatchRowBatch');
-            if (visibleCount === 0) {
-                if (!noMatchRow) {
-                    noMatchRow = document.createElement('tr');
-                    noMatchRow.id = 'noMatchRowBatch';
-                    noMatchRow.innerHTML = `
-                        <td colspan="10" class="text-center py-5 text-muted">
-                            <i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>
-                            Tidak ada nomor batch yang cocok dengan pencarian "<strong>${query}</strong>"
-                        </td>
-                    `;
-                    tableBody.appendChild(noMatchRow);
-                } else {
-                    noMatchRow.style.display = '';
-                    noMatchRow.querySelector('strong').textContent = query;
-                }
-            } else if (noMatchRow) {
-                noMatchRow.style.display = 'none';
             }
         });
     }
