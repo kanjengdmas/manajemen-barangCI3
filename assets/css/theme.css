@@ -710,6 +710,11 @@ body {
   border-color: var(--mb-border);
 }
 
+.btn-icon-quiet:active {
+  transform: scale(0.92);
+  background-color: var(--mb-surface-hover);
+}
+
 .btn-icon-quiet.spinning i {
   animation: spin 0.8s linear infinite;
 }

@@ -92,7 +92,7 @@
     <!-- Optional Page Specific Scripts -->
     <?php if (isset($extra_js)): ?>
         <?php foreach ($extra_js as $js): ?>
-            <script src="<?= base_url($js); ?>"></script>
+            <script src="<?= base_url($js . '?v=' . (file_exists(FCPATH . $js) ? filemtime(FCPATH . $js) : '2.8.2')); ?>"></script>
         <?php endforeach; ?>
     <?php endif; ?>
 </body>
