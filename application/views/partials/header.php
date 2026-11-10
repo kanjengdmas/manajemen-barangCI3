@@ -28,8 +28,10 @@
         </div>
 
         <!-- Theme Toggle Button -->
-        <button type="button" class="btn-icon-quiet" id="theme-toggle-btn" title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
-            <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon"></i>
+        <button type="button" class="btn-icon-quiet" id="theme-toggle-btn"
+                onclick="if(window.MBTheme && typeof window.MBTheme.toggleTheme==='function'){window.MBTheme.toggleTheme();}else{var doc=document.documentElement;var next=doc.getAttribute('data-bs-theme')==='dark'?'light':'dark';doc.setAttribute('data-bs-theme',next);localStorage.setItem('theme',next);var icon=document.getElementById('theme-toggle-icon');if(icon){icon.className=next==='dark'?'bi bi-moon-stars-fill fs-5 text-warning':'bi bi-sun-fill fs-5 text-amber-500';}}"
+                title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
+            <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon" style="pointer-events: none;"></i>
         </button>
 
         <div class="vr mx-1 opacity-25 d-none d-sm-block"></div>

@@ -27,9 +27,9 @@
     const themeIcon = document.getElementById('theme-toggle-icon');
     if (themeIcon) {
       if (effectiveTheme === 'dark') {
-        themeIcon.className = 'bi bi-moon-stars-fill text-warning';
+        themeIcon.className = 'bi bi-moon-stars-fill fs-5 text-warning';
       } else {
-        themeIcon.className = 'bi bi-sun-fill text-amber-500';
+        themeIcon.className = 'bi bi-sun-fill fs-5 text-amber-500';
       }
     }
 
@@ -51,32 +51,48 @@
     window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: effectiveTheme, rawTheme: theme } }));
   };
 
+  const toggleTheme = () => {
+    const currentEffective = document.documentElement.getAttribute('data-bs-theme') || (getPreferredTheme() === 'dark' ? 'dark' : 'light');
+    const nextTheme = currentEffective === 'dark' ? 'light' : 'dark';
+
+    localStorage.setItem('theme', nextTheme);
+    setTheme(nextTheme);
+
+    // Auto-save to server if endpoint exists
+    if (window.BASE_URL) {
+      fetch(window.BASE_URL + 'api/settings/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ theme: nextTheme })
+      }).catch(() => {});
+    }
+
+    return nextTheme;
+  };
+
+  // Expose global helper immediately
+  window.MBTheme = {
+    setTheme,
+    getPreferredTheme,
+    toggleTheme
+  };
+
   // Set theme immediately before DOM content loads to avoid flash
   setTheme(getStoredTheme());
 
-  document.addEventListener('DOMContentLoaded', () => {
+  const initThemeUI = () => {
     setTheme(getStoredTheme());
 
     // Theme Toggle Button in Header
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    if (themeToggleBtn) {
-      themeToggleBtn.addEventListener('click', () => {
-        const currentStored = getStoredTheme();
-        const nextTheme = currentStored === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', nextTheme);
-        setTheme(nextTheme);
-
-        // Auto-save to server if endpoint exists
-        if (window.BASE_URL) {
-          fetch(window.BASE_URL + 'api/settings/save', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ theme: nextTheme })
-          }).catch(() => {});
-        }
+    if (themeToggleBtn && !themeToggleBtn.dataset.bound) {
+      themeToggleBtn.dataset.bound = 'true';
+      themeToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleTheme();
       });
     }
 
@@ -232,11 +248,11 @@
         window.location.reload();
       });
     }
-  });
-
-  // Expose global helper
-  window.MBTheme = {
-    setTheme,
-    getPreferredTheme
   };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeUI);
+  } else {
+    initThemeUI();
+  }
 })();

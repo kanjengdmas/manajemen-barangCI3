@@ -695,6 +695,13 @@ body {
   transition: all 0.15s ease;
   cursor: pointer;
   padding: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.btn-icon-quiet i {
+  pointer-events: none;
 }
 
 .btn-icon-quiet:hover {
@@ -1390,6 +1397,12 @@ body {
 
   .header-left, .header-right {
     gap: 10px;
+  }
+
+  .btn-icon-quiet {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
   }
 
   .app-content {
