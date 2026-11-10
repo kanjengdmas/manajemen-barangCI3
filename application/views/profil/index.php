@@ -105,7 +105,6 @@
             <select class="form-select fw-semibold" id="mobile-profile-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
                 <option value="tab-info" selected>👤 Informasi Akun Operator</option>
                 <option value="tab-security">🔒 Keamanan &amp; Kata Sandi</option>
-                <option value="tab-preferences">🎨 Preferensi &amp; Tema Tampilan</option>
                 <option value="tab-session">💻 Sesi &amp; Audit Log</option>
             </select>
         </div>
@@ -118,9 +117,6 @@
         </button>
         <button type="button" class="report-tab-btn" data-tab="tab-security">
             <i class="bi bi-shield-lock"></i> Keamanan &amp; Kata Sandi
-        </button>
-        <button type="button" class="report-tab-btn" data-tab="tab-preferences">
-            <i class="bi bi-sliders"></i> Preferensi &amp; Personalisasi
         </button>
         <button type="button" class="report-tab-btn" data-tab="tab-session">
             <i class="bi bi-laptop"></i> Sesi &amp; Audit Log
@@ -303,157 +299,7 @@
         </div>
     </div>
 
-    <!-- TAB 3: PREFERENSI & PERSONALISASI -->
-    <div class="report-tab-content" id="tab-preferences">
-        <div class="settings-section-card mb-4">
-            <div class="settings-section-header">
-                <div>
-                    <h3 class="settings-section-title mb-1">Gaya Tampilan & Tema Sistem</h3>
-                    <p class="settings-section-subtitle mb-0">Sesuaikan tema visual sistem inventaris sesuai kenyamanan mata saat operasional.</p>
-                </div>
-                <i class="bi bi-palette text-primary fs-4"></i>
-            </div>
-            <div class="p-4">
-                <label class="form-label fw-semibold small mb-3">Pilihan Mode Tampilan Antarmuka</label>
-                <div class="theme-selector-grid mb-4">
-                    <!-- Light Theme Card -->
-                    <div class="theme-card-option <?= (($preferences['theme'] ?? 'light') === 'light') ? 'active' : ''; ?>" data-theme-val="light">
-                        <div class="theme-card-preview light-preview">
-                            <div class="preview-sidebar"></div>
-                            <div class="preview-body">
-                                <div class="preview-bar brand"></div>
-                                <div class="preview-bar" style="width: 70%;"></div>
-                                <div class="preview-bar" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between mt-1">
-                            <div>
-                                <div class="fw-bold small" style="color: var(--mb-text-primary);">Mode Terang</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">Sangat bersih & kontras tinggi</div>
-                            </div>
-                            <i class="bi bi-check-circle-fill text-danger fs-5 <?= (($preferences['theme'] ?? 'light') === 'light') ? '' : 'd-none'; ?>"></i>
-                        </div>
-                    </div>
-
-                    <!-- Dark Theme Card -->
-                    <div class="theme-card-option <?= (($preferences['theme'] ?? 'light') === 'dark') ? 'active' : ''; ?>" data-theme-val="dark">
-                        <div class="theme-card-preview dark-preview">
-                            <div class="preview-sidebar"></div>
-                            <div class="preview-body">
-                                <div class="preview-bar brand"></div>
-                                <div class="preview-bar" style="width: 70%;"></div>
-                                <div class="preview-bar" style="width: 50%;"></div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between mt-1">
-                            <div>
-                                <div class="fw-bold small" style="color: var(--mb-text-primary);">Mode Gelap (Dark)</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">Mengurangi silau mata operator</div>
-                            </div>
-                            <i class="bi bi-check-circle-fill text-danger fs-5 <?= (($preferences['theme'] ?? 'light') === 'dark') ? '' : 'd-none'; ?>"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Operational Behavior Preferences -->
-        <div class="settings-section-card">
-            <div class="settings-section-header">
-                <div>
-                    <h3 class="settings-section-title mb-1">Preferensi Operasional & Interaksi</h3>
-                    <p class="settings-section-subtitle mb-0">Pengaturan perilaku alur kerja input barang, format tanggal, dan peringatan audio.</p>
-                </div>
-                <i class="bi bi-gear-wide-connected text-secondary fs-4"></i>
-            </div>
-            <div class="p-4">
-                <form id="preferences-form">
-                    <div class="row g-4 mb-4">
-                        <!-- Date Format Option -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label fw-semibold small">Format Tampilan Tanggal</label>
-                            <div class="d-flex flex-column gap-2">
-                                <?php
-                                    $currDateFormat = $preferences['date_format'] ?? 'DD/MM/YYYY';
-                                ?>
-                                <label class="p-2.5 rounded-3 border d-flex align-items-center gap-3 cursor-pointer" style="background-color: var(--mb-card-raised);">
-                                    <input type="radio" name="date_format" value="DD/MM/YYYY" class="form-check-input mt-0" <?= $currDateFormat === 'DD/MM/YYYY' ? 'checked' : ''; ?>>
-                                    <div class="small">
-                                        <div class="fw-bold" style="color: var(--mb-text-primary);">DD/MM/YYYY (Standar Indonesia)</div>
-                                        <div class="text-muted font-monospace" style="font-size: 0.72rem;"><?= date('d/m/Y'); ?></div>
-                                    </div>
-                                </label>
-
-                                <label class="p-2.5 rounded-3 border d-flex align-items-center gap-3 cursor-pointer" style="background-color: var(--mb-card-raised);">
-                                    <input type="radio" name="date_format" value="YYYY-MM-DD" class="form-check-input mt-0" <?= $currDateFormat === 'YYYY-MM-DD' ? 'checked' : ''; ?>>
-                                    <div class="small">
-                                        <div class="fw-bold" style="color: var(--mb-text-primary);">YYYY-MM-DD (Standar ISO)</div>
-                                        <div class="text-muted font-monospace" style="font-size: 0.72rem;"><?= date('Y-m-d'); ?></div>
-                                    </div>
-                                </label>
-
-                                <label class="p-2.5 rounded-3 border d-flex align-items-center gap-3 cursor-pointer" style="background-color: var(--mb-card-raised);">
-                                    <input type="radio" name="date_format" value="DD MMMM YYYY" class="form-check-input mt-0" <?= $currDateFormat === 'DD MMMM YYYY' ? 'checked' : ''; ?>>
-                                    <div class="small">
-                                        <div class="fw-bold" style="color: var(--mb-text-primary);">DD MMMM YYYY (Format Lengkap)</div>
-                                        <div class="text-muted font-monospace" style="font-size: 0.72rem;"><?= date('d F Y'); ?></div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Confirmation Mode Option -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label fw-semibold small">Mode Konfirmasi Transaksi & Aksi</label>
-                            <div class="d-flex flex-column gap-2">
-                                <?php
-                                    $currConfirmMode = $preferences['confirm_mode'] ?? 'safe';
-                                ?>
-                                <label class="p-2.5 rounded-3 border d-flex align-items-center gap-3 cursor-pointer" style="background-color: var(--mb-card-raised);">
-                                    <input type="radio" name="confirm_mode" value="safe" class="form-check-input mt-0" <?= $currConfirmMode === 'safe' ? 'checked' : ''; ?>>
-                                    <div class="small">
-                                        <div class="fw-bold text-success"><i class="bi bi-shield-check me-1"></i> Mode Aman (Direkomendasikan)</div>
-                                        <div class="text-muted" style="font-size: 0.72rem;">Memunculkan modal konfirmasi sebelum aksi hapus atau mutasi stok.</div>
-                                    </div>
-                                </label>
-
-                                <label class="p-2.5 rounded-3 border d-flex align-items-center gap-3 cursor-pointer" style="background-color: var(--mb-card-raised);">
-                                    <input type="radio" name="confirm_mode" value="fast" class="form-check-input mt-0" <?= $currConfirmMode === 'fast' ? 'checked' : ''; ?>>
-                                    <div class="small">
-                                        <div class="fw-bold text-warning"><i class="bi bi-lightning-charge me-1"></i> Mode Cepat (Fast-Paced)</div>
-                                        <div class="text-muted" style="font-size: 0.72rem;">Mengurangi dialog peringatan demi kecepatan input batch barang.</div>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <!-- Additional Switches -->
-                            <div class="mt-3.5 pt-3 border-top">
-                                <div class="form-check form-switch mb-2.5">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="pref-sound" name="sound_effects" value="1" <?= (!empty($preferences['sound_effects'])) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label small fw-semibold" for="pref-sound">Efek Audio Konfirmasi Transaksi</label>
-                                    <div class="text-muted" style="font-size: 0.7rem;">Mainkan bunyi chime lembut saat stok berhasil disimpan.</div>
-                                </div>
-
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="pref-digest" name="daily_digest" value="1" <?= (!empty($preferences['daily_digest'])) ? 'checked' : ''; ?>>
-                                    <label class="form-check-label small fw-semibold" for="pref-digest">Kirim Ringkasan Harian (Daily Digest)</label>
-                                    <div class="text-muted" style="font-size: 0.7rem;">Kirim rangkuman barang masuk/keluar ke email terdaftar setiap sore.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-end pt-3 border-top">
-                        <button type="submit" class="btn btn-primary px-4 fw-semibold rounded-pill d-inline-flex align-items-center gap-2" id="btn-save-preferences">
-                            <i class="bi bi-save"></i> Simpan Preferensi Personal
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 4: SESI & AUDIT LOG -->
+    <!-- TAB 3: SESI & AUDIT LOG -->
     <div class="report-tab-content" id="tab-session">
         <div class="settings-section-card mb-4">
             <div class="settings-section-header">
@@ -895,108 +741,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: 'error',
                     title: 'Kesalahan Sistem',
                     text: 'Gagal memproses pembaruan kata sandi.'
-                });
-            });
-        });
-    }
-
-    // 7. Theme Selector Card Interaction
-    const themeCards = document.querySelectorAll('.theme-card-option');
-    themeCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const chosenTheme = this.getAttribute('data-theme-val') || this.getAttribute('data-theme');
-            if (!chosenTheme) return;
-
-            themeCards.forEach(c => {
-                c.classList.remove('active');
-                const check = c.querySelector('.bi-check-circle-fill');
-                if (check) check.classList.add('d-none');
-            });
-            this.classList.add('active');
-            const myCheck = this.querySelector('.bi-check-circle-fill');
-            if (myCheck) myCheck.classList.remove('d-none');
-
-            // Apply theme instantaneously via MBTheme controller
-            if (window.MBTheme && typeof window.MBTheme.setTheme === 'function') {
-                window.MBTheme.setTheme(chosenTheme);
-            } else {
-                document.documentElement.setAttribute('data-bs-theme', chosenTheme);
-            }
-            localStorage.setItem('theme', chosenTheme);
-
-            // Automatically persist theme preference via API
-            fetch(window.BASE_URL + 'api/profile/preferences', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ theme: chosenTheme })
-            }).catch(() => {});
-        });
-    });
-
-    // 8. User Preferences Form Submission
-    const prefForm = document.getElementById('preferences-form');
-    if (prefForm) {
-        prefForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-save-preferences');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1.5"></span> Menyimpan...';
-
-            const activeThemeCard = document.querySelector('.theme-card-option.active');
-            const activeTheme = activeThemeCard ? activeThemeCard.getAttribute('data-theme-val') : 'light';
-
-            const selectedDateFormat = document.querySelector('input[name="date_format"]:checked')?.value || 'DD/MM/YYYY';
-            const selectedConfirmMode = document.querySelector('input[name="confirm_mode"]:checked')?.value || 'safe';
-            const soundEffects = document.getElementById('pref-sound')?.checked ? true : false;
-            const dailyDigest = document.getElementById('pref-digest')?.checked ? true : false;
-
-            const payload = {
-                theme: activeTheme,
-                date_format: selectedDateFormat,
-                confirm_mode: selectedConfirmMode,
-                sound_effects: soundEffects,
-                daily_digest: dailyDigest
-            };
-
-            fetch(window.BASE_URL + 'api/profile/preferences', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(res => {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                if (res.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Preferensi Disimpan',
-                        text: res.message || 'Pengaturan personal Anda berhasil disimpan.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Menyimpan',
-                        text: res.message || 'Gagal menyimpan preferensi.'
-                    });
-                }
-            })
-            .catch(() => {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan Sistem',
-                    text: 'Tidak dapat menghubungi server.'
                 });
             });
         });
