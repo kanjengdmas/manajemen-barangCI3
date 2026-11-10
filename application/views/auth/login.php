@@ -266,6 +266,9 @@
             });
         }
 
+        // Clear tab auth token on login page
+        sessionStorage.removeItem('mb_tab_auth');
+
         // Form Submit Loading State
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -274,6 +277,7 @@
 
         if (loginForm && submitBtn) {
             loginForm.addEventListener('submit', () => {
+                sessionStorage.setItem('mb_tab_auth', '1');
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.85';
                 btnText.textContent = 'Memverifikasi Kredensial...';

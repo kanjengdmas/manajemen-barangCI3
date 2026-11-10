@@ -16,6 +16,11 @@ class Auth extends Public_Controller {
             return $this->attempt();
         }
 
+        // Direct access to login resets any stale session
+        if ($this->session->userdata('user_id')) {
+            $this->session->sess_destroy();
+        }
+
         $data = [
             'page_title' => 'Masuk ke Sistem — Manajemen Barang',
             'csrf_token_name' => $this->security->get_csrf_token_name(),

@@ -87,6 +87,24 @@
     </div>
 </div>
 
+<!-- Mobile Quick Tab Selector (Smartphones & Tablets < 768px) -->
+<div class="d-md-none mb-3">
+    <label class="form-label small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+        <i class="bi bi-segmented-nav me-1 text-danger"></i> Kategori Laporan &amp; Data:
+    </label>
+    <div class="input-group shadow-sm">
+        <span class="input-group-text border-subtle text-danger" style="background-color: var(--mb-card-raised); border-color: var(--mb-border);">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+        </span>
+        <select class="form-select fw-semibold" id="mobile-report-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
+            <option value="tab-mutasi" selected>🔄 Laporan Mutasi Stok</option>
+            <option value="tab-produk">📦 Katalog Master Produk</option>
+            <option value="tab-batch">🏷️ Lot Batch &amp; Lokasi Rak</option>
+            <option value="tab-backup">💾 Cadangan Basis Data</option>
+        </select>
+    </div>
+</div>
+
 <!-- Report Navigation Tabs -->
 <div class="report-tabs-container mb-4">
     <button type="button" class="report-tab-btn active" data-tab="tab-mutasi">
@@ -543,22 +561,56 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchPreviewData();
 });
 
-// 1. Tab Switching
+// 1. Tab Switching (Mobile Dropdown + Horizontal Swipe Bar)
 function initReportTabs() {
     const tabs = document.querySelectorAll('.report-tab-btn');
     const contents = document.querySelectorAll('.report-tab-content');
+    const mobileDropdown = document.getElementById('mobile-report-tab-dropdown');
+
+    function switchReportTab(target) {
+        tabs.forEach(t => {
+            const isMatch = t.dataset.tab === target;
+            t.classList.toggle('active', isMatch);
+            if (isMatch) {
+                t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        });
+
+        contents.forEach(c => {
+            if (c.id === target) {
+                c.classList.remove('d-none');
+                c.classList.add('active');
+            } else {
+                c.classList.add('d-none');
+                c.classList.remove('active');
+            }
+        });
+
+        if (mobileDropdown && mobileDropdown.value !== target) {
+            mobileDropdown.value = target;
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, '#' + target);
+        }
+    }
 
     tabs.forEach(btn => {
         btn.addEventListener('click', function() {
-            const target = this.dataset.tab;
-            tabs.forEach(t => t.classList.remove('active'));
-            contents.forEach(c => c.classList.remove('active'));
-
-            this.classList.add('active');
-            const targetEl = document.getElementById(target);
-            if (targetEl) targetEl.classList.add('active');
+            switchReportTab(this.dataset.tab);
         });
     });
+
+    if (mobileDropdown) {
+        mobileDropdown.addEventListener('change', function() {
+            switchReportTab(this.value);
+        });
+    }
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+        switchReportTab(hash);
+    }
 }
 
 // 2. Quick Date Presets

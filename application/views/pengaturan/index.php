@@ -21,6 +21,25 @@
     </div>
 </div>
 
+<!-- Mobile Quick Tab Selector (Smartphones & Tablets < 768px) -->
+<div class="d-md-none mb-3">
+    <label class="form-label small fw-bold text-muted text-uppercase mb-1" style="font-size: 0.68rem; letter-spacing: 0.05em;">
+        <i class="bi bi-segmented-nav me-1 text-danger"></i> Menu Pengaturan:
+    </label>
+    <div class="input-group shadow-sm">
+        <span class="input-group-text border-subtle text-danger" style="background-color: var(--mb-card-raised); border-color: var(--mb-border);">
+            <i class="bi bi-gear-wide-connected" id="mobile-tab-icon"></i>
+        </span>
+        <select class="form-select fw-semibold" id="mobile-settings-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
+            <option value="tab-company" selected>🏢 Profil &amp; Kop Surat</option>
+            <option value="tab-operations">⚙️ Parameter Operasional</option>
+            <option value="tab-appearance">🎨 Tampilan &amp; Preferensi</option>
+            <option value="tab-security">🛡️ Keamanan &amp; Sesi</option>
+            <option value="tab-maintenance">💾 Cadangan &amp; Pemeliharaan</option>
+        </select>
+    </div>
+</div>
+
 <!-- Modern Settings Tab Bar -->
 <div class="settings-tabs-container mb-4">
     <button type="button" class="settings-tab-btn active" data-tab="tab-company">
@@ -308,71 +327,6 @@
 
 <!-- TAB 3: Tampilan & Preferensi Pengguna -->
 <div class="settings-tab-content d-none" id="tab-appearance">
-    <!-- Visual Theme Picker Card -->
-    <div class="settings-section-card">
-        <div class="settings-section-header">
-            <div>
-                <div class="settings-section-title">
-                    <i class="bi bi-palette text-danger"></i> Mode Tema Tampilan Antarmuka
-                </div>
-                <p class="settings-section-subtitle">Pilih palet warna sistem favorit Anda dengan transisi instan</p>
-            </div>
-        </div>
-        <div class="p-4">
-            <div class="theme-picker-grid">
-                <!-- Theme Option: Light -->
-                <div class="theme-card-option <?= $settings['theme'] === 'light' ? 'active' : ''; ?>" data-theme="light">
-                    <div class="theme-preview-mock mock-light">
-                        <div class="mock-sidebar"></div>
-                        <div class="mock-content">
-                            <div class="mock-bar"></div>
-                            <div class="mock-bar" style="width: 70%;"></div>
-                            <div class="mock-btn"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-sun-fill text-warning me-1.5"></i> Mode Terang</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Theme Option: Dark -->
-                <div class="theme-card-option <?= $settings['theme'] === 'dark' ? 'active' : ''; ?>" data-theme="dark">
-                    <div class="theme-preview-mock mock-dark">
-                        <div class="mock-sidebar"></div>
-                        <div class="mock-content">
-                            <div class="mock-bar"></div>
-                            <div class="mock-bar" style="width: 70%;"></div>
-                            <div class="mock-btn"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-moon-stars-fill text-info me-1.5"></i> Mode Gelap</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Theme Option: System -->
-                <div class="theme-card-option <?= $settings['theme'] === 'system' ? 'active' : ''; ?>" data-theme="system">
-                    <div class="theme-preview-mock mock-system">
-                        <div class="mock-half-light">
-                            <div class="mock-bar" style="height: 5px; background: #e2e8f0;"></div>
-                            <div class="mock-bar" style="height: 5px; width: 60%; background: #e2e8f0;"></div>
-                        </div>
-                        <div class="mock-half-dark">
-                            <div class="mock-bar" style="height: 5px; background: #1f2937;"></div>
-                            <div class="mock-bar" style="height: 5px; width: 60%; background: #1f2937;"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-circle-half text-secondary me-1.5"></i> Ikuti Sistem (OS)</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- General Display Preferences Card -->
     <div class="settings-section-card">
         <div class="settings-section-header">
@@ -625,28 +579,57 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Tab Switching System
+    // 1. Unified Tab Switching System (Mobile Dropdown + Desktop/Mobile Swipe Bar)
     const tabBtns = document.querySelectorAll('.settings-tab-btn');
     const tabContents = document.querySelectorAll('.settings-tab-content');
+    const mobileDropdown = document.getElementById('mobile-settings-tab-dropdown');
+
+    function switchSettingsTab(targetId) {
+        tabBtns.forEach(btn => {
+            const isMatch = btn.getAttribute('data-tab') === targetId;
+            btn.classList.toggle('active', isMatch);
+            if (isMatch) {
+                btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        });
+
+        tabContents.forEach(content => {
+            if (content.id === targetId) {
+                content.classList.remove('d-none');
+                content.classList.add('active');
+            } else {
+                content.classList.add('d-none');
+                content.classList.remove('active');
+            }
+        });
+
+        if (mobileDropdown && mobileDropdown.value !== targetId) {
+            mobileDropdown.value = targetId;
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, '#' + targetId);
+        }
+    }
 
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-tab');
-
-            tabBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            tabContents.forEach(content => {
-                if (content.id === targetId) {
-                    content.classList.remove('d-none');
-                    content.classList.add('active');
-                } else {
-                    content.classList.add('d-none');
-                    content.classList.remove('active');
-                }
-            });
+            switchSettingsTab(targetId);
         });
     });
+
+    if (mobileDropdown) {
+        mobileDropdown.addEventListener('change', function() {
+            switchSettingsTab(this.value);
+        });
+    }
+
+    // URL Hash deep-linking on page load (e.g., #tab-appearance)
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash && document.getElementById(initialHash)) {
+        switchSettingsTab(initialHash);
+    }
 
     // 2. Real-Time Live Kop Surat Sync
     const inpNama = document.getElementById('inp-comp-name');
@@ -681,27 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (el) el.addEventListener('input', syncKopPreview);
     });
 
-    // 3. Theme Picker Card Click Handler
-    const themeCards = document.querySelectorAll('.theme-card-option');
-    themeCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const chosenTheme = this.getAttribute('data-theme');
-            themeCards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-
-            // Apply immediately to HTML element
-            const effectiveTheme = chosenTheme === 'system'
-                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                : chosenTheme;
-            document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
-            localStorage.setItem('theme', chosenTheme);
-
-            // Save to server
-            autoSaveSingleSetting('theme', chosenTheme);
-        });
-    });
-
-    // 4. Company Profile Submit Form Handler
+    // 3. Company Profile Submit Form Handler
     const compForm = document.getElementById('company-profile-form');
     const btnSaveComp = document.getElementById('btn-save-company');
     const btnCompText = document.getElementById('btn-comp-text');

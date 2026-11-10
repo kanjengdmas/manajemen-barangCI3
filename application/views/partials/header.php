@@ -28,8 +28,9 @@
         </div>
 
         <!-- Theme Toggle Button -->
-        <button type="button" class="btn-icon-quiet" id="theme-toggle-btn" title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
-            <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon"></i>
+        <button type="button" class="btn-icon-quiet" id="theme-toggle-btn"
+                title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
+            <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon" style="pointer-events: none;"></i>
         </button>
 
         <div class="vr mx-1 opacity-25 d-none d-sm-block"></div>
@@ -71,7 +72,7 @@
                 <li>
                     <form action="<?= site_url('logout'); ?>" method="POST" class="m-0 p-0">
                         <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
-                        <button type="submit" class="dropdown-item py-2 d-flex align-items-center gap-2 small text-danger">
+                        <button type="submit" class="dropdown-item py-2 d-flex align-items-center gap-2 small text-danger" onclick="sessionStorage.removeItem('mb_tab_auth');">
                             <i class="bi bi-box-arrow-right"></i> Keluar Akun
                         </button>
                     </form>

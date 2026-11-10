@@ -703,17 +703,21 @@
 
   // 6. Setup Theme Change Listener on Charts
   window.addEventListener('theme-changed', () => {
-    const colors = getChartColors();
-    if (movementChart) {
-      movementChart.options.scales.x.ticks.color = colors.textColor;
-      movementChart.options.scales.y.ticks.color = colors.textColor;
-      movementChart.options.scales.y.grid.color = colors.gridColor;
-      movementChart.options.plugins.legend.labels.color = colors.textColor;
-      movementChart.update();
-    }
-    if (kategoriChart) {
-      kategoriChart.data.datasets[0].borderColor = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#111827' : '#ffffff';
-      kategoriChart.update();
+    try {
+      const colors = getChartColors();
+      if (movementChart) {
+        movementChart.options.scales.x.ticks.color = colors.textColor;
+        movementChart.options.scales.y.ticks.color = colors.textColor;
+        movementChart.options.scales.y.grid.color = colors.gridColor;
+        movementChart.options.plugins.legend.labels.color = colors.textColor;
+        movementChart.update();
+      }
+      if (kategoriChart) {
+        kategoriChart.data.datasets[0].borderColor = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#111827' : '#ffffff';
+        kategoriChart.update();
+      }
+    } catch (e) {
+      console.warn('Chart theme update error ignored:', e);
     }
   });
 
