@@ -33,7 +33,7 @@
         <select class="form-select fw-semibold" id="mobile-settings-tab-dropdown" style="background-color: var(--mb-card); border-color: var(--mb-border); color: var(--mb-text-primary); font-size: 0.85rem;">
             <option value="tab-company" selected>🏢 Profil &amp; Kop Surat</option>
             <option value="tab-operations">⚙️ Parameter Operasional</option>
-            <option value="tab-appearance">🎨 Tampilan &amp; Preferensi (Tema Warna)</option>
+            <option value="tab-appearance">🎨 Tampilan &amp; Preferensi</option>
             <option value="tab-security">🛡️ Keamanan &amp; Sesi</option>
             <option value="tab-maintenance">💾 Cadangan &amp; Pemeliharaan</option>
         </select>
@@ -327,71 +327,6 @@
 
 <!-- TAB 3: Tampilan & Preferensi Pengguna -->
 <div class="settings-tab-content d-none" id="tab-appearance">
-    <!-- Visual Theme Picker Card -->
-    <div class="settings-section-card">
-        <div class="settings-section-header">
-            <div>
-                <div class="settings-section-title">
-                    <i class="bi bi-palette text-danger"></i> Mode Tema Tampilan Antarmuka
-                </div>
-                <p class="settings-section-subtitle">Pilih palet warna sistem favorit Anda dengan transisi instan</p>
-            </div>
-        </div>
-        <div class="p-4">
-            <div class="theme-picker-grid">
-                <!-- Theme Option: Light -->
-                <div class="theme-card-option <?= $settings['theme'] === 'light' ? 'active' : ''; ?>" data-theme="light">
-                    <div class="theme-preview-mock mock-light">
-                        <div class="mock-sidebar"></div>
-                        <div class="mock-content">
-                            <div class="mock-bar"></div>
-                            <div class="mock-bar" style="width: 70%;"></div>
-                            <div class="mock-btn"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-sun-fill text-warning me-1.5"></i> Mode Terang</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Theme Option: Dark -->
-                <div class="theme-card-option <?= $settings['theme'] === 'dark' ? 'active' : ''; ?>" data-theme="dark">
-                    <div class="theme-preview-mock mock-dark">
-                        <div class="mock-sidebar"></div>
-                        <div class="mock-content">
-                            <div class="mock-bar"></div>
-                            <div class="mock-bar" style="width: 70%;"></div>
-                            <div class="mock-btn"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-moon-stars-fill text-info me-1.5"></i> Mode Gelap</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Theme Option: System -->
-                <div class="theme-card-option <?= $settings['theme'] === 'system' ? 'active' : ''; ?>" data-theme="system">
-                    <div class="theme-preview-mock mock-system">
-                        <div class="mock-half-light">
-                            <div class="mock-bar" style="height: 5px; background: #e2e8f0;"></div>
-                            <div class="mock-bar" style="height: 5px; width: 60%; background: #e2e8f0;"></div>
-                        </div>
-                        <div class="mock-half-dark">
-                            <div class="mock-bar" style="height: 5px; background: #1f2937;"></div>
-                            <div class="mock-bar" style="height: 5px; width: 60%; background: #1f2937;"></div>
-                        </div>
-                    </div>
-                    <div class="theme-card-label">
-                        <span><i class="bi bi-circle-half text-secondary me-1.5"></i> Ikuti Sistem (OS)</span>
-                        <i class="bi bi-check-circle-fill theme-check-icon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- General Display Preferences Card -->
     <div class="settings-section-card">
         <div class="settings-section-header">
@@ -729,36 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (el) el.addEventListener('input', syncKopPreview);
     });
 
-    // 3. Theme Picker Card Click Handler (Instant Reactive Switch & Server Save)
-    const themeCards = document.querySelectorAll('.theme-card-option');
-    themeCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const chosenTheme = this.getAttribute('data-theme') || this.getAttribute('data-theme-val');
-            if (!chosenTheme) return;
-
-            themeCards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-
-            // Apply immediately using global MBTheme controller
-            if (window.MBTheme && typeof window.MBTheme.setTheme === 'function') {
-                window.MBTheme.setTheme(chosenTheme);
-            } else {
-                const effectiveTheme = chosenTheme === 'system'
-                    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                    : chosenTheme;
-                document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
-            }
-            localStorage.setItem('theme', chosenTheme);
-
-            // Persist to backend database
-            autoSaveSingleSetting('theme', chosenTheme);
-
-            const themeLabel = chosenTheme === 'dark' ? 'Mode Gelap' : (chosenTheme === 'light' ? 'Mode Terang' : 'Sistem (OS)');
-            triggerAutoSaveStatus(true, 'Tema ' + themeLabel + ' Aktif');
-        });
-    });
-
-    // 4. Company Profile Submit Form Handler
+    // 3. Company Profile Submit Form Handler
     const compForm = document.getElementById('company-profile-form');
     const btnSaveComp = document.getElementById('btn-save-company');
     const btnCompText = document.getElementById('btn-comp-text');
