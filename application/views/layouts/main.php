@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.min.css">
 
     <!-- Design System Theme CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/theme.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/theme.css?v=' . (file_exists(FCPATH . 'assets/css/theme.css') ? filemtime(FCPATH . 'assets/css/theme.css') : '2.8.2')); ?>">
 
     <script>
         // Tab-scoped session guard: if opened in a fresh tab without login, force redirect to logout
@@ -87,7 +87,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
 
     <!-- Theme JS -->
-    <script src="<?= base_url('assets/js/theme.js'); ?>"></script>
+    <script src="<?= base_url('assets/js/theme.js?v=' . (file_exists(FCPATH . 'assets/js/theme.js') ? filemtime(FCPATH . 'assets/js/theme.js') : '2.8.2')); ?>"></script>
 
     <!-- Optional Page Specific Scripts -->
     <?php if (isset($extra_js)): ?>
