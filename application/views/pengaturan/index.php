@@ -757,8 +757,6 @@ document.addEventListener('DOMContentLoaded', function() {
             triggerAutoSaveStatus(true, 'Tema ' + themeLabel + ' Aktif');
         });
     });
-        });
-    });
 
     // 4. Company Profile Submit Form Handler
     const compForm = document.getElementById('company-profile-form');

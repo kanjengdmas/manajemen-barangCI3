@@ -29,7 +29,7 @@
       if (effectiveTheme === 'dark') {
         themeIcon.className = 'bi bi-moon-stars-fill fs-5 text-warning';
       } else {
-        themeIcon.className = 'bi bi-sun-fill fs-5 text-amber-500';
+        themeIcon.className = 'bi bi-sun-fill fs-5 text-warning';
       }
     }
 
@@ -48,10 +48,21 @@
       }
     });
 
-    window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: effectiveTheme, rawTheme: theme } }));
+    try {
+      window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: effectiveTheme, rawTheme: theme } }));
+    } catch (e) {
+      console.warn('theme-changed dispatch error:', e);
+    }
   };
 
+  let lastToggleTime = 0;
   const toggleTheme = () => {
+    const now = Date.now();
+    if (now - lastToggleTime < 350) {
+      return document.documentElement.getAttribute('data-bs-theme') || 'light';
+    }
+    lastToggleTime = now;
+
     const currentEffective = document.documentElement.getAttribute('data-bs-theme') || (getPreferredTheme() === 'dark' ? 'dark' : 'light');
     const nextTheme = currentEffective === 'dark' ? 'light' : 'dark';
 
