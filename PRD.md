@@ -329,10 +329,11 @@ Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Ta
 4. **Format Tampilan Tanggal & Waktu Transaksi (Point 4)**:
    - Konfigurasi format tampilan tanggal transaksi global: `DD/MM/YYYY` (Standar Indonesia), `YYYY-MM-DD` (ISO), dan `DD MMMM YYYY` (Format Panjang).
    - Terintegrasi lewat helper PHP `format_date_by_preference()` (sisi server, untuk PDF/cetak) dan fungsi JS `formatDateByPreference()` (sisi klien) pada tabel riwayat transaksi stok (`views/stok/index.php`), laporan (`views/laporan/index.php`), serta profil pengguna.
-5. **Kebijakan Pengeluaran Barang (FIFO / First-In First-Out Recommendation) (Point 5)**:
+5. **Kebijakan Pengeluaran Barang Murni FIFO (First-In First-Out) (Point 5)**:
    - Toggle kebijakan pengeluaran stok FIFO di tab Gudang & Mutasi Pengaturan.
    - Terintegrasi pada formulir mutasi barang keluar (`views/stok/keluar.php`):
-     - Batch terurut otomatis mendahulukan tanggal kadaluarsa terawal (FEFO) dan tanggal masuk tertua (FIFO), dengan query `ORDER BY tanggal_kadaluarsa ASC, tanggal_masuk ASC` pada batch yang `stok_saat_ini > 0`.
+     - Batch terurut otomatis mendahulukan tanggal kedatangan fisik paling awal ke gudang, dengan query murni FIFO `ORDER BY batch.tanggal_masuk ASC, batch.id ASC` pada batch yang `stok_saat_ini > 0`.
+     - Endpoint terdedikasi `GET /api/batch/recommendations?produk_id=X` menyajikan rekomendasi batch tertua beserta nomor lot, tanggal masuk, dan lokasi rak.
      - Batch tertua otomatis terpilih (*auto-select*) saat produk ditentukan.
      - Penanda visual opsi `⭐ [Rekomendasi FIFO]` pada dropdown batch.
      - Banner status hijau jika memilih batch yang sesuai kebijakan FIFO, atau banner peringatan amber jika memilih batch berbeda.
@@ -422,7 +423,7 @@ Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Ta
      - **Kartu Produk (`/produk`)**: Dilengkapi SKU copy chip, badge kategori, thumbnail preview QR code, barometer stok visual dengan progress bar, dan tombol aksi Edit & Hapus ukuran penuh.
      - **Kartu Kategori (`/kategori`)**: Menampilkan nama klasifikasi, badge jumlah produk terkait, deskripsi ringkas, dan tombol aksi cepat.
      - **Kartu Pemasok (`/pemasok`)**: Dilengkapi tombol interaktif 1-klik panggilan langsung telepon vendor (`<a href="tel:..." class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone-fill"></i> Hubungi</a>`), alamat gudang penyuplai, dan tombol edit.
-     - **Kartu Batch Kardus (`/batch`)**: Menampilkan lencana status FEFO dinamis (*Tersedia*, *Kritis FEFO*, *Kadaluarsa*), countdown pill kedaluwarsa (`H-X hari` / `EXPIRED`), barometer kapasitas lot sisa, dan tombol 1-klik unduh QR.
+     - **Kartu Batch Kardus (`/batch`)**: Menampilkan lencana status stok dinamis (*Tersedia*, *Menipis*, *Habis*), metadata tanggal masuk FIFO (`Masuk: YYYY-MM-DD`), penempatan rak fisik (`Rak: [lokasi]`), barometer kapasitas lot sisa, dan tombol 1-klik unduh QR.
      - **Kartu Feed Aktivitas Mutasi (`/stok`)**: Merombak tampilan log mutasi menjadi activity card feed bergaya aplikasi perbankan modern dengan ikon arah transaksi (hijau untuk masuk, merah untuk keluar), nomor referensi lot/SKU, inisial operator, dan stempel waktu tabular.
    - **Grid Metrik KPI 2x2 Kompak di Dashboard**:
      - Mengubah susunan 4 kartu statistik KPI (`col-12` bertumpuk 4 baris yang memboroskan tinggi layar) menjadi grid kompak 2x2 (`col-6 col-xl-3`).
