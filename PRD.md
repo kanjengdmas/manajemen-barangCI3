@@ -1,7 +1,7 @@
 # PRD — Sistem Manajemen Barang (Inventory Management System) — Versi CodeIgniter 3
 
 > **Dokumen**: Product Requirements Document (PRD)  
-> **Versi**: 2.11.0 (CI3 Enterprise SaaS UI/UX Edition — True Mobile-First Architecture & Native Card Ergonomics)  
+> **Versi**: 2.12.0 (CI3 Enterprise SaaS UI/UX Edition — Unified Multi-Palette 6-Theme Architecture & Pure FIFO Stock Alignment)  
 > **Terakhir Diperbarui**: November 2026  
 > **Status**: Migrasi stack (Laravel + React → CI3) & Redesain UI/UX Enterprise SaaS Modern  
 > **Repository**: [kanjengdmas/manajemen-barangCI3](https://github.com/kanjengdmas/manajemen-barangCI3)  
@@ -10,7 +10,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan mengadopsi standar antarmuka **Enterprise SaaS Modern (Linear / Stripe / Vercel style)** dengan Quiet Chrome aesthetic, skema *Crimson & Clean Slate*, pemindai kamera QR Code fisik, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), **Arsitektur Mobile-First Komprehensif (Docked Mobile Bottom Navigation, Native Mobile Data Cards, 2x2 Stat KPI Grid, Touch-First Ergonomics)**, Pusat Manajemen Profil & Kredensial Operator Terpadu (`/profil`), pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan, tabel aktivitas mutasi interaktif berkemampuan scroll & filter instan, ticker jam detik real-time (`HH:MM:SS`), dan auto-refresh background tanpa kedip.
+**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan mengadopsi standar antarmuka **Enterprise SaaS Modern (Linear / Stripe / Vercel style)** dengan Quiet Chrome aesthetic, skema *Crimson & Clean Slate*, pemindai kamera QR Code fisik, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), **Arsitektur Mobile-First Komprehensif (Docked Mobile Bottom Navigation, Native Mobile Data Cards, 2x2 Stat KPI Grid, Touch-First Ergonomics)**, **Sistem Palet 6 Tema Terpadu Desktop & Mobile (Light, Dark, Sepia Warm Sand, Midnight Navy, OLED Pure Black, Forest Emerald)** via dropdown palet header bebas kedipan (*Zero FOIT*), Pusat Manajemen Profil & Kredensial Operator Ramping (`/profil`), kebijakan rotasi stok murni **FIFO (First-In, First-Out)**, pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan, adaptasi warna Chart.js multi-tema instan, tabel aktivitas mutasi interaktif berkemampuan scroll & filter instan, ticker jam detik real-time (`HH:MM:SS`), dan auto-refresh background tanpa kedip.
 
 ### Problem Statement
 Pengelolaan inventaris berbasis manual atau spreadsheet rentan terhadap selisih stok (*stock discrepancy*), keterlambatan pembaruan data antar-shift gudang, risiko kehilangan dokumen fisik, serta lambatnya proses audit. Sistem ini mengintegrasikan seluruh titik operasional ke dalam satu basis data terpusat yang aman, cepat, dan terukur.
@@ -69,7 +69,7 @@ Seluruh fungsionalitas pada PRD sebelumnya dipertahankan. Perubahan utama ada pa
 | Layout | Template view (`layouts/main.php` + partial header/sidebar/footer) | Layout tunggal dipakai seluruh halaman internal |
 | Routing | `application/config/routes.php` | URL bersih lewat `.htaccess` (mod_rewrite) |
 | Styling | Bootstrap 5.3 + `assets/css/theme.css` | Responsif, dengan tema *Crimson & Clean Slate* |
-| Theme System | `data-bs-theme` + `theme.js` | Toggle Mode Terang (Light), Gelap (Dark), & Sistem |
+| Theme System | `data-bs-theme` + `theme.js` | Palet 6 Tema Visual (Light, Dark, Sepia, Navy, OLED, Forest) + Zero-FOIT Script & Dynamic Chart.js Adaptation |
 | Multi-Language (i18n) | `assets/js/i18n.js` + `data-i18n` | Bahasa Indonesia 🇮🇩 dan English (US) 🇺🇸 tanpa reload halaman |
 | UI Icons | Bootstrap Icons | Ikonografi vektor yang konsisten dan ringan |
 | Animasi & Transisi | AOS + CSS transitions | Animasi micro-interaction halus |
@@ -144,7 +144,7 @@ Manajemen-Barang/
 | **produk** | `id`, `nama_produk`, `sku`, `qr_code`, `stok`, `stok_minimal`, `kategori_id`, `pemasok_id` | Master barang inventaris; berelasi Many-to-One dengan `kategori` dan `pemasok`. |
 | **kategori** | `id`, `nama_kategori`, `created_at` | Klasifikasi barang; berelasi One-to-Many dengan `produk`. |
 | **pemasok** | `id`, `nama_pemasok`, `kontak`, `alamat` | Vendor penyedia produk; berelasi One-to-Many dengan `produk`. |
-| **batch** | `id`, `produk_id`, `qr_code`, `kapasitas`, `jumlah_awal`, `stok_saat_ini`, `tanggal_masuk`, `tanggal_kadaluarsa`, `lokasi_rak` | Lot/kardus spesifik per produk untuk pelacakan tanggal dan penempatan rak. |
+| **batch** | `id`, `produk_id`, `qr_code`, `kapasitas`, `jumlah_awal`, `stok_saat_ini`, `tanggal_masuk`, `lokasi_rak` | Lot/kardus barang untuk rotasi murni FIFO (First In, First Out) dan penempatan rak fisik gudang telekomunikasi. Kolom `tanggal_kadaluarsa` dinonaktifkan/null demi kesesuaian domain material hardware Telkom Akses. |
 | **stok_transaksi** | `id`, `produk_id`, `batch_id`, `user_id`, `tipe`, `jumlah`, `catatan`, `scan_mode`, `tanggal` | Buku kas mutasi stok (masuk/keluar); mencatat riwayat operator dan mode scan. |
 | **sisa_stok** | `id`, `produk_id`, `total_stok`, `updated_at` | Snapshot agregat stok produk untuk integritas data instan. |
 | **pengaturan** | `id`, `user_id` (nullable), `kunci`, `nilai`, `updated_at` | Pengganti Laravel Cache: menyimpan preferensi pengguna (`user_id` terisi), pengaturan sistem, dan profil perusahaan/kop surat (`user_id` NULL). Nilai disimpan sebagai JSON. |
@@ -162,6 +162,11 @@ Manajemen-Barang/
     - **Sisi Kanan (Authentication Card)**: Form login ramping dan bersih dengan logo mark bercahaya halus, input floating dengan ikon Bootstrap, toggle visibilitas password mata (`bi-eye`/`bi-eye-slash`), proteksi CSRF otomatis, dan **1-Click Interactive Demo Fill** (tombol cepat untuk mengisi otomatis kredensial akun demo `admin@admin.com` & `password` demi kemudahan pengujian dan demonstrasi instan).
 - **Login & Sesi Terproteksi**: Masuk menggunakan email dan password; sesi disimpan di database lewat CI Session (cookie `HttpOnly`), bukan token di `localStorage`. Password diverifikasi dengan `password_verify()`.
 - **Route Guard (`MY_Controller`)**: Semua controller internal mewarisi `MY_Controller` yang memblokir akses tanpa sesi login dan mengarahkan pengguna ke `/login`. Untuk request AJAX, guard mengembalikan respon JSON `401`.
+- **Tab-Scoped Session Security Guard (`sessionStorage` Protection)**:
+  - Mengisolasi otorisasi sesi per tab browser individual. Saat tab peramban ditutup dan tab baru dibuka untuk mengakses URL aplikasi, sistem tidak langsung menampilkan dashboard, melainkan memblokir render konten dan segera mengarahkan pengguna ke halaman login (`/login`).
+  - Menggunakan script proteksi dini di `<head>` master layout (`layouts/main.php`): mengevaluasi token `sessionStorage.getItem('mb_tab_auth')`. Jika token tidak ditemukan pada konteks tab yang baru dibuka, peramban mengeksekusi `window.location.replace('/logout')`.
+  - Pada halaman login (`auth/login.php`), token tab lama otomatis dibersihkan saat render dan token otentikasi baru diinjeksikan seketika saat form autentikasi berhasil disubmit (`sessionStorage.setItem('mb_tab_auth', '1')`).
+  - Diperkuat dengan konfigurasi `$config['sess_expiration'] = 0;` pada CodeIgniter 3 agar cookie sesi otomatis kedaluwarsa saat seluruh peramban ditutup.
 - **Sidebar Navigasi Modern Enterprise SaaS (`views/partials/sidebar.php`)**:
   - Quiet Chrome aesthetic ala Linear/Stripe dengan layout terbagi menjadi 4 seksi logis: *Pusat Kontrol*, *Operasional Gudang*, *Laporan & Dokumen*, dan *Konfigurasi*.
   - Kotak logo brand dengan aura crimson halus dan status online.
@@ -175,7 +180,7 @@ Manajemen-Barang/
     - *Interactive Circular Avatar Uploader*: Frame foto lingkaran modern dengan hover overlay ("Ubah"), preview instan via client-side `FileReader`, opsi "Hapus Foto" yang otomatis mengembalikan ke avatar inisial, dan batas unggah file (JPG/PNG/WebP maks. 2MB).
     - *Identitas & Metadata Operator*: Nama lengkap, email resmi, badge peran (`SUPERADMIN` / `OPERATOR`), serta ringkasan tanggal login terakhir.
     - *Operator Telemetry Stat Pills*: Menampilkan akumulasi aktivitas mutasi yang ditangani operator, frekuensi login (`total_login`), serta bulan & tahun bergabung.
-  - **Arsitektur 4-Segmented Tabs (Quiet Chrome)**:
+  - **Arsitektur 3-Segmented Tabs Ramping (Quiet Chrome)**:
     1. **Tab 1: Informasi Akun Operator (`tab-info`)**:
        - Form pembaruan nama lengkap dan alamat email dengan proteksi validasi unik.
        - Kolom peran/hak akses dan tanggal pendaftaran dalam mode *read-only* dengan badge indikator keamanan.
@@ -187,14 +192,10 @@ Manajemen-Barang/
        - **Real-Time Password Strength Meter**: Evaluator kekuatan kata sandi interaktif dengan 4 baris segmen warna (*Lemah, Cukup, Baik, Sangat Kuat*) dan checklist persyaratan dinamis (Min. 8 Karakter, Huruf Besar & Kecil, Angka 0-9, Karakter Spesial/Simbol).
        - **Live Password Match Feedback**: Indikator instan kecocokan antara kolom kata sandi baru dan konfirmasi kata sandi.
        - Submit pembaruan kata sandi via `POST /api/profile/password`.
-    3. **Tab 3: Preferensi & Personalisasi (`tab-preferences`)**:
-       - *Theme Selector Card Grid*: Kartu visual interaktif pemilihan Mode Terang (*Clean High-Contrast*) vs Mode Gelap (*Dark Slate*), langsung mengaplikasikan tema ke DOM tanpa reload dan menyimpan preferensi ke database via `POST /api/profile/preferences`.
-       - *Format Tampilan Tanggal*: Radio kartu pilihan format tanggal (`DD/MM/YYYY`, `YYYY-MM-DD`, `DD MMMM YYYY`) disertai contoh live date.
-       - *Mode Konfirmasi Transaksi Stok*: Pilihan Mode Aman (*Safe Mode* dengan dialog modal konfirmasi) vs Mode Cepat (*Fast Mode* untuk input batch berkecepatan tinggi).
-       - *Toggle Notifikasi*: Efek audio konfirmasi mutasi stok dan ringkasan harian (daily digest).
-    4. **Tab 4: Sesi & Audit Log (`tab-session`)**:
+    3. **Tab 3: Sesi & Audit Log (`tab-session`)**:
        - Telemetri perangkat klien: Alamat IP riil, status peran aktif, protokol keamanan valid, dan string lengkap *User Agent* peramban.
        - Tombol pintas keluar akun (*Logout*) aman dengan token CSRF.
+       *(Catatan: Tab Preferensi & Personalisasi lama dihilangkan untuk mengeliminasi redundansi, karena tema dan konfigurasi global telah terpusat di header dan pengaturan sistem).*
 
 ### 6.2 Dashboard Real-Time & Pembaruan Otomatis
 Pusat kendali visual kondisi operasional gudang secara langsung dari database (`Dashboard::index` + endpoint `api/dashboard/*`):
@@ -214,6 +215,7 @@ Pusat kendali visual kondisi operasional gudang secara langsung dari database (`
 - **Stok Kategori Chart**: Visualisasi distribusi kuantitas stok per kategori menggunakan Chart.js.
 - **Tabel Stok Menipis**: Menampilkan 5 produk dengan stok terendah lengkap dengan ikon kontekstual per jenis barang dan status badge (*Habis* / *Menipis*).
 - **Grafik Pergerakan Stok (Movement Chart)**: Grafik pembanding volume barang masuk vs keluar dengan rentang dinamis (7 Hari, 30 Hari, 6 Bulan, 12 Bulan) dan 2 kartu ringkasan total akumulasi periode.
+- **Prioritas FIFO Gudang (Warehouse Aging Alert)**: Widget analitik cerdas yang memantau lot kardus yang harus dikeluarkan terlebih dahulu berdasarkan antrean kedatangan terlama (`batch.tanggal_masuk ASC`), menggantikan mekanisme FEFO kadaluarsa generik. Menghitung lama waktu menginap barang di rak fisik (`DATEDIFF(CURDATE(), batch.tanggal_masuk) AS days_in_warehouse`) dan menyajikan label badge dinamis (*X hr di rak*, *Hari ini*) untuk memastikan perputaran inventaris perangkat keras telekomunikasi tetap sehat.
 - **Aktivitas Mutasi Terkini (Modern Enterprise Activity Table)**:
   - Transformasi widget mutasi menjadi tabel enterprise terstruktur rapi yang memuat 15 transaksi pergerakan barang terakhir di gudang.
   - **Fitur Scroll Vertikal & Pinned Header (`.table-scroll-container`)**:
@@ -239,19 +241,19 @@ Pusat kendali visual kondisi operasional gudang secara langsung dari database (`
 ### 6.3 Pengaturan Sistem & Preferensi Modular 5-Tab (`/pengaturan`)
 Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Tab Enterprise Control Center** berbasis prinsip **Auto-Save on Change** tanpa tombol simpan manual, dilengkapi sakelar bergaya iOS (`.ios-switch`) dan indikator status visual halus (*Auto-save badge*):
 1. **Tab 1: Tampilan & Sistem**:
-   - *Pilihan Tema Visual*: Visual Theme Picker Card interaktif untuk tema **Terang (Light)**, **Gelap (Dark)**, dan **Sistem** lengkap dengan mockup preview visual mini, radio checkmark aktif, dan border glow saat dipilih.
+   - *Palet Tema Terpadu*: Pemilihan tema terpusat secara global pada dropdown palet di bilah navigasi header (menyediakan 6 preset visual: Light, Dark, Sepia, Navy, OLED, Forest) dengan preview swatch warna dan indikator aktif, mengeliminasi duplikasi elemen pemilih tema pada tab pengaturan.
    - *Bahasa & Lokalisasi*: Penggantian instan antara Bahasa Indonesia 🇮🇩 dan English (US) 🇺🇸 tanpa reload halaman lewat kamus `assets/js/i18n.js`.
    - *Tampilkan Jumlah Angka Stok*: Toggle penyembunyian angka kuantitas stok fisik dengan masking `••••••` untuk privasi saat presentasi publik.
    - *Interval Auto-Refresh Dashboard*: Konfigurasi jeda polling otomatis (1, 3, 5, 10 menit) dengan toggle on/off.
 2. **Tab 2: Gudang & Mutasi**:
-   - *Kebijakan Pengeluaran Barang FIFO*: Toggle rekomendasi First-In First-Out yang terintegrasi pada dropdown form mutasi barang keluar.
+   - *Kebijakan Pengeluaran Barang FIFO*: Toggle rekomendasi First-In First-Out yang terintegrasi pada dropdown form mutasi barang keluar untuk memastikan rotasi barang tertua di rak gudang.
    - *Default Ambang Stok Menipis*: Konfigurasi default (5, 10, 20, 50 unit) yang otomatis terisi pada formulir registrasi produk baru.
    - *Standardisasi Prefix Kode*: Format prefix SKU Produk (misal: `PRD-`) dan Lot Batch (misal: `LOT-`).
    - *Pengaturan Ukuran Cetak Label QR*: Pilihan ukuran stiker fisik (*Kecil 30x20mm*, *Sedang 50x30mm*, *Standar Rak 70x40mm*) dan toggle informasi produk pada label.
    - *Format Tampilan Tanggal Transaksi*: Pilihan format tanggal global (`DD/MM/YYYY`, `YYYY-MM-DD`, `DD MMMM YYYY`).
 3. **Tab 3: Pemberitahuan & Efek**:
    - *Efek Suara Scanner QR*: Audio beep (880 Hz) berbasis Web Audio API tanpa file eksternal.
-   - *Peringatan Stok Kritis & Kadaluarsa*: Peringatan dini email/desktop untuk produk di bawah ambang batas minimal dan batch mendekati kadaluarsa (7, 14, 30, 60 hari).
+   - *Peringatan Stok Kritis & Usia Simpan*: Peringatan dini email/desktop untuk produk di bawah ambang batas minimal dan batch dengan usia simpan lama di rak gudang (7, 14, 30, 60 hari).
    - *Daily Digest Email*: Toggle pengiriman rekap harian aktivitas mutasi ke email administrator di akhir shift kerja.
 4. **Tab 4: Profil Perusahaan & Kop Surat**:
    - Formulir identitas resmi instansi: Nama Perusahaan, Sub-judul/Tagline, Alamat Lengkap Kantor/Gudang, Nomor Telepon/WhatsApp, Email Resmi, Nama Penanggung Jawab / PIC Gudang, Jabatan Resmi PIC, dan Catatan Kaki (Footer Note).
@@ -271,10 +273,17 @@ Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Ta
 - **Auto-Generate & Unduh QR**: File PNG QR Code dibuat otomatis oleh library `Qr_service` jika belum tersedia (disimpan di `uploads/qr/`) dan dapat diunduh langsung dalam format PNG.
 - **Filter & Pencarian Instan**: Pencarian berbasis nama dan SKU secara lokal lewat DataTables tanpa jeda jaringan.
 
-### 6.5 Manajemen Batch & Kardus
-- Pelacakan barang spesifik per lot/kardus dengan atribut: Produk, Kapasitas, Jumlah Awal, Stok Saat Ini, Lokasi Rak, Tanggal Masuk, dan Tanggal Kadaluarsa.
-- Generate QR Code unik per batch.
-- Pencarian dan filter produk batch, serta riwayat mutasi per batch.
+### 6.5 Manajemen Batch & Kardus (Domain Gudang Telkom Akses & Pure FIFO)
+- **Karakteristik Domain Hardware & Material Telekomunikasi**: Seluruh material pergudangan PT Telkom Akses (seperti ONT/Modem, STB, kabel Drop Core Fiber Optik, ODP, Roset, Splitter, Joint Closure, hingga alat kerja Splicer) merupakan perangkat keras (*durable equipment*) dan material pasif jaringan yang tidak memiliki masa kedaluwarsa layaknya produk makanan/farmasi.
+- **Eliminasi Penuh Atribut Kadaluarsa (Opsi 1)**: Mengeliminasi input `tanggal_kadaluarsa` dari antarmuka formulir registrasi, tabel data, filter, dan proses validasi. Di tingkat backend, field ini di-set `NULL` tanpa memecahkan kompatibilitas skema database eksisting.
+- **Formulir Registrasi Ergonomis 3-Kolom (`views/batch/create.php`)**: Ditata ulang menjadi 3 kolom terstruktur: **Jumlah Lot (Unit)**, **Tanggal Masuk (FIFO)**, dan **Lokasi Rak / Pallet**.
+- **Status Batch Sederhana & Fungsional**: Menggantikan kalkulasi FEFO kadaluarsa menjadi 3 status operasional riil:
+  - `tersedia`: Sisa stok di atas ambang 20% kapasitas awal lot.
+  - `hampir_habis`: Sisa stok kritis berada pada atau di bawah 20% kapasitas awal lot.
+  - `habis`: Sisa stok habis (0 unit).
+- **Alokasi Stok Murni FIFO (First-In, First-Out)**: Seluruh pemrosesan kuantitas barang mendahulukan kardus/lot dengan tanggal kedatangan tertua (`ORDER BY batch.tanggal_masuk ASC, batch.id ASC`).
+- **Pelacakan Rak Fisik & Identifikasi Cepat**: Kode lokasi rak fisik penyimpanan (misal: *RAK-A-01*, *Pallet FO*) disajikan transparan di kartu desktop dan mobile view.
+- **Generate QR Code Unik per Batch**: Pembuatan stiker QR otomatis untuk kardus wadah, pemindaian cepat via kamera fisik, dan riwayat mutasi per batch.
 
 ### 6.6 Mutasi Stok (Masuk & Keluar)
 - **Stok Masuk**: Penambahan stok barang ke batch tertentu dengan catatan penerimaan dari pemasok.
@@ -568,12 +577,16 @@ Aplikasi mengimplementasikan standar desain **Enterprise SaaS Modern** (mengadop
 
 ### 9.1 Sistem Token & Palet Warna (`assets/css/theme.css`)
 - **Brand Crimson**: Aksen utama bernuansa merah tegas (`#dc2626` / `#b91c1c` / `#ef4444`) yang memberikan identitas kuat pada elemen interaktif, logo aura, dan indikator navigasi aktif.
-- **Surface Elevation Hierarchy**:
-  - Light Mode: Neutral slate lembut (`#f8fafc`, `#ffffff`, `#f1f5f9`) dengan hairline border tipis (`rgba(0, 0, 0, 0.08)`).
-  - Dark Mode: Quiet graphite ramp (`#0b0f17`, `#111827`, `#1f2937`) tanpa glowing berlebihan, mengandalkan hairline borders dan permukaan bertingkat (*surface steps*).
+- **6 Preset Palet Tema Visual Komprehensif**:
+  1. **Mode Terang (Clean Slate)**: Latar `#f8fafc` dengan kartu `#ffffff`, border slate lembut, dan aksen crimson korporat gudang siang hari.
+  2. **Mode Gelap (Deep Slate)**: Latar `#090d16` dengan kartu graphite `#111827`, border hairline subtle, dan kenyamanan mata di pencahayaan rendah.
+  3. **Kertas Hangat (Sepia / Warm Sand)**: Latar `#f6f1e8` bernuansa kertas buku lembut dengan kartu `#fffdf9` dan aksen amber hangat (`#d97706`), dirancang khusus untuk meminimalkan kelelahan mata operator gudang (*low eye-strain*).
+  4. **Midnight Navy (Deep Blue Enterprise)**: Latar `#0b1329` dengan kartu `#131f3d`, border maritim modern, dan aksen langit biru (`#38bdf8`) berstandar enterprise.
+  5. **OLED Pure Black (High-Contrast)**: Latar hitam murni 100% (`#000000`) dengan kartu `#0c0c0e`, memberikan kontras teks tertinggi dan efisiensi daya baterai maksimal pada smartphone AMOLED/OLED operator gudang.
+  6. **Forest Emerald (Sage Green)**: Latar hijau pinus gelap `#071712` dengan kartu `#0d251d` dan aksen mint emerald (`#34d399`) yang sejuk dan menenangkan mata.
 - **Soft Semantic Badges**:
   - `.badge-soft-success`: Hijau tenang untuk mutasi Masuk, stok aman, dan rekomendasi FIFO.
-  - `.badge-soft-danger`: Merah tenang untuk mutasi Keluar, stok kritis/habis, dan batch kadaluarsa.
+  - `.badge-soft-danger`: Merah tenang untuk mutasi Keluar dan stok kritis/habis.
   - `.badge-soft-warning`: Amber untuk stok menipis dan deviasi peringatan.
   - `.badge-soft-info`: Biru lembut untuk informasi SKU, QR, dan batch kardus.
   - `.badge-soft-secondary`: Abu-abu lembut untuk metadata tanggal dan ID.
@@ -606,10 +619,15 @@ Aplikasi mengimplementasikan standar desain **Enterprise SaaS Modern** (mengadop
    - Komponen representasi data non-tabel untuk perangkat seluler yang mengintegrasikan status chip, thumbnail QR, meter stok, informasi pemasok/lot, dan tombol aksi tanpa geser horizontal.
 12. **Grid Statistik 2x2 Kompak**:
    - Pengaturan kartu metrik KPI menggunakan `col-6 col-xl-3` pada perangkat mobile untuk menghemat ruang vertikal dan memberikan visibilitas metrik seketika.
+13. **Dropdown Palet Tema Terpadu (`.theme-palette-menu`, `.theme-dropdown-option`, `.theme-swatch`)**:
+   - Komponen pemilih tema terpusat pada header dan form login dengan preview swatch lingkaran warna, label deskriptif, dan indikator centang aktif (`.theme-check-icon`). Dibatasi `max-width: calc(100vw - 24px)` untuk mencegah overflow di layar mobile.
+14. **Garis Aksen Kartu Berkelengkungan Halus (`.export-format-card::before`)**:
+   - Strip aksen format file (Excel hijau, PDF merah, Database ungu) berbasis pseudo-element absolut dengan `overflow: hidden` pada container sehingga mengikuti kurva rounded corner tanpa artefak sudut tajam.
 
-### 9.4 Reaktivitas, Dark Mode, & Aksesibilitas
-- **Full Dark Mode**: Tema gelap terintegrasi penuh melalui atribut `data-bs-theme="dark"` dengan script pencegah kedip (*anti-flash script* di `<head>`).
-- **Kontras WCAG AA**: Rasio kontras teks terhadap latar belakang diuji memenuhi standar minimal 4.5:1 untuk keterbacaan optimal di lingkungan pencahayaan gudang.
+### 9.4 Reaktivitas, Multi-Palet Tema, & Aksesibilitas
+- **Arsitektur Multi-Palet 6 Tema Bebas Kedip (Zero-FOIT)**: Injeksi early inline synchronous script di `<head>` pada `layouts/main.php` dan `auth/login.php` yang memverifikasi `localStorage` terhadap whitelist valid `['light', 'dark', 'sepia', 'navy', 'oled', 'forest']` sebelum DOM dirender, mencegah efek kedipan putih (flash of incorrect theme).
+- **Adaptasi Dinamis Chart.js Multi-Tema**: Pengiriman custom event `theme-changed` yang direspons oleh `assets/js/dashboard.js` untuk mengkalibrasi warna sumbu label, garis grid, tooltip background, dan border donat kategori secara instan tanpa reload halaman atau merusak dataset.
+- **Kontras WCAG AA**: Rasio kontras teks terhadap latar belakang diuji memenuhi standar minimal 4.5:1 untuk keterbacaan optimal di lingkungan pencahayaan gudang pada seluruh 6 varian tema.
 - **Reaktivitas Tanpa Refresh**: Pergantian bahasa (ID/EN) dan preferensi tema diterapkan seketika ke DOM lewat JavaScript tanpa reload browser.
 - **Silent Background Syncing**: Auto-refresh 5 menit berjalan di latar belakang tanpa skeleton loader yang mengganggu pandangan pengguna.
 - **Micro-Interactions & Audio Feedback**:
@@ -674,4 +692,4 @@ chmod -R 775 uploads application/cache application/logs
 
 ---
 
-*Dokumen ini diperbarui untuk mencerminkan rilis Manajemen Barang v2.11.0 (CI3 Enterprise SaaS UI/UX Edition — True Mobile-First Architecture & Native Card Ergonomics) — November 2026.*
+*Dokumen ini diperbarui untuk mencerminkan rilis Manajemen Barang v2.12.0 (CI3 Enterprise SaaS UI/UX Edition — Unified Multi-Palette 6-Theme Architecture & Pure FIFO Stock Alignment) — November 2026.*
