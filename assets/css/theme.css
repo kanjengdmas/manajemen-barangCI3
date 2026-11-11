@@ -3079,16 +3079,26 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.export-format-card.format-excel {
-  border-top: 3px solid #16a34a;
+.export-format-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: transparent;
 }
 
-.export-format-card.format-pdf {
-  border-top: 3px solid #dc2626;
+.export-format-card.format-excel::before {
+  background-color: #16a34a;
 }
 
-.export-format-card.format-database {
-  border-top: 3px solid #7c3aed;
+.export-format-card.format-pdf::before {
+  background-color: #dc2626;
+}
+
+.export-format-card.format-database::before {
+  background-color: #7c3aed;
 }
 
 .export-format-icon {
