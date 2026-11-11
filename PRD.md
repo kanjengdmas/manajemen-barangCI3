@@ -511,7 +511,8 @@ Aplikasi CI3 ini memakai dua jenis endpoint: **halaman** (dirender server, form 
 | `GET, POST` | `/batch`, `/batch/create`, `/batch/edit/(:num)`, `/batch/delete/(:num)` | `Batch::*` | CRUD lot/batch barang |
 | `GET` | `/api/batch/(:num)/history` | `api/Batch::history` | Riwayat mutasi pada batch tertentu |
 | `GET` | `/api/batch/scan/(:any)` | `api/Batch::scan` | Pencarian dan identifikasi batch via QR Code |
-| `GET` | `/api/batch/produk/(:num)/batches` | `api/Batch::by_produk` | Daftar batch milik satu produk (terurut FIFO/FEFO) |
+| `GET` | `/api/batch/produk/(:num)/batches` | `api/Batch::by_produk` | Daftar batch milik satu produk (terurut FIFO) |
+| `GET` | `/api/batch/recommendations` | `api/Batch::recommendations` | Rekomendasi batch terurut FIFO untuk mutasi stok keluar |
 
 #### Layanan QR Code
 | Method | Endpoint | Controller::method | Fungsi |
