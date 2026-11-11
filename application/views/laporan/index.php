@@ -80,7 +80,7 @@
                     <?= number_format($stats['total_batches'] ?? 0); ?> <span class="fs-6 fw-normal text-muted">Batch</span>
                 </div>
                 <div class="text-muted" style="font-size: 0.72rem; margin-top: 2px;">
-                    Pelacakan kadaluarsa (FEFO) dan penempatan rak fisik
+                    Pelacakan tanggal masuk (FIFO) dan penempatan rak fisik
                 </div>
             </div>
         </div>
@@ -402,7 +402,7 @@
                     <i class="bi bi-layers text-info me-1.5"></i> Laporan Lot Kardus &amp; Lokasi Rak
                 </h5>
                 <p class="text-muted small mb-3" style="font-size: 0.76rem;">
-                    Ekspor pelacakan lot/batch kardus spesifik, kapasitas wadah, sisa unit, tanggal kadaluarsa, dan kode lokasi rak penyimpanan.
+                    Ekspor pelacakan lot/batch kardus spesifik, kapasitas wadah, sisa unit, tanggal kedatangan (FIFO), dan kode lokasi rak penyimpanan.
                 </p>
 
                 <div class="p-3 rounded mb-4" style="background-color: var(--mb-card-raised); border: 1px solid var(--mb-border);">
@@ -413,7 +413,7 @@
                         <li><strong>Nomor Batch / Lot:</strong> Nomor identifikasi kardus/lot produk.</li>
                         <li><strong>Kapasitas &amp; Sisa Unit:</strong> Akurasi kuantitas yang tersisa di dalam wadah kardus.</li>
                         <li><strong>Lokasi Rak Fisik:</strong> Penempatan rak penyimpanan fisik (misal: <em>RAK-A-01</em>).</li>
-                        <li><strong>Usia Kedaluwarsa:</strong> Pemantauan batas kadaluarsa untuk kebijakan pengeluaran FEFO/FIFO.</li>
+                        <li><strong>Antrean Kedatangan FIFO:</strong> Pemantauan tanggal masuk untuk rotasi pengeluaran barang First In, First Out.</li>
                     </ul>
                 </div>
 
@@ -439,12 +439,12 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-start gap-3 mb-3">
-                    <div class="p-2 rounded bg-warning-subtle text-warning">
-                        <i class="bi bi-hourglass-split fs-5"></i>
+                    <div class="p-2 rounded bg-danger-subtle text-danger">
+                        <i class="bi bi-clock-history fs-5"></i>
                     </div>
                     <div>
-                        <div class="fw-semibold small">Proteksi Kadaluarsa FEFO</div>
-                        <div class="text-muted small" style="font-size: 0.75rem;">Mendukung analisa lot kardus yang harus dikeluarkan terlebih dahulu demi mencegah kerugian stok usang.</div>
+                        <div class="fw-semibold small">Prioritas Pengeluaran FIFO</div>
+                        <div class="text-muted small" style="font-size: 0.75rem;">Mendukung analisa lot kardus yang masuk paling awal untuk dikeluarkan terlebih dahulu agar perputaran barang optimal.</div>
                     </div>
                 </div>
                 <div class="d-flex align-items-start gap-3">

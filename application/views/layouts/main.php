@@ -24,12 +24,13 @@
             window.location.replace('<?= site_url("logout"); ?>');
         }
 
-        // Inline early script to set theme without flash
+        // Inline early script to set theme without flash (Multi-Palette 6 Themes)
         (function() {
+            var validThemes = ['light', 'dark', 'sepia', 'navy', 'oled', 'forest'];
             var savedTheme = localStorage.getItem('theme') || 'system';
             var effectiveTheme = savedTheme === 'system'
                 ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                : savedTheme;
+                : (validThemes.indexOf(savedTheme) !== -1 ? savedTheme : 'light');
             document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
         })();
         window.BASE_URL = '<?= rtrim(base_url(), '/') . '/'; ?>';

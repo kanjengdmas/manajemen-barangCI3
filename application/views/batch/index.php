@@ -6,7 +6,7 @@
             Manajemen Lot & Batch Kardus
         </h2>
         <p class="text-muted small mb-0">
-            Pelacakan nomor lot kardus fisik, tanggal kadaluarsa, dan alokasi stok masuk/keluar metode FEFO/FIFO.
+            Pelacakan nomor lot kardus fisik, lokasi rak penyimpanan, dan perputaran alokasi stok metode FIFO.
         </p>
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -39,11 +39,11 @@
                     <th class="text-center" style="width: 80px;">QR Batch</th>
                     <th style="width: 160px;">Nomor Lot / Batch</th>
                     <th>Nama Produk & SKU</th>
-                    <th style="width: 120px;">Tgl Masuk</th>
-                    <th style="width: 170px;">Tgl Kadaluarsa</th>
+                    <th style="width: 140px;">Lokasi Rak</th>
+                    <th style="width: 130px;">Tgl Masuk (FIFO)</th>
                     <th class="text-end" style="width: 100px;">Stok Awal</th>
                     <th class="text-end" style="width: 130px;">Sisa Stok</th>
-                    <th class="text-center" style="width: 120px;">Status FEFO</th>
+                    <th class="text-center" style="width: 110px;">Status Stok</th>
                     <th class="text-center" style="width: 80px;">Aksi</th>
                 </tr>
             </thead>
@@ -56,7 +56,7 @@
                                     <i class="bi bi-layers"></i>
                                 </div>
                                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Lot / Batch Kardus</h6>
-                                <p class="text-muted small mb-3">Registrasikan nomor batch kedatangan barang untuk pelacakan alokasi FEFO dan kadaluarsa.</p>
+                                <p class="text-muted small mb-3">Registrasikan nomor batch kedatangan barang untuk pelacakan alokasi perputaran FIFO.</p>
                                 <a href="<?= site_url('batch/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
                                     <i class="bi bi-plus-lg me-1"></i> Registrasi Batch Baru
                                 </a>
@@ -66,12 +66,10 @@
                 <?php else: ?>
                     <?php $no = 1; foreach ($batches as $b): ?>
                         <?php
-                            $diffDays = !empty($b['tanggal_kadaluarsa']) ? round((strtotime($b['tanggal_kadaluarsa']) - time()) / 86400) : null;
-                            $isExpiring = $diffDays !== null && $diffDays <= 30 && $diffDays > 0;
-                            $isExpired = $diffDays !== null && $diffDays <= 0;
                             $stok = (int)($b['stok_saat_ini'] ?? 0);
                             $awal = (int)($b['jumlah_awal'] ?? 1);
                             $pctSisa = $awal > 0 ? min(100, round(($stok / $awal) * 100)) : 0;
+                            $status = $b['status'] ?? ($stok <= 0 ? 'habis' : ($pctSisa <= 20 ? 'hampir_habis' : 'tersedia'));
                         ?>
                         <tr class="batch-row" data-search="<?= strtolower(html_escape($b['nomor_batch'] . ' ' . ($b['nama_produk'] ?? '') . ' ' . ($b['sku'] ?? ''))); ?>">
                             <td class="text-center text-muted fw-semibold tabular-nums"><?= $no++; ?></td>
@@ -98,24 +96,13 @@
                                     <?= html_escape($b['sku'] ?? ''); ?>
                                 </code>
                             </td>
+                            <td>
+                                <span class="badge-soft badge-soft-secondary font-monospace" style="font-size: 0.75rem;">
+                                    <i class="bi bi-geo-alt text-muted me-1"></i><?= html_escape($b['lokasi_rak'] ?? '-'); ?>
+                                </span>
+                            </td>
                             <td class="text-muted small tabular-nums">
                                 <?= !empty($b['tanggal_masuk']) ? format_date_by_preference($b['tanggal_masuk'], null, false) : '-'; ?>
-                            </td>
-                            <td>
-                                <?php if (!empty($b['tanggal_kadaluarsa'])): ?>
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <span class="small tabular-nums font-monospace <?= $isExpired ? 'text-danger fw-bold' : ($isExpiring ? 'text-warning fw-semibold' : 'text-muted'); ?>">
-                                            <?= format_date_by_preference($b['tanggal_kadaluarsa'], null, false); ?>
-                                        </span>
-                                        <?php if ($isExpired): ?>
-                                            <span class="badge-soft badge-soft-danger" style="font-size: 0.65rem; padding: 1px 6px;">Expired</span>
-                                        <?php elseif ($isExpiring): ?>
-                                            <span class="badge-soft badge-soft-warning" style="font-size: 0.65rem; padding: 1px 6px;">H-<?= $diffDays; ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="text-muted small">Tidak Ada</span>
-                                <?php endif; ?>
                             </td>
                             <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.82rem;">
                                 <?= number_format($b['jumlah_awal']); ?>
@@ -131,20 +118,13 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                <?php
-                                    $status = $b['status'] ?? ($isExpired ? 'kadaluarsa' : ($stok <= 0 ? 'habis' : ($isExpiring ? 'hampir_habis' : 'tersedia')));
-                                ?>
-                                <?php if ($status === 'kadaluarsa'): ?>
-                                    <span class="badge-soft badge-soft-danger">
-                                        <span class="badge-dot bg-danger"></span> Kadaluarsa
-                                    </span>
-                                <?php elseif ($status === 'habis'): ?>
+                                <?php if ($status === 'habis'): ?>
                                     <span class="badge-soft badge-soft-secondary">
                                         <span class="badge-dot bg-secondary"></span> Habis
                                     </span>
                                 <?php elseif ($status === 'hampir_habis'): ?>
                                     <span class="badge-soft badge-soft-warning">
-                                        <span class="badge-dot bg-warning"></span> Kritis FEFO
+                                        <span class="badge-dot bg-warning"></span> Menipis
                                     </span>
                                 <?php else: ?>
                                     <span class="badge-soft badge-soft-success">
@@ -172,7 +152,7 @@
                     <i class="bi bi-layers fs-2 text-muted"></i>
                 </div>
                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Lot / Batch</h6>
-                <p class="text-muted small mb-3">Registrasikan nomor batch kardus untuk pelacakan kadaluarsa.</p>
+                <p class="text-muted small mb-3">Registrasikan nomor batch kardus untuk pelacakan alokasi FIFO.</p>
                 <a href="<?= site_url('batch/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
                     <i class="bi bi-plus-lg me-1"></i> Registrasi Batch
                 </a>
@@ -180,22 +160,17 @@
         <?php else: ?>
             <?php foreach ($batches as $b): ?>
                 <?php
-                    $diffDays = !empty($b['tanggal_kadaluarsa']) ? round((strtotime($b['tanggal_kadaluarsa']) - time()) / 86400) : null;
-                    $isExpiring = $diffDays !== null && $diffDays <= 30 && $diffDays > 0;
-                    $isExpired = $diffDays !== null && $diffDays <= 0;
                     $stok = (int)($b['stok_saat_ini'] ?? 0);
                     $awal = (int)($b['jumlah_awal'] ?? 1);
                     $pctSisa = $awal > 0 ? min(100, round(($stok / $awal) * 100)) : 0;
-                    $status = $b['status'] ?? ($isExpired ? 'kadaluarsa' : ($stok <= 0 ? 'habis' : ($isExpiring ? 'hampir_habis' : 'tersedia')));
+                    $status = $b['status'] ?? ($stok <= 0 ? 'habis' : ($pctSisa <= 20 ? 'hampir_habis' : 'tersedia'));
                 ?>
                 <div class="mobile-data-card batch-card-item" data-search="<?= strtolower(html_escape($b['nomor_batch'] . ' ' . ($b['nama_produk'] ?? '') . ' ' . ($b['sku'] ?? ''))); ?>">
                     <div class="mobile-card-header">
-                        <?php if ($status === 'kadaluarsa'): ?>
-                            <span class="badge-soft badge-soft-danger"><span class="badge-dot bg-danger"></span> Kadaluarsa</span>
-                        <?php elseif ($status === 'habis'): ?>
+                        <?php if ($status === 'habis'): ?>
                             <span class="badge-soft badge-soft-secondary"><span class="badge-dot bg-secondary"></span> Habis</span>
                         <?php elseif ($status === 'hampir_habis'): ?>
-                            <span class="badge-soft badge-soft-warning"><span class="badge-dot bg-warning"></span> Kritis FEFO</span>
+                            <span class="badge-soft badge-soft-warning"><span class="badge-dot bg-warning"></span> Menipis</span>
                         <?php else: ?>
                             <span class="badge-soft badge-soft-success"><span class="badge-dot bg-success"></span> Tersedia</span>
                         <?php endif; ?>
@@ -220,19 +195,13 @@
                             <div class="mobile-card-subtitle font-monospace">
                                 <span>SKU: <?= html_escape($b['sku'] ?? '-'); ?></span>
                             </div>
-                            <?php if (!empty($b['tanggal_kadaluarsa'])): ?>
-                                <div class="mt-1" style="font-size: 0.72rem;">
-                                    <span class="text-muted">Exp:</span>
-                                    <strong class="<?= $isExpired ? 'text-danger' : ($isExpiring ? 'text-warning' : 'text-primary'); ?>">
-                                        <?= format_date_by_preference($b['tanggal_kadaluarsa'], null, false); ?>
-                                    </strong>
-                                    <?php if ($isExpired): ?>
-                                        <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">EXPIRED</span>
-                                    <?php elseif ($isExpiring): ?>
-                                        <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem;">H-<?= $diffDays; ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
+                            <div class="mt-1 d-flex flex-wrap align-items-center gap-1.5" style="font-size: 0.72rem;">
+                                <span class="text-muted">Masuk:</span>
+                                <strong class="text-body"><?= !empty($b['tanggal_masuk']) ? format_date_by_preference($b['tanggal_masuk'], null, false) : '-'; ?></strong>
+                                <?php if (!empty($b['lokasi_rak'])): ?>
+                                    <span class="text-muted">· Rak: <strong><?= html_escape($b['lokasi_rak']); ?></strong></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 

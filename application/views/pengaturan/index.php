@@ -217,20 +217,20 @@
                 <div class="settings-section-title">
                     <i class="bi bi-sliders2-vertical text-danger"></i> Logika Stok &amp; Penomoran Unik
                 </div>
-                <p class="settings-section-subtitle">Standarisasi kode inventaris, ambang batas kadaluarsa, dan kebijakan alokasi barang</p>
+                <p class="settings-section-subtitle">Standarisasi kode inventaris, kebijakan rotasi FIFO, dan penataan alokasi barang</p>
             </div>
         </div>
 
         <div class="settings-section-body">
-            <!-- Setting Row: FIFO / FEFO Policy -->
+            <!-- Setting Row: FIFO Policy -->
             <div class="settings-row">
                 <div class="settings-row-info">
                     <div class="settings-row-title">
-                        Kebijakan Pengeluaran Barang (FIFO &amp; FEFO)
+                        Kebijakan Pengeluaran Barang (FIFO)
                         <span class="badge-soft badge-soft-success" style="font-size: 0.66rem;">Direkomendasikan</span>
                     </div>
                     <p class="settings-row-desc">
-                        Wajibkan sistem merekomendasikan batch dengan tanggal kadaluarsa terawal (FEFO) atau tanggal kedatangan tertua (FIFO) saat mutasi keluar.
+                        Wajibkan sistem merekomendasikan batch dengan tanggal kedatangan paling awal (First In, First Out) saat mutasi keluar.
                     </p>
                 </div>
                 <div class="settings-row-control">
@@ -287,20 +287,20 @@
                 </div>
             </div>
 
-            <!-- Setting Row: Expiry Warning Threshold -->
+            <!-- Setting Row: FIFO Aging Threshold -->
             <div class="settings-row">
                 <div class="settings-row-info">
-                    <div class="settings-row-title">Ambang Batas Peringatan Kadaluarsa Batch (FEFO)</div>
+                    <div class="settings-row-title">Prioritas Usia Simpan Batch di Rak (FIFO Aging)</div>
                     <p class="settings-row-desc">
-                        Waktu tenggang sebelum produk batch muncul dalam daftar peringatan dini kadaluarsa di dashboard.
+                        Ambang batas hari penyimpanan sebelum batch diprioritaskan untuk segera dikeluarkan di dashboard.
                     </p>
                 </div>
                 <div class="settings-row-control">
                     <select id="set_expiry_warning_days" class="form-select form-select-sm" onchange="autoSaveSingleSetting('expiry_warning_days', this.value)">
-                        <option value="7" <?= $settings['expiry_warning_days'] == 7 ? 'selected' : ''; ?>>H-7 Hari (Mendesak)</option>
-                        <option value="14" <?= $settings['expiry_warning_days'] == 14 ? 'selected' : ''; ?>>H-14 Hari (Dua Minggu)</option>
-                        <option value="30" <?= $settings['expiry_warning_days'] == 30 ? 'selected' : ''; ?>>H-30 Hari (Satu Bulan / Standar)</option>
-                        <option value="60" <?= $settings['expiry_warning_days'] == 60 ? 'selected' : ''; ?>>H-60 Hari (Dua Bulan)</option>
+                        <option value="7" <?= $settings['expiry_warning_days'] == 7 ? 'selected' : ''; ?>>7 Hari di Gudang</option>
+                        <option value="14" <?= $settings['expiry_warning_days'] == 14 ? 'selected' : ''; ?>>14 Hari di Gudang</option>
+                        <option value="30" <?= $settings['expiry_warning_days'] == 30 ? 'selected' : ''; ?>>30 Hari (Standar Rotasi)</option>
+                        <option value="60" <?= $settings['expiry_warning_days'] == 60 ? 'selected' : ''; ?>>60 Hari di Gudang</option>
                     </select>
                 </div>
             </div>

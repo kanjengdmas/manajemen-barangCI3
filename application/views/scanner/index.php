@@ -64,7 +64,7 @@
                     <div class="fw-bold fs-5 text-success tabular-nums" id="result-stock">-</div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="text-muted small">Tanggal Kadaluarsa (Exp):</div>
+                    <div class="text-muted small">Tanggal Masuk Gudang (FIFO):</div>
                     <div class="fw-semibold" id="result-exp">-</div>
                 </div>
             </div>
@@ -159,7 +159,7 @@ function processScannedCode(code) {
                 document.getElementById('result-nama-produk').textContent = res.data.nama_produk || '-';
                 document.getElementById('result-code').textContent = res.data.nomor_batch;
                 document.getElementById('result-stock').textContent = Number(res.data.stok_saat_ini).toLocaleString() + ' unit';
-                document.getElementById('result-exp').textContent = res.data.tanggal_kadaluarsa || 'Tidak Ada';
+                document.getElementById('result-exp').textContent = (res.data.tanggal_masuk || '-') + (res.data.lokasi_rak ? ' · Rak: ' + res.data.lokasi_rak : '');
 
                 document.getElementById('btn-action-masuk').href = window.BASE_URL + 'stok/masuk?batch_id=' + res.data.id;
                 document.getElementById('btn-action-keluar').href = window.BASE_URL + 'stok/keluar?batch_id=' + res.data.id;

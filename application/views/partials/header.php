@@ -27,11 +27,74 @@
             <i class="bi bi-clock me-1.5"></i> <?= date('D, d M Y · H:i:s'); ?> WIB
         </div>
 
-        <!-- Theme Toggle Button -->
-        <button type="button" class="btn-icon-quiet" id="theme-toggle-btn"
-                title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
-            <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon" style="pointer-events: none;"></i>
-        </button>
+        <!-- Theme Palette Dropdown -->
+        <div class="dropdown">
+            <button type="button" class="btn-icon-quiet" id="theme-toggle-btn"
+                    data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="true"
+                    title="Pilih Tema Warna Sistem" aria-label="Ganti Tema">
+                <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon" style="pointer-events: none;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow theme-palette-menu" aria-labelledby="theme-toggle-btn">
+                <li class="dropdown-header px-2.5 py-1 text-uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px; color: var(--mb-text-muted);">
+                    <i class="bi bi-palette me-1"></i> Palet Tema Sistem
+                </li>
+                <li><hr class="dropdown-divider my-1 opacity-25"></li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="light">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #ffffff; border: 2px solid #cbd5e1;"></span>
+                            <span>Mode Terang (Clean Slate)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="dark">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #090d16; border: 2px solid #334155;"></span>
+                            <span>Mode Gelap (Deep Slate)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="sepia">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #f6f1e8; border: 2px solid #d5c7b3;"></span>
+                            <span>Kertas Hangat (Sepia)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="navy">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #0b1329; border: 2px solid #38bdf8;"></span>
+                            <span>Midnight Navy (Deep Blue)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="oled">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #000000; border: 2px solid #52525b;"></span>
+                            <span>OLED Pure Black (High-Contrast)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="forest">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="theme-swatch" style="background: #071712; border: 2px solid #34d399;"></span>
+                            <span>Forest Emerald (Sage Green)</span>
+                        </div>
+                        <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
 
         <div class="vr mx-1 opacity-25 d-none d-sm-block"></div>
 

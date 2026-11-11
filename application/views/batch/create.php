@@ -36,13 +36,12 @@
                         <input type="number" name="jumlah_awal" class="form-control" min="1" value="50" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Tanggal Masuk <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Tanggal Masuk (FIFO) <span class="text-danger">*</span></label>
                         <input type="date" name="tanggal_masuk" class="form-control" value="<?= date('Y-m-d'); ?>" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Tanggal Kadaluarsa (FEFO)</label>
-                        <input type="date" name="tanggal_kadaluarsa" class="form-control">
-                        <div class="form-text">Kosongkan jika non-perishable.</div>
+                        <label class="form-label fw-semibold">Lokasi Rak / Pallet</label>
+                        <input type="text" name="lokasi_rak" class="form-control" placeholder="Contoh: Rak A-02 / Pallet FO">
                     </div>
                     <div class="col-12 d-flex flex-column flex-sm-row justify-content-end gap-2 pt-3 border-top mt-2">
                         <a href="<?= site_url('batch'); ?>" class="btn btn-outline-secondary order-2 order-sm-1">Batal</a>

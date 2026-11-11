@@ -14,15 +14,32 @@
 
   // Chart Theme Helpers
   const getChartColors = () => {
-    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    const isDarkish = ['dark', 'navy', 'oled', 'forest'].includes(currentTheme);
+    const isSepia = currentTheme === 'sepia';
+
+    let textColor = '#64748b';
+    let gridColor = 'rgba(0, 0, 0, 0.04)';
+    let tooltipBg = '#0f172a';
+
+    if (isDarkish) {
+      textColor = '#94a3b8';
+      gridColor = 'rgba(255, 255, 255, 0.06)';
+      tooltipBg = currentTheme === 'oled' ? '#121214' : (currentTheme === 'navy' ? '#131f3d' : (currentTheme === 'forest' ? '#0d251d' : '#1e293b'));
+    } else if (isSepia) {
+      textColor = '#6e6255';
+      gridColor = 'rgba(45, 38, 30, 0.06)';
+      tooltipBg = '#2d261e';
+    }
+
     return {
-      textColor: isDark ? '#94a3b8' : '#64748b',
-      gridColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
-      tooltipBg: isDark ? '#1e293b' : '#0f172a',
+      textColor: textColor,
+      gridColor: gridColor,
+      tooltipBg: tooltipBg,
       masukColor: '#10b981',
-      masukBg: isDark ? 'rgba(16, 185, 129, 0.75)' : '#10b981',
+      masukBg: isDarkish ? 'rgba(16, 185, 129, 0.75)' : '#10b981',
       keluarColor: '#ef4444',
-      keluarBg: isDark ? 'rgba(239, 68, 68, 0.75)' : '#ef4444'
+      keluarBg: isDarkish ? 'rgba(239, 68, 68, 0.75)' : '#ef4444'
     };
   };
 
@@ -643,25 +660,25 @@
       container.innerHTML = `
         <div class="text-center py-4 text-muted">
           <i class="bi bi-shield-check text-success fs-4 d-block mb-1"></i>
-          <span class="small">Semua batch lot dalam kondisi aman.</span>
+          <span class="small">Belum ada antrean batch aktif.</span>
         </div>`;
       return;
     }
 
     container.innerHTML = items.map(b => {
-      const daysLeft = parseInt(b.days_left, 10);
-      const isExpired = daysLeft < 0;
-      const badgeClass = isExpired ? 'bg-danger text-white' : (daysLeft <= 14 ? 'bg-warning text-dark' : 'bg-secondary text-white');
-      const badgeLabel = isExpired ? 'Expired' : `H-${daysLeft}`;
+      const days = parseInt(b.days_in_warehouse !== undefined ? b.days_in_warehouse : (b.days_left || 0), 10);
+      const badgeText = b.days_in_warehouse !== undefined
+        ? (days > 0 ? `${days} hr di rak` : 'Hari ini')
+        : (days < 0 ? 'Expired' : `H-${days}`);
 
       return `
         <div class="p-2 mb-2 rounded border border-subtle d-flex align-items-center justify-content-between" style="background-color: var(--mb-card-raised);">
           <div>
-            <div class="fw-bold small text-truncate" style="max-width: 170px;">${escapeHtml(b.nama_produk)}</div>
-            <div class="text-muted small tabular-nums">${escapeHtml(b.nomor_batch)} · Rak: ${escapeHtml(b.lokasi_rak || '-')}</div>
+            <div class="fw-bold small text-truncate" style="max-width: 170px;" title="${escapeHtml(b.nama_produk)}">${escapeHtml(b.nama_produk)}</div>
+            <div class="text-muted small tabular-nums font-monospace">${escapeHtml(b.nomor_batch)} · Rak: ${escapeHtml(b.lokasi_rak || '-')}</div>
           </div>
           <div class="text-end">
-            <span class="badge ${badgeClass} rounded-pill">${badgeLabel}</span>
+            <span class="badge-soft badge-soft-danger font-monospace" style="font-size: 0.7rem; padding: 2px 7px;">${badgeText}</span>
             <div class="text-muted small tabular-nums mt-0.5">${Number(b.stok_saat_ini).toLocaleString()} unit</div>
           </div>
         </div>`;
@@ -713,7 +730,15 @@
         movementChart.update();
       }
       if (kategoriChart) {
-        kategoriChart.data.datasets[0].borderColor = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#111827' : '#ffffff';
+        const curTheme = document.documentElement.getAttribute('data-bs-theme');
+        let doughnutBorder = '#ffffff';
+        if (curTheme === 'oled') doughnutBorder = '#0c0c0e';
+        else if (curTheme === 'navy') doughnutBorder = '#131f3d';
+        else if (curTheme === 'forest') doughnutBorder = '#0d251d';
+        else if (curTheme === 'dark') doughnutBorder = '#111827';
+        else if (curTheme === 'sepia') doughnutBorder = '#fffdf9';
+
+        kategoriChart.data.datasets[0].borderColor = doughnutBorder;
         kategoriChart.update();
       }
     } catch (e) {

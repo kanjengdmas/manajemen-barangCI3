@@ -73,7 +73,7 @@
                         <span class="sidebar-nav-icon"><i class="bi bi-layers-fill"></i></span>
                         <span class="sidebar-nav-label">Lot &amp; Batch Kardus</span>
                     </div>
-                    <span class="sidebar-pill pill-fefo">FEFO</span>
+                    <span class="sidebar-pill pill-fifo">FIFO</span>
                 </a>
             </li>
         </ul>

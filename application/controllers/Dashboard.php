@@ -23,8 +23,8 @@ class Dashboard extends MY_Controller {
         // 2. Low stock items (top 5)
         $lowStockProducts = $this->Produk_model->get_low_stock(5);
 
-        // 3. Expiring batches (FEFO early warning, 30 days)
-        $expiringBatches = $this->Batch_model->get_expiring_batches(30, 4);
+        // 3. FIFO priority batches (Oldest batches in warehouse to prioritize first out)
+        $fifoBatches = $this->Batch_model->get_fifo_priority_batches(4);
 
         // 4. Movement data (default 7 days)
         $movementData = $this->Stok_model->get_movement_data('7d');
@@ -56,7 +56,8 @@ class Dashboard extends MY_Controller {
                 'produk_stok_habis' => $stokHabis
             ],
             'low_stock_products' => $lowStockProducts,
-            'expiring_batches' => $expiringBatches,
+            'fifo_batches' => $fifoBatches,
+            'expiring_batches' => $fifoBatches,
             'movement_data' => $movementData,
             'category_distribution' => $categoryDistribution,
             'recent_activities' => $recentActivities,

@@ -28,15 +28,15 @@
                         </select>
                     </div>
 
-                    <!-- Rekomendasi Batch FEFO Alert -->
+                    <!-- Rekomendasi Batch FIFO Alert -->
                     <div class="col-12 d-none" id="fefo-recommendation-box">
                         <div class="alert alert-warning border border-warning-subtle rounded-3 p-3 mb-0">
                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="bi bi-shield-exclamation text-warning fs-5"></i>
-                                <span class="fw-bold">Rekomendasi Pengeluaran Batch (FEFO / FIFO)</span>
+                                <i class="bi bi-clock-history text-warning fs-5"></i>
+                                <span class="fw-bold">Rekomendasi Pengeluaran Batch (FIFO)</span>
                             </div>
                             <div class="small text-muted mb-2">
-                                Sistem merekomendasikan batch yang paling awal kadaluarsa atau paling awal masuk gudang:
+                                Sistem merekomendasikan batch yang masuk paling awal ke gudang (First In, First Out):
                             </div>
                             <div id="batch-recommendations-list" class="d-flex flex-wrap gap-2"></div>
                         </div>
@@ -98,12 +98,13 @@ function onProductKeluarChange() {
                 recBox.classList.remove('d-none');
                 res.data.forEach((b, idx) => {
                     const isFirst = idx === 0;
-                    html += `<option value="${b.id}" ${isFirst ? 'selected' : ''}>${b.nomor_batch} (Sisa: ${b.stok_saat_ini} unit ${b.tanggal_kadaluarsa ? '| Exp: ' + b.tanggal_kadaluarsa : ''})</option>`;
+                    const tglMasukStr = b.tanggal_masuk ? ' | Masuk: ' + b.tanggal_masuk : '';
+                    html += `<option value="${b.id}" ${isFirst ? 'selected' : ''}>${b.nomor_batch} (Sisa: ${b.stok_saat_ini} unit${tglMasukStr}${b.lokasi_rak ? ' | Rak: ' + b.lokasi_rak : ''})</option>`;
 
                     const chip = document.createElement('button');
                     chip.type = 'button';
                     chip.className = `btn btn-sm ${isFirst ? 'btn-danger' : 'btn-outline-dark'} text-start`;
-                    chip.innerHTML = `<span class="fw-bold">${b.nomor_batch}</span> (${b.stok_saat_ini} unit) ${b.tanggal_kadaluarsa ? '<small class="d-block">Exp: ' + b.tanggal_kadaluarsa + '</small>' : ''}`;
+                    chip.innerHTML = `<span class="fw-bold">${b.nomor_batch}</span> (${b.stok_saat_ini} unit) ${b.tanggal_masuk ? '<small class="d-block text-nowrap">Masuk: ' + b.tanggal_masuk + (b.lokasi_rak ? ' · Rak: ' + b.lokasi_rak : '') + '</small>' : ''}`;
                     chip.onclick = function() {
                         batchSelect.value = b.id;
                     };

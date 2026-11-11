@@ -52,9 +52,22 @@ class Batch extends MY_Controller {
 
     /**
      * GET /api/batch/produk/(:num)/batches
-     * Returns batches sorted by FIFO/FEFO
+     * Returns batches sorted by FIFO
      */
     public function by_produk($produkId) {
+        $batches = $this->Batch_model->get_by_produk_fifo($produkId);
+        $this->json_response([
+            'status' => true,
+            'data' => $batches
+        ]);
+    }
+
+    /**
+     * GET /api/batch/recommendations?produk_id=X
+     * Returns batches prioritized by FIFO recommendation
+     */
+    public function recommendations() {
+        $produkId = (int)$this->input->get('produk_id');
         $batches = $this->Batch_model->get_by_produk_fifo($produkId);
         $this->json_response([
             'status' => true,
@@ -113,7 +126,7 @@ class Batch extends MY_Controller {
 
         $batches = $this->Batch_model->get_with_relations();
 
-        $headers = ['No', 'Nomor Batch / Lot', 'Nama Produk', 'SKU', 'Kapasitas', 'Jumlah Awal', 'Stok Saat Ini', 'Lokasi Rak', 'Tanggal Masuk', 'Tanggal Kadaluarsa', 'Status'];
+        $headers = ['No', 'Nomor Batch / Lot', 'Nama Produk', 'SKU', 'Kapasitas', 'Jumlah Awal', 'Stok Saat Ini', 'Lokasi Rak', 'Tanggal Masuk (FIFO)', 'Status'];
         $rows = [];
         $no = 1;
 
@@ -130,7 +143,6 @@ class Batch extends MY_Controller {
                 $b['stok_saat_ini'],
                 $b['lokasi_rak'] ?? '-',
                 !empty($b['tanggal_masuk']) ? format_date_by_preference($b['tanggal_masuk']) : '-',
-                !empty($b['tanggal_kadaluarsa']) ? format_date_by_preference($b['tanggal_kadaluarsa']) : '-',
                 $statusLabel
             ];
         }

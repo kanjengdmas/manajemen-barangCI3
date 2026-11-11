@@ -123,6 +123,7 @@ $route['batch/detail/(:num)'] = 'Batch/detail/$1';
 $route['batch/history/(:num)'] = 'Batch/history/$1';
 $route['api/batch/(:num)/history'] = 'api/Batch/history/$1';
 $route['api/batch/scan/(:any)'] = 'api/Batch/scan/$1';
+$route['api/batch/recommendations'] = 'api/Batch/recommendations';
 $route['api/batch/produk/(:num)/batches'] = 'api/Batch/by_produk/$1';
 $route['api/batch/(:num)/generate-qr'] = 'api/Batch/generate_qr/$1';
 $route['api/batch/(:num)/download-qr'] = 'api/Batch/download_qr/$1';

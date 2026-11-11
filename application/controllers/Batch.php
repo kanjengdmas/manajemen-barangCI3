@@ -52,7 +52,7 @@ class Batch extends MY_Controller {
             'jumlah_awal' => (int)$this->input->post('jumlah_awal'),
             'stok_saat_ini' => (int)$this->input->post('jumlah_awal'),
             'tanggal_masuk' => $this->input->post('tanggal_masuk'),
-            'tanggal_kadaluarsa' => $this->input->post('tanggal_kadaluarsa') ? $this->input->post('tanggal_kadaluarsa') : null,
+            'tanggal_kadaluarsa' => null,
             'lokasi_rak' => $this->input->post('lokasi_rak', TRUE),
             'created_at' => date('Y-m-d H:i:s')
         ];

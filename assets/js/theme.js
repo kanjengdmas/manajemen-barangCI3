@@ -6,8 +6,18 @@
 (function () {
   'use strict';
 
-  // 1. Theme Initialization
-  const getStoredTheme = () => localStorage.getItem('theme') || 'system';
+  // 1. Theme Configuration & Multi-Palette System
+  const THEME_CONFIG = {
+    light: { icon: 'bi bi-sun-fill fs-5 text-warning', label: 'Mode Terang (Clean Slate)' },
+    dark: { icon: 'bi bi-moon-stars-fill fs-5 text-warning', label: 'Mode Gelap (Deep Slate)' },
+    sepia: { icon: 'bi bi-cup-hot-fill fs-5 text-warning', label: 'Kertas Hangat (Sepia)' },
+    navy: { icon: 'bi bi-compass-fill fs-5 text-info', label: 'Midnight Navy (Deep Blue)' },
+    oled: { icon: 'bi bi-circle-fill fs-5 text-light', label: 'OLED Pure Black (High-Contrast)' },
+    forest: { icon: 'bi bi-tree-fill fs-5 text-success', label: 'Forest Emerald (Sage Green)' }
+  };
+  const THEME_KEYS = Object.keys(THEME_CONFIG);
+
+  const getStoredTheme = () => localStorage.getItem('theme') || 'light';
   const getPreferredTheme = () => {
     const storedTheme = getStoredTheme();
     if (storedTheme === 'system') {
@@ -17,35 +27,30 @@
   };
 
   const setTheme = (theme) => {
-    const effectiveTheme = theme === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : theme;
+    const effectiveTheme = THEME_CONFIG[theme]
+      ? theme
+      : (theme === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 'light');
 
     document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
 
-    // Update theme toggle icon
+    // Update theme toggle icon and button tooltip
     const themeIcon = document.getElementById('theme-toggle-icon');
+    const toggleBtn = document.getElementById('theme-toggle-btn');
+    const cfg = THEME_CONFIG[effectiveTheme] || THEME_CONFIG.light;
     if (themeIcon) {
-      if (effectiveTheme === 'dark') {
-        themeIcon.className = 'bi bi-moon-stars-fill fs-5 text-warning';
-      } else {
-        themeIcon.className = 'bi bi-sun-fill fs-5 text-warning';
-      }
+      themeIcon.className = cfg.icon;
+    }
+    if (toggleBtn) {
+      toggleBtn.title = 'Tema: ' + cfg.label + ' (Klik untuk ganti)';
     }
 
-    // Synchronize active state of any theme cards present in the DOM
-    document.querySelectorAll('.theme-card-option').forEach(card => {
-      const cardTheme = card.getAttribute('data-theme') || card.getAttribute('data-theme-val');
-      const isMatch = (cardTheme === theme) || (theme !== 'system' && cardTheme === effectiveTheme);
-      if (isMatch) {
-        card.classList.add('active');
-        const checkIcon = card.querySelector('.bi-check-circle-fill');
-        if (checkIcon) checkIcon.classList.remove('d-none');
-      } else {
-        card.classList.remove('active');
-        const checkIcon = card.querySelector('.bi-check-circle-fill');
-        if (checkIcon) checkIcon.classList.add('d-none');
-      }
+    // Synchronize active state of theme dropdown items
+    document.querySelectorAll('.theme-dropdown-option').forEach(opt => {
+      const optVal = opt.getAttribute('data-theme-val');
+      const isMatch = (optVal === effectiveTheme);
+      opt.classList.toggle('active', isMatch);
+      const checkIcon = opt.querySelector('.theme-check-icon');
+      if (checkIcon) checkIcon.classList.toggle('d-none', !isMatch);
     });
 
     try {
@@ -55,17 +60,8 @@
     }
   };
 
-  let lastToggleTime = 0;
-  const toggleTheme = () => {
-    const now = Date.now();
-    if (now - lastToggleTime < 350) {
-      return document.documentElement.getAttribute('data-bs-theme') || 'light';
-    }
-    lastToggleTime = now;
-
-    const currentEffective = document.documentElement.getAttribute('data-bs-theme') || (getPreferredTheme() === 'dark' ? 'dark' : 'light');
-    const nextTheme = currentEffective === 'dark' ? 'light' : 'dark';
-
+  const selectTheme = (nextTheme) => {
+    if (!THEME_CONFIG[nextTheme]) nextTheme = 'light';
     localStorage.setItem('theme', nextTheme);
     setTheme(nextTheme);
 
@@ -84,11 +80,20 @@
     return nextTheme;
   };
 
+  const toggleTheme = () => {
+    const currentEffective = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    const currentIndex = THEME_KEYS.indexOf(currentEffective);
+    const nextTheme = THEME_KEYS[(currentIndex + 1) % THEME_KEYS.length];
+    return selectTheme(nextTheme);
+  };
+
   // Expose global helper immediately
   window.MBTheme = {
-    setTheme,
+    setTheme: selectTheme,
     getPreferredTheme,
-    toggleTheme
+    toggleTheme,
+    selectTheme,
+    THEMES: THEME_CONFIG
   };
 
   // Set theme immediately before DOM content loads to avoid flash
@@ -97,15 +102,19 @@
   const initThemeUI = () => {
     setTheme(getStoredTheme());
 
-    // Theme Toggle Button in Header
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    if (themeToggleBtn && !themeToggleBtn.dataset.bound) {
-      themeToggleBtn.dataset.bound = 'true';
-      themeToggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleTheme();
-      });
-    }
+    // Bind click events on theme palette dropdown options
+    document.querySelectorAll('.theme-dropdown-option').forEach(opt => {
+      if (!opt.dataset.bound) {
+        opt.dataset.bound = 'true';
+        opt.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetTheme = this.getAttribute('data-theme-val');
+          if (targetTheme) {
+            selectTheme(targetTheme);
+          }
+        });
+      }
+    });
 
     // Mobile Sidebar Toggle
     const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');

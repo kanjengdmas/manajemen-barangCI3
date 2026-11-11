@@ -17,11 +17,13 @@
 
     <!-- Anti-Flash Theme Script -->
     <script>
+        // Inline early script to set theme without flash (Multi-Palette 6 Themes)
         (function() {
+            var validThemes = ['light', 'dark', 'sepia', 'navy', 'oled', 'forest'];
             var savedTheme = localStorage.getItem('theme') || 'system';
             var effectiveTheme = savedTheme === 'system'
                 ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                : savedTheme;
+                : (validThemes.indexOf(savedTheme) !== -1 ? savedTheme : 'light');
             document.documentElement.setAttribute('data-bs-theme', effectiveTheme);
         })();
     </script>
@@ -116,9 +118,73 @@
                     <span class="live-dot" style="width: 6px; height: 6px;"></span>
                     <span class="tabular-nums" style="font-size: 0.72rem;">Sistem Online</span>
                 </div>
-                <button type="button" class="btn-icon-quiet" id="theme-toggle-btn" title="Ganti Mode Terang / Gelap" aria-label="Ganti Tema">
-                    <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon"></i>
-                </button>
+                <div class="dropdown">
+                    <button type="button" class="btn-icon-quiet" id="theme-toggle-btn"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="true"
+                            title="Pilih Tema Warna Sistem" aria-label="Ganti Tema">
+                        <i class="bi bi-sun-fill fs-5 text-warning" id="theme-toggle-icon"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow theme-palette-menu" aria-labelledby="theme-toggle-btn">
+                        <li class="dropdown-header px-2.5 py-1 text-uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px; color: var(--mb-text-muted);">
+                            <i class="bi bi-palette me-1"></i> Palet Tema Sistem
+                        </li>
+                        <li><hr class="dropdown-divider my-1 opacity-25"></li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="light">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #ffffff; border: 2px solid #cbd5e1;"></span>
+                                    <span>Mode Terang (Clean)</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="dark">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #090d16; border: 2px solid #334155;"></span>
+                                    <span>Mode Gelap (Slate)</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="sepia">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #f6f1e8; border: 2px solid #d5c7b3;"></span>
+                                    <span>Kertas Hangat (Sepia)</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="navy">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #0b1329; border: 2px solid #38bdf8;"></span>
+                                    <span>Midnight Navy (Blue)</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="oled">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #000000; border: 2px solid #52525b;"></span>
+                                    <span>OLED Pure Black</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item theme-dropdown-option" data-theme-val="forest">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <span class="theme-swatch" style="background: #071712; border: 2px solid #34d399;"></span>
+                                    <span>Forest Emerald (Sage)</span>
+                                </div>
+                                <i class="bi bi-check2 text-danger fs-5 d-none theme-check-icon"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <!-- Main Form Card Container -->
@@ -285,31 +351,44 @@
             });
         }
 
-        // Theme Switcher Sync with localStorage
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+        // Theme Switcher Sync with localStorage (6 Themes Palette)
+        const THEME_ICONS = {
+            light: 'bi bi-sun-fill fs-5 text-warning',
+            dark: 'bi bi-moon-stars-fill fs-5 text-warning',
+            sepia: 'bi bi-cup-hot-fill fs-5 text-warning',
+            navy: 'bi bi-compass-fill fs-5 text-info',
+            oled: 'bi bi-circle-fill fs-5 text-light',
+            forest: 'bi bi-tree-fill fs-5 text-success'
+        };
 
-        function updateThemeIcon(theme) {
-            if (!themeToggleIcon) return;
-            if (theme === 'dark') {
-                themeToggleIcon.className = 'bi bi-moon-stars-fill fs-5 text-info';
-            } else {
-                themeToggleIcon.className = 'bi bi-sun-fill fs-5 text-warning';
+        function applyTheme(theme) {
+            const effective = THEME_ICONS[theme] ? theme : 'light';
+            document.documentElement.setAttribute('data-bs-theme', effective);
+            localStorage.setItem('theme', effective);
+
+            const iconEl = document.getElementById('theme-toggle-icon');
+            if (iconEl && THEME_ICONS[effective]) {
+                iconEl.className = THEME_ICONS[effective];
             }
-        }
 
-        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-        updateThemeIcon(currentTheme);
-
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const activeTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-                const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-bs-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateThemeIcon(newTheme);
+            document.querySelectorAll('.theme-dropdown-option').forEach(opt => {
+                const isMatch = opt.getAttribute('data-theme-val') === effective;
+                opt.classList.toggle('active', isMatch);
+                const check = opt.querySelector('.theme-check-icon');
+                if (check) check.classList.toggle('d-none', !isMatch);
             });
         }
+
+        const initialTheme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-bs-theme') || 'light';
+        applyTheme(initialTheme);
+
+        document.querySelectorAll('.theme-dropdown-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                e.preventDefault();
+                const chosen = opt.getAttribute('data-theme-val');
+                if (chosen) applyTheme(chosen);
+            });
+        });
     </script>
 </body>
 </html>

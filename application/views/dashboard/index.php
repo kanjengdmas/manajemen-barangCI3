@@ -345,39 +345,41 @@
         </div>
     </div>
 
-    <!-- FEFO Early Warning (4 cols) -->
+    <!-- FIFO Priority Recommendation (4 cols) -->
     <div class="col-12 col-lg-4">
         <div class="mb-card h-100">
             <div class="mb-card-header">
                 <div>
                     <h3 class="mb-card-title">
-                        <i class="bi bi-clock-history text-warning"></i> Peringatan FEFO
+                        <i class="bi bi-clock-history text-danger"></i> Prioritas FIFO
                     </h3>
-                    <p class="mb-card-subtitle">First Expired, First Out (Kadaluarsa H-30)</p>
+                    <p class="mb-card-subtitle">First In, First Out (Antrean Keluar Tertua)</p>
                 </div>
-                <a href="<?= site_url('batch'); ?>" class="btn btn-sm btn-link text-muted text-decoration-none p-0" title="Lihat Batch">
+                <a href="<?= site_url('batch'); ?>" class="btn btn-sm btn-link text-muted text-decoration-none p-0" title="Kelola Lot Batch">
                     <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
 
             <div id="expiring-batches-container">
-                <?php if (!empty($expiring_batches)): ?>
-                    <?php foreach ($expiring_batches as $b): ?>
+                <?php
+                $fifoItems = !empty($fifo_batches) ? $fifo_batches : (!empty($expiring_batches) ? $expiring_batches : []);
+                ?>
+                <?php if (!empty($fifoItems)): ?>
+                    <?php foreach ($fifoItems as $b): ?>
                         <?php
-                        $daysLeft = (int) ($b['days_left'] ?? 0);
-                        $isExpired = $daysLeft < 0;
-                        $badgeClass = $isExpired ? 'bg-danger text-white' : ($daysLeft <= 14 ? 'bg-warning text-dark' : 'bg-secondary text-white');
-                        $badgeLabel = $isExpired ? 'Expired' : "H-{$daysLeft}";
+                        $days = (int) ($b['days_in_warehouse'] ?? 0);
                         ?>
                         <div class="p-2.5 mb-2 rounded border border-subtle d-flex align-items-center justify-content-between" style="background-color: var(--mb-card-raised);">
                             <div>
-                                <div class="fw-bold small text-truncate" style="max-width: 170px;"><?= html_escape($b['nama_produk']); ?></div>
-                                <div class="text-muted small tabular-nums">
+                                <div class="fw-bold small text-truncate" style="max-width: 170px;" title="<?= html_escape($b['nama_produk']); ?>"><?= html_escape($b['nama_produk']); ?></div>
+                                <div class="text-muted small tabular-nums font-monospace">
                                     <?= html_escape($b['nomor_batch']); ?> · Rak: <?= html_escape($b['lokasi_rak'] ?? '-'); ?>
                                 </div>
                             </div>
                             <div class="text-end">
-                                <span class="badge <?= $badgeClass; ?> rounded-pill font-monospace" style="font-size: 0.72rem;"><?= $badgeLabel; ?></span>
+                                <span class="badge-soft badge-soft-danger font-monospace" style="font-size: 0.7rem; padding: 2px 7px;">
+                                    <?= $days > 0 ? "{$days} hr di rak" : 'Hari ini'; ?>
+                                </span>
                                 <div class="text-muted small tabular-nums mt-0.5"><?= number_format($b['stok_saat_ini']); ?> unit</div>
                             </div>
                         </div>
@@ -385,7 +387,7 @@
                 <?php else: ?>
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-shield-check text-success fs-3 d-block mb-1"></i>
-                        <span class="small">Semua batch lot dalam kondisi aman.</span>
+                        <span class="small">Belum ada antrean batch aktif.</span>
                     </div>
                 <?php endif; ?>
             </div>

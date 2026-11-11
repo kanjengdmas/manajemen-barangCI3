@@ -25,25 +25,15 @@ class Batch_model extends MY_Model {
     }
 
     /**
-     * Compute dynamic batch status based on stock and expiration date
+     * Compute dynamic batch status based on stock availability (FIFO)
      */
     public function append_status(array $batch) {
         $stok = (int)($batch['stok_saat_ini'] ?? 0);
         $jumlahAwal = (int)($batch['jumlah_awal'] ?? 0);
-        $isExpired = false;
-        $isExpiring = false;
 
-        if (!empty($batch['tanggal_kadaluarsa'])) {
-            $diffDays = (strtotime($batch['tanggal_kadaluarsa']) - strtotime(date('Y-m-d'))) / 86400;
-            $isExpiring = $diffDays <= 30 && $diffDays > 0;
-            $isExpired = $diffDays <= 0;
-        }
-
-        if ($isExpired) {
-            $batch['status'] = 'kadaluarsa';
-        } elseif ($stok <= 0) {
+        if ($stok <= 0) {
             $batch['status'] = 'habis';
-        } elseif ($isExpiring || ($jumlahAwal > 0 && $stok <= ($jumlahAwal * 0.2))) {
+        } elseif ($jumlahAwal > 0 && $stok <= ($jumlahAwal * 0.2)) {
             $batch['status'] = 'hampir_habis';
         } else {
             $batch['status'] = 'tersedia';
@@ -53,14 +43,14 @@ class Batch_model extends MY_Model {
     }
 
     /**
-     * Get batches for product ordered by FIFO/FEFO recommendation
+     * Get batches for product ordered by FIFO recommendation (First In, First Out)
      */
     public function get_by_produk_fifo($produkId, $onlyAvailable = true) {
         $this->db->where('produk_id', $produkId);
         if ($onlyAvailable) {
             $this->db->where('stok_saat_ini >', 0);
         }
-        $this->db->order_by('tanggal_kadaluarsa IS NULL, tanggal_kadaluarsa ASC, tanggal_masuk ASC', '', FALSE);
+        $this->db->order_by('tanggal_masuk ASC, id ASC');
         return $this->db->get($this->table)->result_array();
     }
 
@@ -79,20 +69,24 @@ class Batch_model extends MY_Model {
     }
 
     /**
-     * Get batches approaching expiration for FEFO early warning
+     * Get oldest active batches for FIFO priority recommendation (Oldest In First)
      */
-    public function get_expiring_batches($days = 30, $limit = 5) {
-        $futureDate = date('Y-m-d', strtotime("+{$days} days"));
-
-        $this->db->select('batch.*, produk.nama_produk, produk.sku, DATEDIFF(batch.tanggal_kadaluarsa, CURDATE()) as days_left');
+    public function get_fifo_priority_batches($limit = 5) {
+        $this->db->select('batch.*, produk.nama_produk, produk.sku, DATEDIFF(CURDATE(), batch.tanggal_masuk) as days_in_warehouse');
         $this->db->from($this->table);
         $this->db->join('produk', 'produk.id = batch.produk_id', 'inner');
         $this->db->where('batch.stok_saat_ini >', 0);
-        $this->db->where('batch.tanggal_kadaluarsa IS NOT NULL', null, false);
-        $this->db->where('batch.tanggal_kadaluarsa <=', $futureDate);
-        $this->db->order_by('batch.tanggal_kadaluarsa', 'ASC');
+        $this->db->order_by('batch.tanggal_masuk', 'ASC');
+        $this->db->order_by('batch.id', 'ASC');
         $this->db->limit($limit);
 
         return $this->db->get()->result_array();
+    }
+
+    /**
+     * Alias for backward compatibility with dashboard polling
+     */
+    public function get_expiring_batches($days = 30, $limit = 5) {
+        return $this->get_fifo_priority_batches($limit);
     }
 }
