@@ -10,10 +10,22 @@ class Produk extends MY_Controller {
     }
 
     public function index() {
+        $products = $this->Produk_model->get_with_relations();
+
+        // Auto-heal: pastikan setiap produk memiliki QR Code fisik valid
+        foreach ($products as &$p) {
+            if (empty($p['qr_code']) || !file_exists(FCPATH . $p['qr_code'])) {
+                $filename = 'prd_' . $p['sku'] . '.png';
+                $p['qr_code'] = $this->qr_service->generate($p['sku'], $filename);
+                $this->Produk_model->update($p['id'], ['qr_code' => $p['qr_code']]);
+            }
+        }
+        unset($p);
+
         $data = [
             'page_title' => 'Master Data Produk',
             'active_menu' => 'produk',
-            'products' => $this->Produk_model->get_with_relations(),
+            'products' => $products,
             'sku_prefix' => $this->preference->get('sku_prefix', 'PRD-')
         ];
         $this->render('produk/index', $data);

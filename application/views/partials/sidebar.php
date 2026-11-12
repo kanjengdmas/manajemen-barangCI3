@@ -7,7 +7,6 @@
             </div>
             <div class="sidebar-brand-info">
                 <span class="sidebar-brand-title">Manajemen<span class="brand-accent">Barang</span></span>
-                <span class="sidebar-brand-badge">Gudang Pro · v2.6</span>
             </div>
         </a>
         <button type="button" class="btn-icon-quiet d-lg-none" id="sidebar-close-btn" aria-label="Tutup Menu">

@@ -144,6 +144,9 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-inline-flex align-items-center gap-1">
+                                    <a href="<?= site_url('api/produk/' . $p['id'] . '/download-qr'); ?>" target="_blank" class="table-action-btn btn-qr" title="Unduh Label Barcode QR">
+                                        <i class="bi bi-qr-code"></i>
+                                    </a>
                                     <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="table-action-btn btn-edit" title="Edit Data Produk">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -238,6 +241,9 @@
                     </div>
 
                     <div class="mobile-card-actions">
+                        <a href="<?= site_url('api/produk/' . $p['id'] . '/download-qr'); ?>" target="_blank" class="btn btn-outline-secondary" title="Unduh Barcode QR">
+                            <i class="bi bi-qr-code"></i> Unduh QR
+                        </a>
                         <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="btn btn-outline-secondary">
                             <i class="bi bi-pencil"></i> Edit
                         </a>

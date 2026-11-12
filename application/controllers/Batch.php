@@ -10,10 +10,22 @@ class Batch extends MY_Controller {
     }
 
     public function index() {
+        $batches = $this->Batch_model->get_with_relations();
+
+        // Auto-heal: pastikan setiap batch memiliki QR Code fisik valid
+        foreach ($batches as &$b) {
+            if (empty($b['qr_code']) || !file_exists(FCPATH . $b['qr_code'])) {
+                $filename = 'lot_' . $b['nomor_batch'] . '.png';
+                $b['qr_code'] = $this->qr_service->generate($b['nomor_batch'], $filename);
+                $this->Batch_model->update($b['id'], ['qr_code' => $b['qr_code']]);
+            }
+        }
+        unset($b);
+
         $data = [
             'page_title' => 'Manajemen Lot & Batch Kardus',
             'active_menu' => 'batch',
-            'batches' => $this->Batch_model->get_with_relations(),
+            'batches' => $batches,
             'lot_prefix' => $this->preference->get('lot_prefix', 'LOT-')
         ];
         $this->render('batch/index', $data);
