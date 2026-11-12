@@ -1,7 +1,7 @@
 # PRD — Sistem Manajemen Barang (Inventory Management System) — Versi CodeIgniter 3
 
 > **Dokumen**: Product Requirements Document (PRD)  
-> **Versi**: 2.12.0 (CI3 Enterprise SaaS UI/UX Edition — Unified Multi-Palette 6-Theme Architecture & Pure FIFO Stock Alignment)  
+> **Versi**: 2.13.0 (CI3 Enterprise SaaS UI/UX Edition — On-The-Fly Auto-Healing QR Engine, Clean Sidebar & Telkom Akses QR Alignment)  
 > **Terakhir Diperbarui**: November 2026  
 > **Status**: Migrasi stack (Laravel + React → CI3) & Redesain UI/UX Enterprise SaaS Modern  
 > **Repository**: [kanjengdmas/manajemen-barangCI3](https://github.com/kanjengdmas/manajemen-barangCI3)  
@@ -10,7 +10,7 @@
 
 ## 1. Ringkasan Eksekutif
 
-**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan mengadopsi standar antarmuka **Enterprise SaaS Modern (Linear / Stripe / Vercel style)** dengan Quiet Chrome aesthetic, skema *Crimson & Clean Slate*, pemindai kamera QR Code fisik, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), **Arsitektur Mobile-First Komprehensif (Docked Mobile Bottom Navigation, Native Mobile Data Cards, 2x2 Stat KPI Grid, Touch-First Ergonomics)**, **Sistem Palet 6 Tema Terpadu Desktop & Mobile (Light, Dark, Sepia Warm Sand, Midnight Navy, OLED Pure Black, Forest Emerald)** via dropdown palet header bebas kedipan (*Zero FOIT*), Pusat Manajemen Profil & Kredensial Operator Ramping (`/profil`), kebijakan rotasi stok murni **FIFO (First-In, First-Out)**, pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan, adaptasi warna Chart.js multi-tema instan, tabel aktivitas mutasi interaktif berkemampuan scroll & filter instan, ticker jam detik real-time (`HH:MM:SS`), dan auto-refresh background tanpa kedip.
+**Manajemen Barang** adalah platform inventaris gudang berbasis web yang dirancang untuk mengotomasi dan menyederhanakan pengelolaan produk, stok, lot/batch kardus, serta alur transaksi keluar-masuk barang secara real-time. Sistem dibangun dengan **CodeIgniter 3 (arsitektur MVC, server-side rendering)** dan mengadopsi standar antarmuka **Enterprise SaaS Modern (Linear / Stripe / Vercel style)** dengan Quiet Chrome aesthetic, skema *Crimson & Clean Slate*, pemindai kamera QR Code fisik, mekanisme ketahanan mandiri **On-The-Fly Auto-Healing QR Engine** (menjamin ketersediaan fisik aset barcode PNG tanpa kegagalan visual "No QR"), bilah navigasi samping minimalis bebas redundansi, ekspor laporan multi-format (Excel & PDF), antarmuka dwibahasa (Indonesia & Inggris), **Arsitektur Mobile-First Komprehensif (Docked Mobile Bottom Navigation, Native Mobile Data Cards, 2x2 Stat KPI Grid, Touch-First Ergonomics)**, **Sistem Palet 6 Tema Terpadu Desktop & Mobile (Light, Dark, Sepia Warm Sand, Midnight Navy, OLED Pure Black, Forest Emerald)** via dropdown palet header bebas kedipan (*Zero FOIT*), Pusat Manajemen Profil & Kredensial Operator Ramping (`/profil`), kebijakan rotasi stok murni **FIFO (First-In, First-Out)** yang diselaraskan dengan operasional logistik telekomunikasi PT Telkom Akses, pencadangan database 1-klik (.sql), kop surat perusahaan dinamis, serta dashboard analitik terpadu dengan tren pergerakan stok bulanan, adaptasi warna Chart.js multi-tema instan, tabel aktivitas mutasi interaktif berkemampuan scroll & filter instan, ticker jam detik real-time (`HH:MM:SS`), dan auto-refresh background tanpa kedip.
 
 ### Problem Statement
 Pengelolaan inventaris berbasis manual atau spreadsheet rentan terhadap selisih stok (*stock discrepancy*), keterlambatan pembaruan data antar-shift gudang, risiko kehilangan dokumen fisik, serta lambatnya proses audit. Sistem ini mengintegrasikan seluruh titik operasional ke dalam satu basis data terpusat yang aman, cepat, dan terukur.
@@ -55,7 +55,7 @@ Seluruh fungsionalitas pada PRD sebelumnya dipertahankan. Perubahan utama ada pa
 | Akses Data | Query Builder + Model (`MY_Model`) | Query terparameter, relasi via JOIN, transaksi via `trans_start()` |
 | Keamanan | CSRF protection, `html_escape()`, Form Validation, `xss_clean` pada input | Pencegahan CSRF, XSS, dan SQL injection |
 | Cache & Storage | CI Cache (driver file), tabel `pengaturan`, folder `uploads/` | Preferensi sistem/pengguna di DB; media foto & QR di folder `uploads/` |
-| QR Code Engine | Library Standalone CI3 (`Qr_service`) | Generator gambar QR Code produk & batch |
+| QR Code Engine | Library Standalone CI3 (`Qr_service`) + On-The-Fly Auto-Healing Controller Guard | Generator gambar QR Code produk & batch murni PHP GD dengan mekanisme auto-heal bila aset fisik hilang |
 | Export Excel | Library Spreadsheet/CSV Native CI3 (`Export_excel`) | Generator spreadsheet laporan stok |
 | Export PDF | Library PDF Standalone CI3 (`Export_pdf`) | Generator dokumen PDF resmi berformat cetak |
 | Email | CI Email library (SMTP) + Controller CLI + cron | Pengiriman Daily Digest |
@@ -169,11 +169,10 @@ Manajemen-Barang/
   - Diperkuat dengan konfigurasi `$config['sess_expiration'] = 0;` pada CodeIgniter 3 agar cookie sesi otomatis kedaluwarsa saat seluruh peramban ditutup.
 - **Sidebar Navigasi Modern Enterprise SaaS (`views/partials/sidebar.php`)**:
   - Quiet Chrome aesthetic ala Linear/Stripe dengan layout terbagi menjadi 4 seksi logis: *Pusat Kontrol*, *Operasional Gudang*, *Laporan & Dokumen*, dan *Konfigurasi*.
-  - Kotak logo brand dengan aura crimson halus dan status online.
-  - Fitur pencarian menu cepat (*Quick Jump Command Search*) dengan shortcut keyboard `Ctrl + K` / `⌘K` dan keycap kustom.
+  - Kotak logo brand dengan aura crimson halus dan status server online.
   - Indikator status koneksi server live dengan efek denyut hijau (*pulsing beacon dot* `🟢 Server Online`).
   - Active indicator bar merah crimson (3px) pada menu aktif dengan efek transisi mulus.
-  - Kartu profil ringkas di kaki sidebar (*footer user pill*) menampilkan avatar inisial, role pengguna, status online, serta tombol logout cepat.
+  - **Pembersihan Redundansi Visual (Minimalis & Ringkas)**: Mengeliminasi input quick search box (`Ctrl + K`), kartu profil footer ganda, dan badge versi lama pada sidebar. Hal ini menjaga konsistensi arsitektur Quiet Chrome karena pencarian telah terintegrasi di tabel data dan profil pengguna telah terpusat di topbar serta halaman `/profil`.
 - **Header Profile Widget**: Menampilkan foto avatar, nama akun, badge role, jam realtime presisi tinggi dengan penghitung detik dinamis (`HH:MM:SS`), dan dropdown menu (partial `partials/header.php`).
 - **Pusat Profil & Pengaturan Akun Operator Terpadu (`/profil`)**:
   - **Operator Hero Card (Kartu Identitas Terpadu)**:
@@ -269,13 +268,17 @@ Pusat kendali pengaturan sistem yang direstrukturisasi menjadi arsitektur **5-Ta
 
 ### 6.4 Manajemen Produk
 - **CRUD Produk** (`Produk::index/create/store/edit/update/delete`): Nama, SKU unik, deskripsi, pemilihan kategori dan pemasok, stok awal, serta stok minimal, dengan validasi Form Validation CI3.
-- **Pop-up Modal QR Code**: Klik "Generate" atau "Lihat QR" langsung menampilkan dialog modal visual gambar QR tanpa wajib unduh terlebih dahulu.
-- **Auto-Generate & Unduh QR**: File PNG QR Code dibuat otomatis oleh library `Qr_service` jika belum tersedia (disimpan di `uploads/qr/`) dan dapat diunduh langsung dalam format PNG.
+- **On-The-Fly Auto-Healing QR Engine**: Pada method `Produk::index()`, sistem secara otomatis memvalidasi integritas file fisik gambar QR di direktori `uploads/qr/` menggunakan `file_exists()`. Jika file fisik hilang atau path di basis data kosong, sistem langsung meregenerasi file barcode `.png` via `Qr_service` dan memperbarui basis data secara instan tanpa intervensi manual, mengeliminasi kemunculan badge peringatan "No QR".
+- **Aksi Unduh QR Langsung**: Penambahan tombol unduh barcode QR (<i class="bi bi-qr-code"></i>) langsung pada baris tabel data desktop dan kartu mobile yang terintegrasi dengan endpoint `GET /api/produk/(:num)/download-qr`.
+- **Diferensiasi Peran QR Produk di Gudang PT Telkom Akses**: QR SKU difungsikan sebagai penanda fisik bibir rak besi (*shelf/bin box tag*) untuk mempercepat verifikasi material dan mencegah tertukarnya barang sejenis (*Patchcord SC-UPC vs SC-APC*, *Dropcore 1C vs 2C*, *ONT ZTE F609 vs F670L*).
+- **Pop-up Modal QR Code**: Klik "Generate" atau thumbnail QR langsung menampilkan dialog modal visual gambar QR tanpa wajib unduh terlebih dahulu.
 - **Filter & Pencarian Instan**: Pencarian berbasis nama dan SKU secara lokal lewat DataTables tanpa jeda jaringan.
 
 ### 6.5 Manajemen Batch & Kardus (Domain Gudang Telkom Akses & Pure FIFO)
 - **Karakteristik Domain Hardware & Material Telekomunikasi**: Seluruh material pergudangan PT Telkom Akses (seperti ONT/Modem, STB, kabel Drop Core Fiber Optik, ODP, Roset, Splitter, Joint Closure, hingga alat kerja Splicer) merupakan perangkat keras (*durable equipment*) dan material pasif jaringan yang tidak memiliki masa kedaluwarsa layaknya produk makanan/farmasi.
 - **Eliminasi Penuh Atribut Kadaluarsa (Opsi 1)**: Mengeliminasi input `tanggal_kadaluarsa` dari antarmuka formulir registrasi, tabel data, filter, dan proses validasi. Di tingkat backend, field ini di-set `NULL` tanpa memecahkan kompatibilitas skema database eksisting.
+- **On-The-Fly Auto-Healing QR Batch**: Serupa dengan master produk, controller `Batch::index()` dilengkapi proteksi auto-heal yang secara otomatis memastikan setiap kardus lot memiliki file gambar fisik barcode QR valid di `uploads/qr/lot_*.png`.
+- **Peran Kritis QR Kardus untuk Operasional Telkom Akses**: Stiker QR Lot Batch ditempelkan pada kardus master, koli, dan drum/haspeel kabel roll untuk penegakan rotasi murni FIFO serta percepatan antrean serah-terima harian (*dispensing*) ke puluhan teknisi *Provisioning* dan *Assurance*.
 - **Formulir Registrasi Ergonomis 3-Kolom (`views/batch/create.php`)**: Ditata ulang menjadi 3 kolom terstruktur: **Jumlah Lot (Unit)**, **Tanggal Masuk (FIFO)**, dan **Lokasi Rak / Pallet**.
 - **Status Batch Sederhana & Fungsional**: Menggantikan kalkulasi FEFO kadaluarsa menjadi 3 status operasional riil:
   - `tersedia`: Sisa stok di atas ambang 20% kapasitas awal lot.
@@ -694,4 +697,4 @@ chmod -R 775 uploads application/cache application/logs
 
 ---
 
-*Dokumen ini diperbarui untuk mencerminkan rilis Manajemen Barang v2.12.0 (CI3 Enterprise SaaS UI/UX Edition — Unified Multi-Palette 6-Theme Architecture & Pure FIFO Stock Alignment) — November 2026.*
+*Dokumen ini diperbarui untuk mencerminkan rilis Manajemen Barang v2.13.0 (CI3 Enterprise SaaS UI/UX Edition — On-The-Fly Auto-Healing QR Engine, Clean Sidebar & Telkom Akses QR Alignment) — November 2026.*
