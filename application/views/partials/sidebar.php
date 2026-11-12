@@ -15,13 +15,6 @@
         </button>
     </div>
 
-    <!-- Quick Search Command Filter -->
-    <div class="sidebar-search-box">
-        <i class="bi bi-search"></i>
-        <input type="text" id="sidebar-quick-search" class="sidebar-search-input" placeholder="Cari menu & fitur..." autocomplete="off">
-        <kbd class="sidebar-search-kbd">Ctrl+K</kbd>
-    </div>
-
     <!-- Scrollable Navigation Menu -->
     <div class="sidebar-scrollable" id="sidebar-nav-container">
         <!-- Overview Group -->

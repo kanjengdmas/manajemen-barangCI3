@@ -164,54 +164,6 @@
       });
     }
 
-    // Sidebar Interactive Quick Search (Ctrl+K)
-    const quickSearchInput = document.getElementById('sidebar-quick-search');
-    if (quickSearchInput) {
-      // Shortcut Ctrl+K / Cmd+K to focus search
-      document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-          e.preventDefault();
-          quickSearchInput.focus();
-          quickSearchInput.select();
-        } else if (e.key === 'Escape' && document.activeElement === quickSearchInput) {
-          quickSearchInput.value = '';
-          quickSearchInput.dispatchEvent(new Event('input'));
-          quickSearchInput.blur();
-        }
-      });
-
-      // Live filter menu items
-      quickSearchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        const menuItems = document.querySelectorAll('.sidebar-menu-list li');
-        const sectionLabels = document.querySelectorAll('.sidebar-section-label');
-
-        if (!query) {
-          menuItems.forEach(li => li.style.display = '');
-          sectionLabels.forEach(sec => sec.style.display = '');
-          return;
-        }
-
-        menuItems.forEach(li => {
-          const text = li.textContent.toLowerCase();
-          const matches = text.includes(query);
-          li.style.display = matches ? '' : 'none';
-        });
-
-        // Hide section labels if all their sibling items are hidden
-        document.querySelectorAll('.sidebar-scrollable').forEach(container => {
-          const sections = container.querySelectorAll('.sidebar-section-label');
-          sections.forEach(label => {
-            const nextList = label.nextElementSibling;
-            if (nextList && nextList.classList.contains('sidebar-menu-list')) {
-              const visibleItems = nextList.querySelectorAll('li:not([style*="display: none"])');
-              label.style.display = visibleItems.length > 0 ? '' : 'none';
-            }
-          });
-        });
-      });
-    }
-
     // Ensure all stock numbers display normally
     document.querySelectorAll('[data-stock-value]').forEach(el => {
       const rawVal = el.getAttribute('data-stock-value');
