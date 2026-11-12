@@ -148,7 +148,7 @@
         </ul>
 
         <!-- Warehouse Health Micro Widget -->
-        <div class="sidebar-health-widget">
+        <div class="sidebar-health-widget mb-2">
             <div class="sidebar-health-header">
                 <span class="sidebar-health-title">
                     <span class="sidebar-health-beacon"></span> Gudang Aktif
@@ -158,37 +158,6 @@
             <div class="sidebar-health-bar">
                 <div class="sidebar-health-progress" style="width: 78%;"></div>
             </div>
-        </div>
-    </div>
-
-    <!-- User Profile Footer Card -->
-    <div class="sidebar-user-footer">
-        <div class="sidebar-user-details">
-            <div class="sidebar-user-avatar">
-                <?php if (!empty($user['avatar']) && file_exists(FCPATH . 'uploads/avatar/' . $user['avatar'])): ?>
-                    <img src="<?= base_url('uploads/avatar/' . $user['avatar']); ?>" alt="Avatar">
-                <?php else: ?>
-                    <?= strtoupper(substr($user['name'] ?? 'A', 0, 1)); ?>
-                <?php endif; ?>
-                <span class="sidebar-user-status-dot" title="Online"></span>
-            </div>
-            <div class="sidebar-user-meta">
-                <span class="sidebar-user-name" title="<?= html_escape($user['name'] ?? 'Administrator'); ?>">
-                    <?= html_escape($user['name'] ?? 'Administrator'); ?>
-                </span>
-                <span class="sidebar-user-role"><?= strtoupper($user['role'] ?? 'ADMIN'); ?></span>
-            </div>
-        </div>
-        <div class="sidebar-user-actions">
-            <a href="<?= site_url('pengaturan'); ?>" class="sidebar-user-btn" title="Pengaturan">
-                <i class="bi bi-gear"></i>
-            </a>
-            <form action="<?= site_url('logout'); ?>" method="POST" class="d-inline m-0 p-0">
-                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
-                <button type="submit" class="sidebar-user-btn logout" title="Keluar Akun" aria-label="Keluar">
-                    <i class="bi bi-box-arrow-right"></i>
-                </button>
-            </form>
         </div>
     </div>
 </aside>
