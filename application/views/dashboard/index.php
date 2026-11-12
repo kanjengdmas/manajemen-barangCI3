@@ -246,14 +246,14 @@
 
             <!-- Desktop Table (Visible >= 768px) -->
             <div class="table-responsive d-none d-md-block">
-                <table class="table-modern">
+                <table class="table-modern table-compact">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 36px;">No</th>
+                            <th class="text-center" style="width: 32px;">No</th>
                             <th>Produk & SKU</th>
-                            <th class="text-end" style="width: 90px;">Stok</th>
-                            <th class="text-end" style="width: 75px;">Min</th>
-                            <th class="text-center" style="width: 95px;">Status</th>
+                            <th class="text-end" style="width: 54px;">Stok</th>
+                            <th class="text-end" style="width: 48px;">Min</th>
+                            <th class="text-center" style="width: 80px;">Status</th>
                         </tr>
                     </thead>
                     <tbody id="low-stock-tbody">
@@ -266,9 +266,9 @@
                                 ?>
                                 <tr>
                                     <td class="text-muted text-center tabular-nums fw-semibold"><?= $idx + 1; ?></td>
-                                    <td>
-                                        <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;"><?= html_escape($p['nama_produk']); ?></div>
-                                        <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">
+                                    <td style="min-width: 0; overflow: hidden;">
+                                        <div class="fw-semibold text-truncate" style="color: var(--mb-text-primary); font-size: 0.83rem;" title="<?= html_escape($p['nama_produk']); ?>"><?= html_escape($p['nama_produk']); ?></div>
+                                        <span class="sku-badge mt-0.5" style="font-size: 0.65rem; padding: 1px 5px;">
                                             <?= html_escape($p['sku'] ?? '-'); ?>
                                         </span>
                                     </td>
@@ -277,14 +277,14 @@
                                             <?= number_format($p['stok']); ?>
                                         </span>
                                     </td>
-                                    <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;"><?= number_format($p['stok_minimal']); ?></td>
+                                    <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.78rem;"><?= number_format($p['stok_minimal']); ?></td>
                                     <td class="text-center">
                                         <?php if ($isHabis): ?>
-                                            <span class="badge-soft badge-soft-danger" style="font-size: 0.68rem; padding: 2px 7px;">
+                                            <span class="badge-soft badge-soft-danger" style="font-size: 0.65rem; padding: 2px 6px;">
                                                 <span class="badge-dot bg-danger"></span> Habis
                                             </span>
                                         <?php else: ?>
-                                            <span class="badge-soft badge-soft-warning" style="font-size: 0.68rem; padding: 2px 7px;">
+                                            <span class="badge-soft badge-soft-warning" style="font-size: 0.65rem; padding: 2px 6px;">
                                                 <span class="badge-dot bg-warning"></span> Menipis
                                             </span>
                                         <?php endif; ?>
@@ -360,7 +360,7 @@
                 </a>
             </div>
 
-            <div id="expiring-batches-container">
+            <div id="expiring-batches-container" class="card-scroll-container">
                 <?php
                 $fifoItems = !empty($fifo_batches) ? $fifo_batches : (!empty($expiring_batches) ? $expiring_batches : []);
                 ?>
@@ -369,14 +369,14 @@
                         <?php
                         $days = (int) ($b['days_in_warehouse'] ?? 0);
                         ?>
-                        <div class="p-2.5 mb-2 rounded border border-subtle d-flex align-items-center justify-content-between" style="background-color: var(--mb-card-raised);">
-                            <div>
-                                <div class="fw-bold small text-truncate" style="max-width: 170px;" title="<?= html_escape($b['nama_produk']); ?>"><?= html_escape($b['nama_produk']); ?></div>
-                                <div class="text-muted small tabular-nums font-monospace">
+                        <div class="p-2 mb-2 rounded border border-subtle d-flex align-items-center justify-content-between" style="background-color: var(--mb-card-raised);">
+                            <div style="min-width: 0; max-width: 65%;">
+                                <div class="fw-bold small text-truncate" title="<?= html_escape($b['nama_produk']); ?>"><?= html_escape($b['nama_produk']); ?></div>
+                                <div class="text-muted small tabular-nums font-monospace text-truncate">
                                     <?= html_escape($b['nomor_batch']); ?> · Rak: <?= html_escape($b['lokasi_rak'] ?? '-'); ?>
                                 </div>
                             </div>
-                            <div class="text-end">
+                            <div class="text-end flex-shrink-0">
                                 <span class="badge-soft badge-soft-danger font-monospace" style="font-size: 0.7rem; padding: 2px 7px;">
                                     <?= $days > 0 ? "{$days} hr di rak" : 'Hari ini'; ?>
                                 </span>
@@ -396,58 +396,56 @@
 
     <!-- Quick Actions (3 cols) -->
     <div class="col-12 col-lg-3">
-        <div class="mb-card h-100 d-flex flex-column justify-content-between">
-            <div>
-                <div class="mb-card-header">
-                    <div>
-                        <h3 class="mb-card-title">
-                            <i class="bi bi-lightning-charge text-danger"></i> Aksi Cepat
-                        </h3>
-                        <p class="mb-card-subtitle">Pintasan operasional 1-klik</p>
+        <div class="mb-card h-100">
+            <div class="mb-card-header">
+                <div>
+                    <h3 class="mb-card-title">
+                        <i class="bi bi-lightning-charge text-danger"></i> Aksi Cepat
+                    </h3>
+                    <p class="mb-card-subtitle">Pintasan operasional 1-klik</p>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <a href="<?= site_url('produk/create'); ?>" class="quick-action-btn py-2 px-2.5">
+                    <div class="quick-action-icon text-danger" style="background-color: var(--mb-brand-subtle);">
+                        <i class="bi bi-plus-lg"></i>
                     </div>
-                </div>
+                    <div style="min-width: 0;">
+                        <div class="text-truncate">Tambah Produk</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.7rem; font-weight: normal;">Registrasi SKU barang baru</div>
+                    </div>
+                </a>
 
-                <div class="d-flex flex-column gap-2.5">
-                    <a href="<?= site_url('produk/create'); ?>" class="quick-action-btn">
-                        <div class="quick-action-icon text-danger" style="background-color: var(--mb-brand-subtle);">
-                            <i class="bi bi-plus-lg"></i>
-                        </div>
-                        <div>
-                            <div>Tambah Produk</div>
-                            <div class="text-muted" style="font-size: 0.7rem; font-weight: normal;">Registrasi SKU barang baru</div>
-                        </div>
-                    </a>
+                <a href="<?= site_url('stok/masuk'); ?>" class="quick-action-btn py-2 px-2.5">
+                    <div class="quick-action-icon text-success" style="background-color: var(--mb-success-subtle);">
+                        <i class="bi bi-arrow-down-left"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="text-truncate">Input Stok Masuk</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.7rem; font-weight: normal;">Penerimaan PO / Supplier</div>
+                    </div>
+                </a>
 
-                    <a href="<?= site_url('stok/masuk'); ?>" class="quick-action-btn">
-                        <div class="quick-action-icon text-success" style="background-color: var(--mb-success-subtle);">
-                            <i class="bi bi-arrow-down-left"></i>
-                        </div>
-                        <div>
-                            <div>Input Stok Masuk</div>
-                            <div class="text-muted" style="font-size: 0.7rem; font-weight: normal;">Penerimaan PO / Supplier</div>
-                        </div>
-                    </a>
+                <a href="<?= site_url('stok/keluar'); ?>" class="quick-action-btn py-2 px-2.5">
+                    <div class="quick-action-icon text-danger" style="background-color: var(--mb-danger-subtle);">
+                        <i class="bi bi-arrow-up-right"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="text-truncate">Input Stok Keluar</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.7rem; font-weight: normal;">Pengeluaran rekomendasi FIFO</div>
+                    </div>
+                </a>
 
-                    <a href="<?= site_url('stok/keluar'); ?>" class="quick-action-btn">
-                        <div class="quick-action-icon text-danger" style="background-color: var(--mb-danger-subtle);">
-                            <i class="bi bi-arrow-up-right"></i>
-                        </div>
-                        <div>
-                            <div>Input Stok Keluar</div>
-                            <div class="text-muted" style="font-size: 0.7rem; font-weight: normal;">Pengeluaran rekomendasi FIFO</div>
-                        </div>
-                    </a>
-
-                    <a href="<?= site_url('kategori/create'); ?>" class="quick-action-btn">
-                        <div class="quick-action-icon text-primary" style="background-color: var(--mb-info-subtle);">
-                            <i class="bi bi-tag"></i>
-                        </div>
-                        <div>
-                            <div>Tambah Kategori</div>
-                            <div class="text-muted" style="font-size: 0.7rem; font-weight: normal;">Klasifikasi barang baru</div>
-                        </div>
-                    </a>
-                </div>
+                <a href="<?= site_url('kategori/create'); ?>" class="quick-action-btn py-2 px-2.5">
+                    <div class="quick-action-icon text-primary" style="background-color: var(--mb-info-subtle);">
+                        <i class="bi bi-tag"></i>
+                    </div>
+                    <div style="min-width: 0;">
+                        <div class="text-truncate">Tambah Kategori</div>
+                        <div class="text-muted text-truncate" style="font-size: 0.7rem; font-weight: normal;">Klasifikasi barang baru</div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>

@@ -24,7 +24,7 @@ class Dashboard extends MY_Controller {
         $lowStockProducts = $this->Produk_model->get_low_stock(5);
 
         // 3. FIFO priority batches (Oldest batches in warehouse to prioritize first out)
-        $fifoBatches = $this->Batch_model->get_fifo_priority_batches(4);
+        $fifoBatches = $this->Batch_model->get_fifo_priority_batches(5);
 
         // 4. Movement data (default 7 days)
         $movementData = $this->Stok_model->get_movement_data('7d');

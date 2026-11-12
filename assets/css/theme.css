@@ -1259,6 +1259,33 @@ body {
   border-bottom: none;
 }
 
+/* Compact Table Variant for Narrow Dashboard Containers */
+.table-modern.table-compact {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table-modern.table-compact thead th {
+  padding: 8px 6px;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+
+.table-modern.table-compact thead th:first-child,
+.table-modern.table-compact td:first-child {
+  padding-left: 10px;
+}
+
+.table-modern.table-compact thead th:last-child,
+.table-modern.table-compact td:last-child {
+  padding-right: 10px;
+}
+
+.table-modern.table-compact td {
+  padding: 8px 6px;
+  font-size: 0.8rem;
+}
+
 /* Badge Soft Design Tokens */
 .badge-soft {
   display: inline-flex;
@@ -2924,6 +2951,34 @@ body {
   z-index: 5;
   background-color: var(--mb-card-raised);
   box-shadow: 0 1px 0 var(--mb-border);
+}
+
+/* Card Scrollable Container (FIFO Batches, Dashboard Feeds) */
+.card-scroll-container {
+  max-height: 285px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--mb-border) transparent;
+  padding-right: 2px;
+}
+
+.card-scroll-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.card-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--mb-border);
+  border-radius: 9999px;
+}
+
+.card-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--mb-text-muted);
 }
 
 /* ==========================================================================

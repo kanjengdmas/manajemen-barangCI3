@@ -251,7 +251,7 @@
         fetch(`${baseUrl}api/dashboard/stok-chart`, { headers: { 'Accept': 'application/json' } }),
         fetch(`${baseUrl}api/dashboard/low-stock?limit=5`, { headers: { 'Accept': 'application/json' } }),
         fetch(`${baseUrl}api/dashboard/recent-activities?limit=15`, { headers: { 'Accept': 'application/json' } }),
-        fetch(`${baseUrl}api/batch/expiring?days=30`, { headers: { 'Accept': 'application/json' } })
+        fetch(`${baseUrl}api/batch/expiring?days=30&limit=5`, { headers: { 'Accept': 'application/json' } })
       ]);
 
       // 4.1 Stats Update
@@ -368,16 +368,16 @@
         return `
           <tr>
             <td class="text-muted text-center tabular-nums fw-semibold">${idx + 1}</td>
-            <td>
-              <div class="fw-semibold text-truncate" style="max-width: 170px; color: var(--mb-text-primary); font-size: 0.85rem;">${escapeHtml(item.nama_produk)}</div>
-              <span class="sku-badge mt-0.5" style="font-size: 0.68rem; padding: 1px 5px;">${escapeHtml(item.sku || '-')}</span>
+            <td style="min-width: 0; overflow: hidden;">
+              <div class="fw-semibold text-truncate" style="color: var(--mb-text-primary); font-size: 0.83rem;" title="${escapeHtml(item.nama_produk)}">${escapeHtml(item.nama_produk)}</div>
+              <span class="sku-badge mt-0.5" style="font-size: 0.65rem; padding: 1px 5px;">${escapeHtml(item.sku || '-')}</span>
             </td>
             <td class="text-end">
               <span class="fw-bold tabular-nums font-monospace ${isHabis ? 'text-danger' : 'text-warning'}">${Number(item.stok).toLocaleString()}</span>
             </td>
-            <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.8rem;">${Number(item.stok_minimal).toLocaleString()}</td>
+            <td class="text-end text-muted tabular-nums font-monospace" style="font-size: 0.78rem;">${Number(item.stok_minimal).toLocaleString()}</td>
             <td class="text-center">
-              <span class="badge-soft ${badgeClass}" style="font-size: 0.68rem; padding: 2px 7px;">
+              <span class="badge-soft ${badgeClass}" style="font-size: 0.65rem; padding: 2px 6px;">
                 <span class="badge-dot ${dotClass}"></span> ${badgeText}
               </span>
             </td>
@@ -673,11 +673,11 @@
 
       return `
         <div class="p-2 mb-2 rounded border border-subtle d-flex align-items-center justify-content-between" style="background-color: var(--mb-card-raised);">
-          <div>
-            <div class="fw-bold small text-truncate" style="max-width: 170px;" title="${escapeHtml(b.nama_produk)}">${escapeHtml(b.nama_produk)}</div>
-            <div class="text-muted small tabular-nums font-monospace">${escapeHtml(b.nomor_batch)} · Rak: ${escapeHtml(b.lokasi_rak || '-')}</div>
+          <div style="min-width: 0; max-width: 65%;">
+            <div class="fw-bold small text-truncate" title="${escapeHtml(b.nama_produk)}">${escapeHtml(b.nama_produk)}</div>
+            <div class="text-muted small tabular-nums font-monospace text-truncate">${escapeHtml(b.nomor_batch)} · Rak: ${escapeHtml(b.lokasi_rak || '-')}</div>
           </div>
-          <div class="text-end">
+          <div class="text-end flex-shrink-0">
             <span class="badge-soft badge-soft-danger font-monospace" style="font-size: 0.7rem; padding: 2px 7px;">${badgeText}</span>
             <div class="text-muted small tabular-nums mt-0.5">${Number(b.stok_saat_ini).toLocaleString()} unit</div>
           </div>

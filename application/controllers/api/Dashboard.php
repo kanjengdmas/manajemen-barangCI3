@@ -130,7 +130,8 @@ class Dashboard extends MY_Controller {
     public function expiring_batches()
     {
         $days = (int) ($this->input->get('days', true) ?: 30);
-        $batches = $this->Batch_model->get_expiring_batches($days, 10);
+        $limit = (int) ($this->input->get('limit', true) ?: 5);
+        $batches = $this->Batch_model->get_expiring_batches($days, $limit);
 
         $data = [
             'status' => true,
