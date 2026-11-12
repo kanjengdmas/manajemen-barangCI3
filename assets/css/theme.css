@@ -1542,6 +1542,38 @@ body {
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
+/* Doughnut Chart Center Total Display */
+.donut-center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-center-number {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-family: var(--mb-font-mono);
+  color: var(--mb-text-primary);
+}
+
+.donut-center-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mb-text-muted);
+  margin-top: 2px;
+}
+
 /* Responsive Breakpoints & Mobile Optimization */
 @media (max-width: 991.98px) {
   .app-sidebar {

@@ -188,6 +188,12 @@
         }
       }
     });
+
+    const totalUnits = values.reduce((a, b) => a + b, 0);
+    const totalEl = document.getElementById('donut-total-number');
+    if (totalEl) {
+      totalEl.textContent = Number(totalUnits).toLocaleString();
+    }
   };
 
   /**
@@ -278,6 +284,14 @@
           kategoriChart.data.labels = res.data.labels || [];
           kategoriChart.data.datasets[0].data = res.data.values || [];
           kategoriChart.update('active');
+
+          const totalEl = document.getElementById('donut-total-number');
+          if (totalEl) {
+            const totalUnits = res.data.total_units !== undefined
+              ? res.data.total_units
+              : (res.data.values || []).reduce((a, b) => a + b, 0);
+            totalEl.textContent = Number(totalUnits).toLocaleString();
+          }
         }
       }
 

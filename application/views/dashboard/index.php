@@ -190,17 +190,22 @@
                     </a>
                 </div>
 
+                <?php
+                $colors = ['#dc2626', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'];
+                $totalCategoryUnits = array_sum(array_column($category_distribution ?? [], 'total_stok'));
+                ?>
+
                 <!-- Donut Canvas Centered & Constrained -->
-                <div class="d-flex justify-content-center align-items-center my-2" style="height: 190px; position: relative; max-width: 100%; overflow: hidden;">
+                <div class="d-flex justify-content-center align-items-center my-2 position-relative" style="height: 190px; max-width: 100%; overflow: hidden;">
                     <canvas id="kategoriChartCanvas" style="max-height: 190px; max-width: 220px;"></canvas>
+                    <div class="donut-center-text">
+                        <span id="donut-total-number" class="donut-center-number"><?= number_format($totalCategoryUnits); ?></span>
+                        <span class="donut-center-label">Total Unit</span>
+                    </div>
                 </div>
 
                 <!-- Custom Clean Legend List -->
                 <div class="mt-3 pt-2 border-top border-subtle" style="max-height: 140px; overflow-y: auto;">
-                    <?php
-                    $colors = ['#dc2626', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'];
-                    $totalCategoryUnits = array_sum(array_column($category_distribution, 'total_stok'));
-                    ?>
                     <?php if (!empty($category_distribution)): ?>
                         <?php foreach ($category_distribution as $idx => $cat): ?>
                             <?php
