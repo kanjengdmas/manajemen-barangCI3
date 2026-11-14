@@ -26,6 +26,9 @@ class Produk extends MY_Controller {
             'page_title' => 'Master Data Produk',
             'active_menu' => 'produk',
             'products' => $products,
+            'categories' => $this->Kategori_model->get_all([], 'nama_kategori ASC'),
+            'suppliers' => $this->Pemasok_model->get_all([], 'nama_pemasok ASC'),
+            'default_min_stock' => $this->preference->get('default_min_stock', 10),
             'sku_prefix' => $this->preference->get('sku_prefix', 'PRD-')
         ];
         $this->render('produk/index', $data);
@@ -51,7 +54,7 @@ class Produk extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('produk/create');
+            redirect('produk');
         }
 
         $sku = $this->input->post('sku', TRUE);
@@ -109,7 +112,7 @@ class Produk extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('produk/edit/' . $id);
+            redirect('produk');
         }
 
         $updateData = [

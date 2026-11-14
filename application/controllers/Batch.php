@@ -26,6 +26,7 @@ class Batch extends MY_Controller {
             'page_title' => 'Manajemen Lot & Batch Kardus',
             'active_menu' => 'batch',
             'batches' => $batches,
+            'products' => $this->Produk_model->get_all([], 'nama_produk ASC'),
             'lot_prefix' => $this->preference->get('lot_prefix', 'LOT-')
         ];
         $this->render('batch/index', $data);
@@ -49,7 +50,7 @@ class Batch extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('batch/create');
+            redirect('batch');
         }
 
         $nomorBatch = $this->input->post('nomor_batch', TRUE);

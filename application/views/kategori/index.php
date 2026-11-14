@@ -10,9 +10,9 @@
         </p>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <a href="<?= site_url('kategori/create'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+        <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">
             <i class="bi bi-plus-lg"></i> Tambah Kategori
-        </a>
+        </button>
     </div>
 </div>
 
@@ -85,9 +85,17 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Kategori" data-confirm-name="<?= html_escape($cat['nama_kategori']); ?>" data-confirm-text="Hapus kategori '<?= html_escape($cat['nama_kategori']); ?>'? Produk terkait akan kehilangan relasi kategori.">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <button type="button" class="table-action-btn btn-edit btn-edit-kategori" title="Edit Kategori"
+                                            data-id="<?= $cat['id']; ?>"
+                                            data-nama="<?= html_escape($cat['nama_kategori']); ?>"
+                                            data-deskripsi="<?= html_escape($cat['deskripsi'] ?? ''); ?>">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Kategori" data-confirm-name="<?= html_escape($cat['nama_kategori']); ?>" data-confirm-text="Hapus kategori '<?= html_escape($cat['nama_kategori']); ?>'? Produk terkait akan kehilangan relasi kategori.">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -105,9 +113,9 @@
                 </div>
                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Kategori</h6>
                 <p class="text-muted small mb-3">Buat kelompok kategori barang pertama.</p>
-                <a href="<?= site_url('kategori/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                <button type="button" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahKategori">
                     <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
-                </a>
+                </button>
             </div>
         <?php else: ?>
             <?php foreach ($categories as $cat): ?>
@@ -132,6 +140,12 @@
                     </div>
 
                     <div class="mobile-card-actions">
+                        <button type="button" class="btn btn-outline-secondary btn-edit-kategori"
+                                data-id="<?= $cat['id']; ?>"
+                                data-nama="<?= html_escape($cat['nama_kategori']); ?>"
+                                data-deskripsi="<?= html_escape($cat['deskripsi'] ?? ''); ?>">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
                         <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($cat['nama_kategori']); ?>" data-confirm-text="Hapus kategori '<?= html_escape($cat['nama_kategori']); ?>'? Produk terkait akan kehilangan relasi kategori.">
                             <i class="bi bi-trash"></i> Hapus Kategori
                         </a>
@@ -219,5 +233,99 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Edit Kategori Modal Handler
+    const modalEditKatEl = document.getElementById('modalEditKategori');
+    const formEditKat = document.getElementById('formEditKategori');
+    const editNamaKat = document.getElementById('edit_nama_kategori');
+    const editDeskripsiKat = document.getElementById('edit_deskripsi_kategori');
+
+    document.querySelectorAll('.btn-edit-kategori').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nama = this.getAttribute('data-nama');
+            const deskripsi = this.getAttribute('data-deskripsi');
+
+            if (formEditKat) {
+                formEditKat.action = '<?= site_url("kategori/update/"); ?>' + id;
+            }
+            if (editNamaKat) editNamaKat.value = nama || '';
+            if (editDeskripsiKat) editDeskripsiKat.value = deskripsi || '';
+
+            if (modalEditKatEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEditKatEl);
+                modal.show();
+            }
+        });
+    });
 });
 </script>
+
+<!-- =========================================================
+     MODAL 1: Tambah Kategori Baru
+     ========================================================= -->
+<div class="modal fade" id="modalTambahKategori" tabindex="-1" aria-labelledby="modalTambahKategoriLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahKategoriLabel">
+                    <i class="bi bi-tag-fill text-danger"></i> Tambah Kategori Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <?= form_open('kategori/store', ['id' => 'formTambahKategori']); ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Kategori <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_kategori" class="form-control" placeholder="Contoh: Elektronik, ATK, Bahan Baku" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Deskripsi</label>
+                        <textarea name="deskripsi" class="form-control" rows="3" placeholder="Keterangan singkat mengenai kategori ini..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-save"></i> Simpan Kategori
+                    </button>
+                </div>
+            <?= form_close(); ?>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     MODAL 2: Edit Kategori
+     ========================================================= -->
+<div class="modal fade" id="modalEditKategori" tabindex="-1" aria-labelledby="modalEditKategoriLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditKategoriLabel">
+                    <i class="bi bi-pencil-square text-danger"></i> Edit Kategori
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <form method="POST" action="" id="formEditKategori">
+                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Kategori <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_kategori" id="edit_nama_kategori" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Deskripsi</label>
+                        <textarea name="deskripsi" id="edit_deskripsi_kategori" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-check-lg"></i> Perbarui Kategori
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

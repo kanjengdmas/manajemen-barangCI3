@@ -36,7 +36,7 @@ class Pemasok extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('pemasok/create');
+            redirect('pemasok');
         }
 
         $this->Pemasok_model->insert([
@@ -70,7 +70,7 @@ class Pemasok extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('pemasok/edit/' . $id);
+            redirect('pemasok');
         }
 
         $this->Pemasok_model->update($id, [

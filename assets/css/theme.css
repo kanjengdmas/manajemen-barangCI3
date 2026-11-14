@@ -2408,6 +2408,51 @@ body {
   background-color: transparent !important;
 }
 
+/* =========================================================
+   Modern SaaS Bootstrap Modal Design System Alignment
+   ========================================================= */
+.modal-content {
+  background-color: var(--mb-card) !important;
+  color: var(--mb-text-primary) !important;
+  border: 1px solid var(--mb-border) !important;
+  border-radius: var(--mb-radius-lg, 16px) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--mb-border) !important;
+  padding: 1.1rem 1.4rem;
+  background-color: var(--mb-card-raised);
+}
+
+.modal-title {
+  color: var(--mb-text-primary);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-body {
+  padding: 1.4rem;
+  color: var(--mb-text-primary);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--mb-border) !important;
+  padding: 0.9rem 1.4rem;
+  background-color: var(--mb-card-raised);
+}
+
+.modal-backdrop.show {
+  opacity: 0.55;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
 
 /* ==========================================================================
    Modern Enterprise Settings & Preferences Architecture (Linear / Vercel style)

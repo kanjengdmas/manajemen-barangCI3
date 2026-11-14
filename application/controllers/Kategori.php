@@ -35,7 +35,7 @@ class Kategori extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('kategori/create');
+            redirect('kategori');
         }
 
         $this->Kategori_model->insert([
@@ -67,7 +67,7 @@ class Kategori extends MY_Controller {
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors(' ', ' '));
-            redirect('kategori/edit/' . $id);
+            redirect('kategori');
         }
 
         $this->Kategori_model->update($id, [
