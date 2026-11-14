@@ -85,7 +85,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="table-action-btn btn-delete" title="Hapus Kategori" onclick="return confirm('Hapus kategori ini? Produk terkait akan kehilangan relasi kategori.');">
+                                <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Kategori" data-confirm-name="<?= html_escape($cat['nama_kategori']); ?>" data-confirm-text="Hapus kategori '<?= html_escape($cat['nama_kategori']); ?>'? Produk terkait akan kehilangan relasi kategori.">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
@@ -132,7 +132,7 @@
                     </div>
 
                     <div class="mobile-card-actions">
-                        <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Hapus kategori ini? Produk terkait akan kehilangan relasi kategori.');">
+                        <a href="<?= site_url('kategori/delete/' . $cat['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($cat['nama_kategori']); ?>" data-confirm-text="Hapus kategori '<?= html_escape($cat['nama_kategori']); ?>'? Produk terkait akan kehilangan relasi kategori.">
                             <i class="bi bi-trash"></i> Hapus Kategori
                         </a>
                     </div>

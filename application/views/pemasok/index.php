@@ -97,7 +97,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="table-action-btn btn-delete" title="Hapus Pemasok" onclick="return confirm('Hapus pemasok ini?');">
+                                <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Pemasok" data-confirm-name="<?= html_escape($sup['nama_pemasok']); ?>" data-confirm-type="pemasok">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
@@ -152,7 +152,7 @@
                     </div>
 
                     <div class="mobile-card-actions">
-                        <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Hapus pemasok ini?');">
+                        <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($sup['nama_pemasok']); ?>" data-confirm-type="pemasok">
                             <i class="bi bi-trash"></i> Hapus Rekanan
                         </a>
                     </div>

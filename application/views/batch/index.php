@@ -133,9 +133,14 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
-                                <a href="<?= site_url('api/batch/' . $b['id'] . '/download-qr'); ?>" target="_blank" class="table-action-btn btn-qr" title="Unduh Label Barcode QR">
-                                    <i class="bi bi-qr-code"></i>
-                                </a>
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <a href="<?= site_url('api/batch/' . $b['id'] . '/download-qr'); ?>" target="_blank" class="table-action-btn btn-qr" title="Unduh Label Barcode QR">
+                                        <i class="bi bi-qr-code"></i>
+                                    </a>
+                                    <a href="<?= site_url('batch/delete/' . $b['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Lot / Batch" data-confirm-name="Batch <?= html_escape($b['nomor_batch']); ?>" data-confirm-type="batch">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -218,8 +223,11 @@
                     </div>
 
                     <div class="mobile-card-actions">
-                        <a href="<?= site_url('api/batch/' . $b['id'] . '/download-qr'); ?>" target="_blank" class="btn btn-outline-danger">
-                            <i class="bi bi-qr-code"></i> Unduh Barcode QR
+                        <a href="<?= site_url('api/batch/' . $b['id'] . '/download-qr'); ?>" target="_blank" class="btn btn-outline-secondary">
+                            <i class="bi bi-qr-code"></i> Unduh QR
+                        </a>
+                        <a href="<?= site_url('batch/delete/' . $b['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="Batch <?= html_escape($b['nomor_batch']); ?>" data-confirm-type="batch">
+                            <i class="bi bi-trash"></i> Hapus Batch
                         </a>
                     </div>
                 </div>
