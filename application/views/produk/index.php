@@ -150,7 +150,7 @@
                                     <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="table-action-btn btn-edit" title="Edit Data Produk">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="table-action-btn btn-delete" title="Hapus Produk" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                                    <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Produk" data-confirm-name="<?= html_escape($p['nama_produk']); ?>" data-confirm-type="produk">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
@@ -247,7 +247,7 @@
                         <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="btn btn-outline-secondary">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="btn btn-outline-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                        <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($p['nama_produk']); ?>" data-confirm-type="produk">
                             <i class="bi bi-trash"></i> Hapus
                         </a>
                     </div>

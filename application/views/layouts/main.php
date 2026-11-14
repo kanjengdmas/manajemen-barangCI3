@@ -51,21 +51,23 @@
 
             <!-- Page Body View -->
             <main class="app-content">
-                <?php if ($this->session->flashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
-                        <i class="bi bi-check-circle-fill fs-5"></i>
-                        <div><?= html_escape($this->session->flashdata('success')); ?></div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
+                <noscript>
+                    <?php if ($this->session->flashdata('success')): ?>
+                        <div class="alert alert-success alert-dismissible fade show mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                            <div><?= html_escape($this->session->flashdata('success')); ?></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php endif; ?>
 
-                <?php if ($this->session->flashdata('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
-                        <div><?= html_escape($this->session->flashdata('error')); ?></div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
+                    <?php if ($this->session->flashdata('error')): ?>
+                        <div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 d-flex align-items-center gap-2" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            <div><?= html_escape($this->session->flashdata('error')); ?></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php endif; ?>
+                </noscript>
 
                 <?php $this->load->view($content_view); ?>
             </main>
@@ -89,6 +91,19 @@
 
     <!-- Theme JS -->
     <script src="<?= base_url('assets/js/theme.js?v=' . (file_exists(FCPATH . 'assets/js/theme.js') ? filemtime(FCPATH . 'assets/js/theme.js') : '2.8.2')); ?>"></script>
+
+    <!-- Flash Data Server Transfer -->
+    <script>
+        window.FLASH_DATA = {
+            success: <?= json_encode($this->session->flashdata('success')); ?>,
+            error: <?= json_encode($this->session->flashdata('error')); ?>,
+            warning: <?= json_encode($this->session->flashdata('warning')); ?>,
+            info: <?= json_encode($this->session->flashdata('info')); ?>
+        };
+    </script>
+
+    <!-- CRUD Pop-up & Interactive Alert Handler -->
+    <script src="<?= base_url('assets/js/crud-alerts.js?v=' . (file_exists(FCPATH . 'assets/js/crud-alerts.js') ? filemtime(FCPATH . 'assets/js/crud-alerts.js') : '1.0.0')); ?>"></script>
 
     <!-- Optional Page Specific Scripts -->
     <?php if (isset($extra_js)): ?>
