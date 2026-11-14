@@ -10,9 +10,9 @@
         </p>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <a href="<?= site_url('pemasok/create'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+        <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahPemasok">
             <i class="bi bi-plus-lg"></i> Tambah Pemasok
-        </a>
+        </button>
     </div>
 </div>
 
@@ -97,9 +97,18 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Pemasok" data-confirm-name="<?= html_escape($sup['nama_pemasok']); ?>" data-confirm-type="pemasok">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <button type="button" class="table-action-btn btn-edit btn-edit-pemasok" title="Edit Pemasok"
+                                            data-id="<?= $sup['id']; ?>"
+                                            data-nama="<?= html_escape($sup['nama_pemasok']); ?>"
+                                            data-kontak="<?= html_escape($sup['kontak']); ?>"
+                                            data-alamat="<?= html_escape($sup['alamat'] ?? ''); ?>">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Pemasok" data-confirm-name="<?= html_escape($sup['nama_pemasok']); ?>" data-confirm-type="pemasok">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -117,9 +126,9 @@
                 </div>
                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Pemasok</h6>
                 <p class="text-muted small mb-3">Daftarkan rekanan distributor atau vendor pemasok barang pergudangan.</p>
-                <a href="<?= site_url('pemasok/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                <button type="button" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahPemasok">
                     <i class="bi bi-plus-lg me-1"></i> Tambah Pemasok
-                </a>
+                </button>
             </div>
         <?php else: ?>
             <?php foreach ($suppliers as $sup): ?>
@@ -152,6 +161,13 @@
                     </div>
 
                     <div class="mobile-card-actions">
+                        <button type="button" class="btn btn-outline-secondary btn-edit-pemasok"
+                                data-id="<?= $sup['id']; ?>"
+                                data-nama="<?= html_escape($sup['nama_pemasok']); ?>"
+                                data-kontak="<?= html_escape($sup['kontak']); ?>"
+                                data-alamat="<?= html_escape($sup['alamat'] ?? ''); ?>">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
                         <a href="<?= site_url('pemasok/delete/' . $sup['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($sup['nama_pemasok']); ?>" data-confirm-type="pemasok">
                             <i class="bi bi-trash"></i> Hapus Rekanan
                         </a>
@@ -239,5 +255,110 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Edit Pemasok Modal Handler
+    const modalEditPemEl = document.getElementById('modalEditPemasok');
+    const formEditPem = document.getElementById('formEditPemasok');
+    const editNamaPem = document.getElementById('edit_nama_pemasok');
+    const editKontakPem = document.getElementById('edit_kontak_pemasok');
+    const editAlamatPem = document.getElementById('edit_alamat_pemasok');
+
+    document.querySelectorAll('.btn-edit-pemasok').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nama = this.getAttribute('data-nama');
+            const kontak = this.getAttribute('data-kontak');
+            const alamat = this.getAttribute('data-alamat');
+
+            if (formEditPem) {
+                formEditPem.action = '<?= site_url("pemasok/update/"); ?>' + id;
+            }
+            if (editNamaPem) editNamaPem.value = nama || '';
+            if (editKontakPem) editKontakPem.value = kontak || '';
+            if (editAlamatPem) editAlamatPem.value = alamat || '';
+
+            if (modalEditPemEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEditPemEl);
+                modal.show();
+            }
+        });
+    });
 });
 </script>
+
+<!-- =========================================================
+     MODAL 1: Tambah Pemasok Baru
+     ========================================================= -->
+<div class="modal fade" id="modalTambahPemasok" tabindex="-1" aria-labelledby="modalTambahPemasokLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahPemasokLabel">
+                    <i class="bi bi-truck text-danger"></i> Tambah Pemasok Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <?= form_open('pemasok/store', ['id' => 'formTambahPemasok']); ?>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Pemasok / Badan Usaha <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_pemasok" class="form-control" placeholder="Contoh: PT. Sumber Makmur Perkasa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nomor Telepon / Kontak <span class="text-danger">*</span></label>
+                        <input type="text" name="kontak" class="form-control" placeholder="Contoh: 0812-3456-7890 / (021) 555-1234" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Alamat Lengkap</label>
+                        <textarea name="alamat" class="form-control" rows="3" placeholder="Alamat kantor atau gudang suplai..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-save"></i> Simpan Pemasok
+                    </button>
+                </div>
+            <?= form_close(); ?>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     MODAL 2: Edit Pemasok
+     ========================================================= -->
+<div class="modal fade" id="modalEditPemasok" tabindex="-1" aria-labelledby="modalEditPemasokLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditPemasokLabel">
+                    <i class="bi bi-pencil-square text-danger"></i> Edit Pemasok
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <form method="POST" action="" id="formEditPemasok">
+                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nama Pemasok / Badan Usaha <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_pemasok" id="edit_nama_pemasok" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nomor Telepon / Kontak <span class="text-danger">*</span></label>
+                        <input type="text" name="kontak" id="edit_kontak_pemasok" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Alamat Lengkap</label>
+                        <textarea name="alamat" id="edit_alamat_pemasok" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-check-lg"></i> Perbarui Pemasok
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -10,9 +10,9 @@
         </p>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <a href="<?= site_url('batch/create'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+        <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahBatch">
             <i class="bi bi-plus-lg"></i> Registrasi Batch Baru
-        </a>
+        </button>
     </div>
 </div>
 
@@ -158,9 +158,9 @@
                 </div>
                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Lot / Batch</h6>
                 <p class="text-muted small mb-3">Registrasikan nomor batch kardus untuk pelacakan alokasi FIFO.</p>
-                <a href="<?= site_url('batch/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                <button type="button" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahBatch">
                     <i class="bi bi-plus-lg me-1"></i> Registrasi Batch
-                </a>
+                </button>
             </div>
         <?php else: ?>
             <?php foreach ($batches as $b): ?>
@@ -320,4 +320,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Batch Code Generator for Modal
+function generateCreateBatch() {
+    const input = document.getElementById('create_nomor_batch');
+    if (input) {
+        const prefix = '<?= $lot_prefix; ?>';
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const rand = Math.floor(100 + Math.random() * 900);
+        input.value = prefix + y + m + day + '-' + rand;
+    }
+}
 </script>
+
+<!-- =========================================================
+     MODAL: Registrasi Batch Baru (FIFO)
+     ========================================================= -->
+<div class="modal fade" id="modalTambahBatch" tabindex="-1" aria-labelledby="modalTambahBatchLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahBatchLabel">
+                    <i class="bi bi-layers text-danger"></i> Registrasi Batch Baru (FIFO)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <?= form_open('batch/store', ['id' => 'formTambahBatch']); ?>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold">Produk Terkait <span class="text-danger">*</span></label>
+                            <select name="produk_id" class="form-select" required>
+                                <option value="">-- Pilih Produk --</option>
+                                <?php if (!empty($products)): ?>
+                                    <?php foreach ($products as $p): ?>
+                                        <option value="<?= $p['id']; ?>"><?= html_escape($p['nama_produk']); ?> (SKU: <?= html_escape($p['sku']); ?>)</option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-semibold">Nomor Lot / Batch <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" name="nomor_batch" id="create_nomor_batch" class="form-control" value="<?= $lot_prefix . date('Ymd') . '-' . rand(100, 999); ?>" required>
+                                <button type="button" class="btn btn-outline-secondary" onclick="generateCreateBatch()" title="Acak Nomor Batch">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Jumlah Lot (Unit) <span class="text-danger">*</span></label>
+                            <input type="number" name="jumlah_awal" class="form-control" min="1" value="50" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Tanggal Masuk (FIFO) <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal_masuk" class="form-control" value="<?= date('Y-m-d'); ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Kapasitas Kardus</label>
+                            <input type="number" name="kapasitas" class="form-control" min="1" placeholder="Opsional (misal: 100)">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Lokasi Rak / Blok Gudang</label>
+                            <input type="text" name="lokasi_rak" class="form-control" placeholder="Contoh: RAK-A1-04, Blok Logistik Barat...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-save"></i> Daftarkan Batch
+                    </button>
+                </div>
+            <?= form_close(); ?>
+        </div>
+    </div>
+</div>

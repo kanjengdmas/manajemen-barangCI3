@@ -10,9 +10,9 @@
         </p>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <a href="<?= site_url('produk/create'); ?>" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+        <button type="button" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold text-white shadow-sm" style="background-color: var(--mb-brand); border-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahProduk">
             <i class="bi bi-plus-lg"></i> Tambah Produk
-        </a>
+        </button>
     </div>
 </div>
 
@@ -147,9 +147,16 @@
                                     <a href="<?= site_url('api/produk/' . $p['id'] . '/download-qr'); ?>" target="_blank" class="table-action-btn btn-qr" title="Unduh Label Barcode QR">
                                         <i class="bi bi-qr-code"></i>
                                     </a>
-                                    <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="table-action-btn btn-edit" title="Edit Data Produk">
+                                    <button type="button" class="table-action-btn btn-edit btn-edit-product" title="Edit Data Produk"
+                                            data-id="<?= $p['id']; ?>"
+                                            data-nama="<?= html_escape($p['nama_produk']); ?>"
+                                            data-sku="<?= html_escape($p['sku']); ?>"
+                                            data-kategori="<?= $p['kategori_id']; ?>"
+                                            data-pemasok="<?= $p['pemasok_id'] ?? ''; ?>"
+                                            data-stok-minimal="<?= $p['stok_minimal']; ?>"
+                                            data-deskripsi="<?= html_escape($p['deskripsi'] ?? ''); ?>">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
+                                    </button>
                                     <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="table-action-btn btn-delete btn-delete-confirm" title="Hapus Produk" data-confirm-name="<?= html_escape($p['nama_produk']); ?>" data-confirm-type="produk">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -171,9 +178,9 @@
                 </div>
                 <h6 class="fw-bold mb-1" style="color: var(--mb-text-primary);">Belum Ada Produk</h6>
                 <p class="text-muted small mb-3">Katalog masih kosong. Tambahkan produk pertama Anda.</p>
-                <a href="<?= site_url('produk/create'); ?>" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);">
+                <button type="button" class="btn btn-sm btn-danger px-3" style="background-color: var(--mb-brand);" data-bs-toggle="modal" data-bs-target="#modalTambahProduk">
                     <i class="bi bi-plus-lg me-1"></i> Tambah Produk
-                </a>
+                </button>
             </div>
         <?php else: ?>
             <?php foreach ($products as $p): ?>
@@ -244,9 +251,16 @@
                         <a href="<?= site_url('api/produk/' . $p['id'] . '/download-qr'); ?>" target="_blank" class="btn btn-outline-secondary" title="Unduh Barcode QR">
                             <i class="bi bi-qr-code"></i> Unduh QR
                         </a>
-                        <a href="<?= site_url('produk/edit/' . $p['id']); ?>" class="btn btn-outline-secondary">
+                        <button type="button" class="btn btn-outline-secondary btn-edit-product"
+                                data-id="<?= $p['id']; ?>"
+                                data-nama="<?= html_escape($p['nama_produk']); ?>"
+                                data-sku="<?= html_escape($p['sku']); ?>"
+                                data-kategori="<?= $p['kategori_id']; ?>"
+                                data-pemasok="<?= $p['pemasok_id'] ?? ''; ?>"
+                                data-stok-minimal="<?= $p['stok_minimal']; ?>"
+                                data-deskripsi="<?= html_escape($p['deskripsi'] ?? ''); ?>">
                             <i class="bi bi-pencil"></i> Edit
-                        </a>
+                        </button>
                         <a href="<?= site_url('produk/delete/' . $p['id']); ?>" class="btn btn-outline-danger btn-delete-confirm" data-confirm-name="<?= html_escape($p['nama_produk']); ?>" data-confirm-type="produk">
                             <i class="bi bi-trash"></i> Hapus
                         </a>
@@ -339,5 +353,195 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Edit Product Modal Handler
+    const modalEditEl = document.getElementById('modalEditProduk');
+    const formEdit = document.getElementById('formEditProduk');
+    const editNama = document.getElementById('edit_nama_produk');
+    const editSku = document.getElementById('edit_sku');
+    const editKategori = document.getElementById('edit_kategori_id');
+    const editPemasok = document.getElementById('edit_pemasok_id');
+    const editMinStok = document.getElementById('edit_stok_minimal');
+    const editDeskripsi = document.getElementById('edit_deskripsi');
+
+    document.querySelectorAll('.btn-edit-product').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nama = this.getAttribute('data-nama');
+            const sku = this.getAttribute('data-sku');
+            const kategori = this.getAttribute('data-kategori');
+            const pemasok = this.getAttribute('data-pemasok');
+            const minStok = this.getAttribute('data-stok-minimal');
+            const deskripsi = this.getAttribute('data-deskripsi');
+
+            if (formEdit) {
+                formEdit.action = '<?= site_url("produk/update/"); ?>' + id;
+            }
+            if (editNama) editNama.value = nama || '';
+            if (editSku) editSku.value = sku || '';
+            if (editKategori) editKategori.value = kategori || '';
+            if (editPemasok) editPemasok.value = pemasok || '';
+            if (editMinStok) editMinStok.value = minStok || '10';
+            if (editDeskripsi) editDeskripsi.value = deskripsi || '';
+
+            if (modalEditEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEditEl);
+                modal.show();
+            }
+        });
+    });
 });
+
+// SKU Auto-Generator for Create Modal
+function generateCreateSku() {
+    const input = document.getElementById('create_sku');
+    if (input) {
+        const prefix = '<?= $sku_prefix; ?>';
+        const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+        input.value = prefix + randomPart;
+    }
+}
 </script>
+
+<!-- =========================================================
+     MODAL 1: Tambah Produk Baru
+     ========================================================= -->
+<div class="modal fade" id="modalTambahProduk" tabindex="-1" aria-labelledby="modalTambahProdukLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahProdukLabel">
+                    <i class="bi bi-box-seam text-danger"></i> Tambah Produk Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <?= form_open('produk/store', ['id' => 'formTambahProduk']); ?>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_produk" class="form-control" placeholder="Contoh: Kertas HVS A4 80gr" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Kode SKU <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" name="sku" id="create_sku" class="form-control" value="<?= $sku_prefix . strtoupper(substr(uniqid(), -6)); ?>" required>
+                                <button type="button" class="btn btn-outline-secondary" onclick="generateCreateSku()" title="Acak Kode SKU">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kategori <span class="text-danger">*</span></label>
+                            <select name="kategori_id" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= $cat['id']; ?>"><?= html_escape($cat['nama_kategori']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Pemasok / Vendor</label>
+                            <select name="pemasok_id" class="form-select">
+                                <option value="">-- Tanpa Pemasok Tetap --</option>
+                                <?php foreach ($suppliers as $sup): ?>
+                                    <option value="<?= $sup['id']; ?>"><?= html_escape($sup['nama_pemasok']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Stok Fisik Awal</label>
+                            <input type="number" name="stok_awal" class="form-control" min="0" value="0">
+                            <div class="form-text">Dapat diisi 0 jika barang belum tersedia.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ambang Batas Minimal Stok <span class="text-danger">*</span></label>
+                            <input type="number" name="stok_minimal" class="form-control" min="0" value="<?= $default_min_stock; ?>" required>
+                            <div class="form-text">Peringatan otomatis muncul jika stok di bawah ini.</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Deskripsi / Spesifikasi Tambahan</label>
+                            <textarea name="deskripsi" class="form-control" rows="2" placeholder="Informasi dimensi, berat, atau penempatan rak..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-save"></i> Simpan Produk
+                    </button>
+                </div>
+            <?= form_close(); ?>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     MODAL 2: Edit Data Produk
+     ========================================================= -->
+<div class="modal fade" id="modalEditProduk" tabindex="-1" aria-labelledby="modalEditProdukLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditProdukLabel">
+                    <i class="bi bi-pencil-square text-danger"></i> Edit Data Produk
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <form method="POST" action="" id="formEditProduk">
+                <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" name="nama_produk" id="edit_nama_produk" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Kode SKU <span class="text-danger">*</span></label>
+                            <input type="text" name="sku" id="edit_sku" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kategori <span class="text-danger">*</span></label>
+                            <select name="kategori_id" id="edit_kategori_id" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <?php foreach ($categories as $cat): ?>
+                                    <option value="<?= $cat['id']; ?>"><?= html_escape($cat['nama_kategori']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Pemasok / Vendor</label>
+                            <select name="pemasok_id" id="edit_pemasok_id" class="form-select">
+                                <option value="">-- Tanpa Pemasok Tetap --</option>
+                                <?php foreach ($suppliers as $sup): ?>
+                                    <option value="<?= $sup['id']; ?>"><?= html_escape($sup['nama_pemasok']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Ambang Batas Minimal Stok <span class="text-danger">*</span></label>
+                            <input type="number" name="stok_minimal" id="edit_stok_minimal" class="form-control" min="0" required>
+                            <div class="form-text">Peringatan otomatis muncul jika stok di bawah ini.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Stok Fisik Saat Ini</label>
+                            <div class="form-control bg-light text-muted" style="cursor: not-allowed;">
+                                <i class="bi bi-lock me-1"></i> Dikelola melalui menu Mutasi Masuk / Keluar
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Deskripsi / Spesifikasi Tambahan</label>
+                            <textarea name="deskripsi" id="edit_deskripsi" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-semibold d-inline-flex align-items-center gap-1.5" style="background-color: var(--mb-brand); border-color: var(--mb-brand);">
+                        <i class="bi bi-check-lg"></i> Perbarui Produk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
