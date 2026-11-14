@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- Design System Theme CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/theme.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/theme.css?v=' . (file_exists(FCPATH . 'assets/css/theme.css') ? filemtime(FCPATH . 'assets/css/theme.css') : '2.8.3')); ?>">
 
     <!-- Anti-Flash Theme Script -->
     <script>
@@ -41,8 +41,8 @@
                         <i class="bi bi-box-seam-fill"></i>
                     </div>
                     <div>
-                        <div class="auth-showcase-logo-text">Manajemen<span style="color: #ef4444;">Barang</span></div>
-                        <div class="small" style="color: #94a3b8; font-size: 0.7rem; font-family: var(--mb-font-mono);">Warehouse Pro Edition · v2.6</div>
+                        <div class="auth-showcase-logo-text">Manajemen<span class="brand-accent">Barang</span></div>
+                        <div class="small" style="color: var(--mb-text-muted); font-size: 0.7rem; font-family: var(--mb-font-mono);">Warehouse Pro Edition · v2.6</div>
                     </div>
                 </a>
             </div>
@@ -192,10 +192,10 @@
                 <!-- Mobile Only Brand Header -->
                 <div class="auth-mobile-brand">
                     <div class="d-inline-flex align-items-center justify-content-center text-white rounded-3 shadow mb-2"
-                         style="width: 44px; height: 44px; background: linear-gradient(135deg, #ef4444, #dc2626);">
+                         style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--mb-brand), var(--mb-brand-hover));">
                         <i class="bi bi-box-seam-fill fs-4"></i>
                     </div>
-                    <h4 class="fw-bold tracking-tight mb-0" style="color: var(--mb-text-primary);">Manajemen<span class="text-danger">Barang</span></h4>
+                    <h4 class="fw-bold tracking-tight mb-0" style="color: var(--mb-text-primary);">Manajemen<span class="brand-accent">Barang</span></h4>
                     <p class="text-muted small">Warehouse Inventory Platform v2.6</p>
                 </div>
 
